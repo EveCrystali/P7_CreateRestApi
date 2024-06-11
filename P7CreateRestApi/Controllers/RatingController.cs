@@ -21,14 +21,12 @@ namespace P7CreateRestApi.Controllers
             _context = context;
         }
 
-        // GET: api/Ratings
         [HttpGet("list")]
         public async Task<ActionResult<IEnumerable<Rating>>> GetRatings()
         {
             return await _context.Ratings.ToListAsync();
         }
 
-        // GET: api/Ratings/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Rating>> GetRating(int id)
         {
@@ -42,8 +40,6 @@ namespace P7CreateRestApi.Controllers
             return rating;
         }
 
-        // PUT: api/Ratings/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("update/{id}")]
         public async Task<IActionResult> PutRating(int id, Rating rating)
         {
@@ -73,8 +69,6 @@ namespace P7CreateRestApi.Controllers
             return NoContent();
         }
 
-        // POST: api/Ratings
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("add")]
         public async Task<ActionResult<Rating>> PostRating(Rating rating)
         {
@@ -84,7 +78,6 @@ namespace P7CreateRestApi.Controllers
             return CreatedAtAction("GetRating", new { id = rating.Id }, rating);
         }
 
-        // DELETE: api/Ratings/5
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteRating(int id)
         {
