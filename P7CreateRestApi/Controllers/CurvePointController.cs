@@ -30,6 +30,18 @@ namespace Dot.Net.WebApi.Controllers
             return Ok();
         }
 
+        [HttpGet]
+        [Route("read/{id}")]
+        public async Task<IActionResult> ReadCurvePoint(int id)
+        {
+            CurvePoint? curvePoint = await _curvePointService.GetCurvePointById(id);
+            if (curvePoint == null)
+            {
+                return NotFound("CurvePoint with this Id doesn't exist");
+            }
+            return Ok(curvePoint);
+        }
+
         [HttpDelete]
         [Route("delete/{id}")]
         public async Task<IActionResult> DeleteCurvePoint(int id)
