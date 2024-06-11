@@ -1,58 +1,96 @@
+﻿using Dot.Net.WebApi.Controllers;
+using Dot.Net.WebApi.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace Dot.Net.WebApi.Controllers
+namespace P7CreateRestApi.Controllers
 {
-    [ApiController]
     [Route("[controller]")]
+    [ApiController]
     public class RuleNameController : ControllerBase
     {
-        // TODO: Inject RuleName service
+        private readonly LocalDbContext _context;
 
-        [HttpGet]
-        [Route("list")]
-        public IActionResult Home()
+        public RuleNameController(LocalDbContext context)
         {
-            // TODO: find all RuleName, add to model
-            return Ok();
+            _context = context;
         }
 
-        [HttpGet]
-        [Route("add")]
-        public IActionResult AddRuleName([FromBody]RuleName trade)
+        [HttpGet("list")]
+        public async Task<ActionResult<IEnumerable<RuleName>>> GetRuleNames()
         {
-            return Ok();
+            return await _context.RuleNames.ToListAsync();
         }
 
-        [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]RuleName trade)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<RuleName>> GetRuleName(int id)
         {
-            // TODO: check data valid and save to db, after saving return RuleName list
-            return Ok();
+            var ruleName = await _context.RuleNames.FindAsync(id);
+
+            if (ruleName == null)
+            {
+                return NotFound("RuleName with this Id does not exist");
+            }
+
+            return ruleName;
         }
 
-        [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> PutRuleName(int id, RuleName ruleName)
         {
-            // TODO: get RuleName by Id and to model then show to the form
-            return Ok();
+            if (id != ruleName.Id)
+            {
+                return BadRequest("The Id entered in the parameter is not the same as the Id enter in the body");
+            }
+
+            _context.Entry(ruleName).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!RuleNameExists(id))
+                {
+                    return NotFound("RuleName with this Id does not exist");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
 
-        [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateRuleName(int id, [FromBody] RuleName rating)
+        [HttpPost("add")]
+        public async Task<ActionResult<RuleName>> PostRuleName(RuleName ruleName)
         {
-            // TODO: check required fields, if valid call service to update RuleName and return RuleName list
-            return Ok();
+            _context.RuleNames.Add(ruleName);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetRuleName", new { id = ruleName.Id }, ruleName);
         }
 
-        [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteRuleName(int id)
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteRuleName(int id)
         {
-            // TODO: Find RuleName by Id and delete the RuleName, return to Rule list
-            return Ok();
+            var ruleName = await _context.RuleNames.FindAsync(id);
+            if (ruleName == null)
+            {
+                return NotFound("RuleName with this Id does not exist");
+            }
+
+            _context.RuleNames.Remove(ruleName);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool RuleNameExists(int id)
+        {
+            return _context.RuleNames.Any(e => e.Id == id);
         }
     }
 }
