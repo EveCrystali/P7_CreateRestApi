@@ -75,17 +75,7 @@ namespace Dot.Net.WebApi.Services
                 return false;
             }
 
-            if (curvePoint.CurveId == null)
-            {
-                return false;
-            }
-
             if (curvePoint.Term < 0)
-            {
-                return false;
-            }
-
-            if (curvePoint.CurvePointValue == null)
             {
                 return false;
             }
