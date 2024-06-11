@@ -6,7 +6,17 @@ namespace Dot.Net.WebApi.Services
     {
         Task<CurvePoint> SaveCurvePoint(CurvePoint curvePoint);
 
+        Task<CurvePoint> UpdateCurvePoint(CurvePoint existingCurvePoint);
+
+        Task<int> DeleteCurvePoint(CurvePoint curvePoint);
+
         Task<CurvePoint?> GetCurvePointByCurveId(byte? CurveId);
+
+        Task<CurvePoint?> GetCurvePointById(int id);
+
+        bool CurvePointExistsByCurveId(byte? CurveId);
+
+        bool CurvePointExistsById(int? Id);
 
         bool ValidateCurvePoint(CurvePoint curvePoint);
 

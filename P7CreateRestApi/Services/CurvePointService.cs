@@ -13,9 +13,14 @@ namespace Dot.Net.WebApi.Services
             _context = context;
         }
 
-        public bool CurvePointExists(byte? CurveId)
+        public bool CurvePointExistsByCurveId(byte? CurveId)
         {
             return _context.CurvePoints.Any(e => e.CurveId == CurveId);
+        }
+
+        public bool CurvePointExistsById(int? Id)
+        {
+            return _context.CurvePoints.Any(e => e.Id == Id);
         }
 
         public async Task<List<BidList>> GetAllBidLists()
@@ -33,11 +38,34 @@ namespace Dot.Net.WebApi.Services
             return await _context.CurvePoints.FindAsync(CurveId);
         }
 
+        public async Task<CurvePoint?> GetCurvePointById(int id)
+        {
+            return await _context.CurvePoints.FindAsync(id);
+        }
+
         public async Task<CurvePoint> SaveCurvePoint(CurvePoint curvePoint)
         {
             _context.CurvePoints.Add(curvePoint);
             await _context.SaveChangesAsync();
             return curvePoint;
+        }
+
+        public async Task<CurvePoint> UpdateCurvePoint(CurvePoint existingCurvePoint)
+        {
+            _context.Entry(existingCurvePoint).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return existingCurvePoint;
+        }
+
+        public async Task<int> DeleteCurvePoint(CurvePoint curvePoint)
+        {
+            if (curvePoint != null)
+            {
+                _context.CurvePoints.Remove(curvePoint);
+                await _context.SaveChangesAsync();
+                return 0;
+            }
+            return -1;
         }
 
         public bool ValidateCurvePoint(CurvePoint curvePoint)
@@ -48,11 +76,6 @@ namespace Dot.Net.WebApi.Services
             }
 
             if (curvePoint.CurveId == null)
-            {
-                return false;
-            }
-
-            if (CurvePointExists(curvePoint.CurveId))
             {
                 return false;
             }
