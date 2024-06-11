@@ -1,6 +1,9 @@
+using Dot.Net.WebApi.Controllers.Domain;
+using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -31,8 +34,8 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("read/{id}")]
-        public async Task<IActionResult> ReadCurvePoint(int id)
+        [Route("{id}")]
+        public async Task<IActionResult> GetCurvePoint(int id)
         {
             CurvePoint? curvePoint = await _curvePointService.GetCurvePointById(id);
             if (curvePoint == null)
@@ -47,7 +50,7 @@ namespace Dot.Net.WebApi.Controllers
         public async Task<IActionResult> DeleteCurvePoint(int id)
         {
             CurvePoint? curvePoint = await _curvePointService.GetCurvePointById(id);
-            if (curvePoint == null) return BadRequest("CurvePoint with this Id doesnt exist");
+            if (curvePoint == null) return NotFound("CurvePoint with this Id doesnt exist");
             int returnDeletion = await _curvePointService.DeleteCurvePoint(curvePoint);
 
             return returnDeletion == 0 ? Ok() : BadRequest("Failed to delete CurvePoint");
@@ -65,7 +68,7 @@ namespace Dot.Net.WebApi.Controllers
         public async Task<IActionResult> UpdateCurvePoint(int id, [FromBody] CurvePoint curvePoint)
         {
             if (!_curvePointService.ValidateCurvePoint(curvePoint)) return BadRequest("Data not valid");
-            if (!_curvePointService.CurvePointExistsById(id)) return BadRequest("CurvePoint not found");
+            if (!_curvePointService.CurvePointExistsById(id)) return NotFound("CurvePoint not found");
 
             CurvePoint? existingCurvePoint = await _curvePointService.GetCurvePointById(id);
             existingCurvePoint.Term = curvePoint.Term;
