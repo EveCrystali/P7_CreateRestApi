@@ -1,59 +1,96 @@
+﻿using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace Dot.Net.WebApi.Controllers
+namespace P7CreateRestApi.Controllers
 {
-    [ApiController]
     [Route("[controller]")]
+    [ApiController]
     public class TradeController : ControllerBase
     {
-        // TODO: Inject Trade service
+        private readonly LocalDbContext _context;
 
-        [HttpGet]
-        [Route("list")]
-        public IActionResult Home()
+        public TradeController(LocalDbContext context)
         {
-            // TODO: find all Trade, add to model
-            return Ok();
+            _context = context;
         }
 
-        [HttpGet]
-        [Route("add")]
-        public IActionResult AddTrade([FromBody]Trade trade)
+        [HttpGet("list")]
+        public async Task<ActionResult<IEnumerable<Trade>>> GetTrades()
         {
-            return Ok();
+            return await _context.Trades.ToListAsync();
         }
 
-        [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]Trade trade)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Trade>> GetTrade(int id)
         {
-            // TODO: check data valid and save to db, after saving return Trade list
-            return Ok();
+            var trade = await _context.Trades.FindAsync(id);
+
+            if (trade == null)
+            {
+                return NotFound("Trade with this Id does not exist");
+            }
+
+            return trade;
         }
 
-        [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> PutTrade(int id, Trade trade)
         {
-            // TODO: get Trade by Id and to model then show to the form
-            return Ok();
+            if (id != trade.TradeId)
+            {
+                return BadRequest("The Id entered in the parameter is not the same as the Id enter in the body");
+            }
+
+            _context.Entry(trade).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!TradeExists(id))
+                {
+                    NotFound("Trade with this Id does not exist");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
 
-        [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateTrade(int id, [FromBody] Trade trade)
+        [HttpPost("add")]
+        public async Task<ActionResult<Trade>> PostTrade(Trade trade)
         {
-            // TODO: check required fields, if valid call service to update Trade and return Trade list
-            return Ok();
+            _context.Trades.Add(trade);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetTrade", new { id = trade.TradeId }, trade);
         }
 
-        [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteTrade(int id)
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteTrade(int id)
         {
-            // TODO: Find Trade by Id and delete the Trade, return to Trade list
-            return Ok();
+            var trade = await _context.Trades.FindAsync(id);
+            if (trade == null)
+            {
+                return NotFound("Trade with this Id does not exist");
+            }
+
+            _context.Trades.Remove(trade);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool TradeExists(int id)
+        {
+            return _context.Trades.Any(e => e.TradeId == id);
         }
     }
 }
