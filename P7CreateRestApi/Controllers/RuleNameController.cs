@@ -25,7 +25,7 @@ namespace P7CreateRestApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<RuleName>> GetRuleName(int id)
         {
-            var ruleName = await _context.RuleNames.FindAsync(id);
+            RuleName? ruleName = await _context.RuleNames.FindAsync(id);
 
             if (ruleName == null)
             {
@@ -76,7 +76,7 @@ namespace P7CreateRestApi.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteRuleName(int id)
         {
-            var ruleName = await _context.RuleNames.FindAsync(id);
+            RuleName? ruleName = await _context.RuleNames.FindAsync(id);
             if (ruleName == null)
             {
                 return NotFound("RuleName with this Id does not exist");

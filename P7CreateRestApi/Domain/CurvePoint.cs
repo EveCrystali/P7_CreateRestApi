@@ -1,5 +1,3 @@
-using System;
-
 namespace Dot.Net.WebApi.Domain
 {
     public class CurvePoint

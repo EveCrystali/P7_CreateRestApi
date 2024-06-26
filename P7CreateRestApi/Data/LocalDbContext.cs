@@ -5,17 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Dot.Net.WebApi.Data
 {
-    public class LocalDbContext : DbContext
+    public class LocalDbContext(DbContextOptions<LocalDbContext> options) : DbContext(options)
     {
-        public LocalDbContext(DbContextOptions<LocalDbContext> options) : base(options)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-        }
+            base.OnModelCreating(modelBuilder);
 
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            base.OnModelCreating(builder);
-
-            builder.Entity<BidList>(entity =>
+            modelBuilder.Entity<BidList>(entity =>
             {
                 entity.ToTable("BidList");
 
@@ -44,7 +40,7 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.Side).HasColumnName("Side");
             });
 
-            builder.Entity<CurvePoint>(entity =>
+            modelBuilder.Entity<CurvePoint>(entity =>
             {
                 entity.ToTable("CurvePoint");
 
@@ -56,7 +52,7 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.CreationDate).HasColumnName("CreationDate");
             });
 
-            builder.Entity<Rating>(entity =>
+            modelBuilder.Entity<Rating>(entity =>
             {
                 entity.ToTable("Rating");
 
@@ -67,7 +63,7 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.OrderNumber).HasColumnName("OrderNumber");
             });
 
-            builder.Entity<RuleName>(entity =>
+            modelBuilder.Entity<RuleName>(entity =>
             {
                 entity.ToTable("RuleName");
 
@@ -80,7 +76,7 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.SqlPart).HasColumnName("SqlPart");
             });
 
-            builder.Entity<Trade>(entity =>
+            modelBuilder.Entity<Trade>(entity =>
             {
                 entity.ToTable("Trade");
 
@@ -103,7 +99,7 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.DealName).HasColumnName("DealName");
             });
 
-            builder.Entity<User>(entity =>
+            modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("User");
 

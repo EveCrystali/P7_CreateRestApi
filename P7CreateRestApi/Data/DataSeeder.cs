@@ -1,15 +1,31 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-public static class DataSeeder
+namespace Dot.Net.WebApi.Data
 {
-    public static async Task SeedData(UserManager<IdentityUser> userManager)
+    public static class DataSeeder
     {
-        // Vérifiez si l'utilisateur existe
-        IdentityUser? user = await userManager.FindByEmailAsync("admin@email.com");
-        if (user == null)
+        public static async Task SeedAdmin(UserManager<IdentityUser> userManager)
         {
-            var newUser = new IdentityUser { UserName = "admin@email.com", Email = "admin@email.com", EmailConfirmed = true, LockoutEnabled = false };
-            await userManager.CreateAsync(newUser, "9vBZBB.QH83GeE.");
+            IdentityUser? user = await userManager.FindByEmailAsync("admin@email.com");
+            if (user == null)
+            {
+                IdentityUser newUser = new() { UserName = "admin@email.com", Email = "admin@email.com", EmailConfirmed = true, LockoutEnabled = false };
+                await userManager.CreateAsync(newUser, "9vBZBB.QH83GeE.");
+            }
+        }
+
+        public static async Task SeedRoles(RoleManager<IdentityRole> roleManager)
+        {
+            string[] roleNames = { "Admin", "User", "Trader" };
+
+            foreach (string roleName in roleNames)
+            {
+                bool roleExist = await roleManager.RoleExistsAsync(roleName);
+                if (!roleExist)
+                {
+                    await roleManager.CreateAsync(new IdentityRole(roleName));
+                }
+            }
         }
     }
 }

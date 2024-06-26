@@ -1,7 +1,4 @@
-﻿using Dot.Net.WebApi.Controllers.Domain;
-using Dot.Net.WebApi.Data;
-using Dot.Net.WebApi.Domain;
-using Microsoft.EntityFrameworkCore;
+﻿using Dot.Net.WebApi.Data;
 
 namespace Dot.Net.WebApi.Services
 {

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Dot.Net.WebApi.Controllers.Domain;
+using Dot.Net.WebApi.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Dot.Net.WebApi.Controllers.Domain;
-using Dot.Net.WebApi.Data;
 
 namespace P7CreateRestApi.Controllers
 {
@@ -30,7 +25,7 @@ namespace P7CreateRestApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Rating>> GetRating(int id)
         {
-            var rating = await _context.Ratings.FindAsync(id);
+            Rating? rating = await _context.Ratings.FindAsync(id);
 
             if (rating == null)
             {
@@ -81,7 +76,7 @@ namespace P7CreateRestApi.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteRating(int id)
         {
-            var rating = await _context.Ratings.FindAsync(id);
+            Rating? rating = await _context.Ratings.FindAsync(id);
             if (rating == null)
             {
                 return NotFound("Rating with this Id does not exist");
