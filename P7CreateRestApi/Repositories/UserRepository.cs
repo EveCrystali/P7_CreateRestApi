@@ -15,7 +15,7 @@ namespace Dot.Net.WebApi.Repositories
 
         public User FindByUserName(string userName)
         {
-            return DbContext.Users.Where(user => user.Username == userName)
+            return DbContext.Users.Where(user => user.UserName == userName)
                                   .FirstOrDefault();
         }
 
@@ -23,14 +23,22 @@ namespace Dot.Net.WebApi.Repositories
         {
             return await DbContext.Users.ToListAsync();
         }
-
         public void Add(User user)
         {
+            DbContext.Users.Add(user);
+            DbContext.SaveChanges();
         }
 
         public User FindById(int id)
         {
-            return null;
+            try
+            {
+                return DbContext.Users.Find(id);
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

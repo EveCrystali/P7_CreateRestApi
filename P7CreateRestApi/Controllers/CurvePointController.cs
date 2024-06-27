@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Dot.Net.WebApi.Controllers
 {
+    [LogApiCallAspect]
     [ApiController]
     [Route("[controller]")]
     public class CurvePointController : ControllerBase

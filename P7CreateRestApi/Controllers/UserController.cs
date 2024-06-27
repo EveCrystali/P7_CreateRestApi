@@ -2,9 +2,11 @@
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Dot.Net.WebApi;
 
 namespace P7CreateRestApi.Controllers
 {
+    [LogApiCallAspect]
     [Route("[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -36,7 +38,7 @@ namespace P7CreateRestApi.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutUser(string id, User user)
         {
             if (id != user.Id)
             {
@@ -88,7 +90,7 @@ namespace P7CreateRestApi.Controllers
             return NoContent();
         }
 
-        private bool UserExists(int id)
+        private bool UserExists(string id)
         {
             return _context.Users.Any(e => e.Id == id);
         }

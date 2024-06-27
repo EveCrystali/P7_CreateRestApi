@@ -1,42 +1,50 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using P7CreateRestApi.Models;
+using Dot.Net.WebApi;
 
 namespace P7CreateRestApi.Controllers
 {
+    [LogApiCallAspect]
     [Route("[controller]")]
     [ApiController]
     public class AuthentificationController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
 
-        public AuthentificationController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IConfiguration configuration)
+        public AuthentificationController(UserManager<User> userManager, IConfiguration configuration)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
             _configuration = configuration;
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            IdentityUser? user = await _userManager.FindByNameAsync(model.Username);
+            User? user = await _userManager.FindByNameAsync(model.Username);
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
+                var userRoles = await _userManager.GetRolesAsync(user);
                 JwtSecurityTokenHandler tokenHandler = new();
                 byte[] key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.UserName)
+                };
+
+                // Add a claim for each role
+                claims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
+
                 SecurityTokenDescriptor tokenDescriptor = new()
                 {
-                    Subject = new ClaimsIdentity(new Claim[]
-                    {
-                    new(ClaimTypes.Name, user.UserName)
-                    }),
+                    Subject = new ClaimsIdentity(claims),
                     Expires = DateTime.UtcNow.AddHours(1),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
@@ -46,13 +54,12 @@ namespace P7CreateRestApi.Controllers
             return Unauthorized();
         }
 
-
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             if (ModelState.IsValid)
             {
-                var user = new IdentityUser { UserName = model.Username, Email = model.Email };
+                User user = new() { UserName = model.Username, Fullname = model.Fullname, PasswordHash = model.Password };
                 var result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)

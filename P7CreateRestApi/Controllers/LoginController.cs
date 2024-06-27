@@ -3,6 +3,7 @@ using P7CreateRestApi.Models;
 
 namespace Dot.Net.WebApi.Controllers
 {
+    [LogApiCallAspect]
     [ApiController]
     [Route("[controller]")]
     public class LoginController : ControllerBase

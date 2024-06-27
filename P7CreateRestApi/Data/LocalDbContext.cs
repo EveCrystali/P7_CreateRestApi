@@ -105,12 +105,17 @@ namespace Dot.Net.WebApi.Data
 
                 entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.Username).HasColumnName("Account");
-                entity.Property(e => e.Password).HasColumnName("AccountType");
-                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.Password).IsRequired();
-                entity.Property(e => e.Fullname).HasColumnName("BuyQuantity");
-                entity.Property(e => e.Role).HasColumnName("SellQuantity");
+                entity.Property(e => e.UserName)
+                      .HasColumnName("UserName")
+                      .IsRequired()
+                      .HasMaxLength(50);
+
+                entity.Property(e => e.PasswordHash)
+                      .HasColumnName("PasswordHash")
+                      .IsRequired();
+
+                entity.Property(e => e.Fullname)
+                      .HasColumnName("Fullname");
             });
         }
 

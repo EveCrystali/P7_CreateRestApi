@@ -1,19 +1,25 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
+
+using Dot.Net.WebApi.Domain;
+using P7CreateRestApi;
 
 namespace Dot.Net.WebApi.Data
 {
+    [LogAspect]
     public static class DataSeeder
     {
-        public static async Task SeedAdmin(UserManager<IdentityUser> userManager)
+        public static async Task SeedAdmin(UserManager<User> userManager)
         {
-            IdentityUser? user = await userManager.FindByEmailAsync("admin@email.com");
+            User? user = await userManager.FindByEmailAsync("admin@email.com");
             if (user == null)
             {
-                IdentityUser newUser = new() { UserName = "admin@email.com", Email = "admin@email.com", EmailConfirmed = true, LockoutEnabled = false };
+                User newUser = new() { UserName = "admin@email.com", Email = "admin@email.com", EmailConfirmed = true, LockoutEnabled = false };
                 await userManager.CreateAsync(newUser, "9vBZBB.QH83GeE.");
             }
         }
 
+        [LogAspect]
         public static async Task SeedRoles(RoleManager<IdentityRole> roleManager)
         {
             string[] roleNames = { "Admin", "User", "Trader" };

@@ -2,9 +2,11 @@
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Dot.Net.WebApi;
 
 namespace P7CreateRestApi.Controllers
 {
+    [LogApiCallAspect]
     [Route("[controller]")]
     [ApiController]
     public class BidListController : ControllerBase
