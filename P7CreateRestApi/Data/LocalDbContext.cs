@@ -1,21 +1,23 @@
 using Dot.Net.WebApi.Controllers;
 using Dot.Net.WebApi.Controllers.Domain;
 using Dot.Net.WebApi.Domain;
+using Dot.Net.WebApi.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dot.Net.WebApi.Data
 {
-    public class LocalDbContext : DbContext
+    public class LocalDbContext : IdentityDbContext<User>
     {
         public LocalDbContext(DbContextOptions<LocalDbContext> options) : base(options)
         {
         }
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(builder);
+            base.OnModelCreating(modelBuilder);
 
-            builder.Entity<BidList>(entity =>
+            modelBuilder.Entity<BidList>(entity =>
             {
                 entity.ToTable("BidList");
 
@@ -44,7 +46,7 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.Side).HasColumnName("Side");
             });
 
-            builder.Entity<CurvePoint>(entity =>
+            modelBuilder.Entity<CurvePoint>(entity =>
             {
                 entity.ToTable("CurvePoint");
 
@@ -56,7 +58,7 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.CreationDate).HasColumnName("CreationDate");
             });
 
-            builder.Entity<Rating>(entity =>
+            modelBuilder.Entity<Rating>(entity =>
             {
                 entity.ToTable("Rating");
 
@@ -67,7 +69,7 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.OrderNumber).HasColumnName("OrderNumber");
             });
 
-            builder.Entity<RuleName>(entity =>
+            modelBuilder.Entity<RuleName>(entity =>
             {
                 entity.ToTable("RuleName");
 
@@ -80,7 +82,7 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.SqlPart).HasColumnName("SqlPart");
             });
 
-            builder.Entity<Trade>(entity =>
+            modelBuilder.Entity<Trade>(entity =>
             {
                 entity.ToTable("Trade");
 
@@ -103,26 +105,23 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.DealName).HasColumnName("DealName");
             });
 
-            builder.Entity<User>(entity =>
+            modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("User");
-
-                entity.HasKey(e => e.Id);
-
-                entity.Property(e => e.Username).HasColumnName("Account");
-                entity.Property(e => e.Password).HasColumnName("AccountType");
-                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.Password).IsRequired();
-                entity.Property(e => e.Fullname).HasColumnName("BuyQuantity");
-                entity.Property(e => e.Role).HasColumnName("SellQuantity");
+                entity.Property(e => e.UserName)
+                      .HasColumnName("UserName")
+                      .IsRequired()
+                      .HasMaxLength(50);
+                entity.Property(e => e.Fullname)
+                      .HasColumnName("Fullname");
             });
         }
 
-        public DbSet<User> Users { get; set; }
         public DbSet<BidList> BidLists { get; set; }
         public DbSet<CurvePoint> CurvePoints { get; set; }
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<RuleName> RuleNames { get; set; }
         public DbSet<Trade> Trades { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
     }
 }

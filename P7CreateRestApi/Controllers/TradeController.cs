@@ -1,10 +1,12 @@
-﻿using Dot.Net.WebApi.Data;
+﻿using Dot.Net.WebApi;
+using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace P7CreateRestApi.Controllers
 {
+    [LogApiCallAspect]
     [Route("[controller]")]
     [ApiController]
     public class TradeController : ControllerBase
@@ -25,7 +27,7 @@ namespace P7CreateRestApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Trade>> GetTrade(int id)
         {
-            var trade = await _context.Trades.FindAsync(id);
+            Trade? trade = await _context.Trades.FindAsync(id);
 
             if (trade == null)
             {
@@ -76,7 +78,7 @@ namespace P7CreateRestApi.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteTrade(int id)
         {
-            var trade = await _context.Trades.FindAsync(id);
+            Trade? trade = await _context.Trades.FindAsync(id);
             if (trade == null)
             {
                 return NotFound("Trade with this Id does not exist");

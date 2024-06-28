@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace P7CreateRestApi.Controllers
 {
+    [LogApiCallAspect]
     [Route("[controller]")]
     [ApiController]
     public class BidListController : ControllerBase
@@ -30,7 +27,7 @@ namespace P7CreateRestApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<BidList>> GetBidList(int id)
         {
-            var bidList = await _context.BidLists.FindAsync(id);
+            BidList? bidList = await _context.BidLists.FindAsync(id);
 
             if (bidList == null)
             {
@@ -81,7 +78,7 @@ namespace P7CreateRestApi.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteBidList(int id)
         {
-            var bidList = await _context.BidLists.FindAsync(id);
+            BidList? bidList = await _context.BidLists.FindAsync(id);
             if (bidList == null)
             {
                 return NotFound("BidList with this Id doesn't exist");

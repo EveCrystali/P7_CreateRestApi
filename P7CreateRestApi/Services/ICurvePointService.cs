@@ -20,7 +20,7 @@ namespace Dot.Net.WebApi.Services
 
         bool ValidateCurvePoint(CurvePoint curvePoint);
 
-        Task <List<CurvePoint>> GetAllCurvePoints();
+        Task<List<CurvePoint>> GetAllCurvePoints();
 
         Task<List<BidList>> GetAllBidLists();
     }

@@ -1,7 +1,15 @@
-﻿namespace P7CreateRestApi.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Dot.Net.WebApi.Models
 {
     public class LoginModel
     {
-        // TODO: implement properties needeed for login model.
+        [Required(ErrorMessage = "ErrorMissingUsername")]
+        [DataType(DataType.EmailAddress)]
+        public string Username { get; set; }
+
+        [Required(ErrorMessage = "ErrorMissingPassword")]
+        [DataType(DataType.Password)]
+        public string Password { get; set; }
     }
 }

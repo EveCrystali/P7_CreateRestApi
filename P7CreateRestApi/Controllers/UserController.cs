@@ -1,10 +1,12 @@
-﻿using Dot.Net.WebApi.Data;
+﻿using Dot.Net.WebApi;
+using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace P7CreateRestApi.Controllers
 {
+    [LogApiCallAspect]
     [Route("[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -25,7 +27,7 @@ namespace P7CreateRestApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            User? user = await _context.Users.FindAsync(id);
 
             if (user == null)
             {
@@ -36,7 +38,7 @@ namespace P7CreateRestApi.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutUser(string id, User user)
         {
             if (id != user.Id)
             {
@@ -76,7 +78,7 @@ namespace P7CreateRestApi.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            User? user = await _context.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
@@ -88,7 +90,7 @@ namespace P7CreateRestApi.Controllers
             return NoContent();
         }
 
-        private bool UserExists(int id)
+        private bool UserExists(string id)
         {
             return _context.Users.Any(e => e.Id == id);
         }

@@ -1,12 +1,10 @@
-using Dot.Net.WebApi.Controllers.Domain;
-using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Dot.Net.WebApi.Controllers
 {
+    [LogApiCallAspect]
     [ApiController]
     [Route("[controller]")]
     public class CurvePointController : ControllerBase
