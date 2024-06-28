@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
-
 using Dot.Net.WebApi.Domain;
-using P7CreateRestApi;
 
 namespace Dot.Net.WebApi.Data
 {
@@ -14,7 +11,7 @@ namespace Dot.Net.WebApi.Data
             User? user = await userManager.FindByEmailAsync("admin@email.com");
             if (user == null)
             {
-                User newUser = new() { UserName = "admin@email.com", Email = "admin@email.com", EmailConfirmed = true, LockoutEnabled = false };
+                User newUser = new() { UserName = "admin@email.com", Email = "admin@email.com", Fullname = "Admin" , EmailConfirmed = true, LockoutEnabled = false };
                 await userManager.CreateAsync(newUser, "9vBZBB.QH83GeE.");
             }
         }

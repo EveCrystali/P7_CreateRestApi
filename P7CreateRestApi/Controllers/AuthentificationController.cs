@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using P7CreateRestApi.Models;
 using Dot.Net.WebApi;
+using Dot.Net.WebApi.Services;
 
 namespace P7CreateRestApi.Controllers
 {
@@ -16,12 +17,12 @@ namespace P7CreateRestApi.Controllers
     public class AuthentificationController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
-        private readonly IConfiguration _configuration;
+        private readonly JwtService _jwtService;
 
-        public AuthentificationController(UserManager<User> userManager, IConfiguration configuration)
+        public AuthentificationController(UserManager<User> userManager, JwtService jwtService)
         {
             _userManager = userManager;
-            _configuration = configuration;
+            _jwtService = jwtService;
         }
 
         [HttpPost("login")]
@@ -31,25 +32,8 @@ namespace P7CreateRestApi.Controllers
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
                 var userRoles = await _userManager.GetRolesAsync(user);
-                JwtSecurityTokenHandler tokenHandler = new();
-                byte[] key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
-
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.UserName)
-                };
-
-                // Add a claim for each role
-                claims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
-
-                SecurityTokenDescriptor tokenDescriptor = new()
-                {
-                    Subject = new ClaimsIdentity(claims),
-                    Expires = DateTime.UtcNow.AddHours(1),
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                };
-                SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
-                return Ok(new { Token = tokenHandler.WriteToken(token) });
+                var token = _jwtService.GenerateToken(user.Id, user.UserName, userRoles.ToArray());
+                return Ok(new { Token = token });
             }
             return Unauthorized();
         }
@@ -67,32 +51,9 @@ namespace P7CreateRestApi.Controllers
                     await _userManager.AddToRoleAsync(user, "User");
                     return Ok(new { Message = "User registered successfully" });
                 }
-
                 return BadRequest(result.Errors);
             }
-
             return BadRequest(ModelState);
-        }
-
-        private string GenerateJwtToken(string username)
-        {
-            Claim[] claims = new[]
-            {
-            new Claim(JwtRegisteredClaimNames.Sub, username),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
-
-            SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            SigningCredentials creds = new(key, SecurityAlgorithms.HmacSha256);
-
-            JwtSecurityToken token = new(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(30),
-                signingCredentials: creds);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

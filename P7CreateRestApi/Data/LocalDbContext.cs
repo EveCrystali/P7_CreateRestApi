@@ -1,12 +1,17 @@
 using Dot.Net.WebApi.Controllers;
 using Dot.Net.WebApi.Controllers.Domain;
 using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dot.Net.WebApi.Data
 {
-    public class LocalDbContext(DbContextOptions<LocalDbContext> options) : DbContext(options)
+    public class LocalDbContext : IdentityDbContext<User>
     {
+        public LocalDbContext(DbContextOptions<LocalDbContext> options) : base(options)
+        {
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -102,24 +107,15 @@ namespace Dot.Net.WebApi.Data
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("User");
-
-                entity.HasKey(e => e.Id);
-
                 entity.Property(e => e.UserName)
                       .HasColumnName("UserName")
                       .IsRequired()
                       .HasMaxLength(50);
-
-                entity.Property(e => e.PasswordHash)
-                      .HasColumnName("PasswordHash")
-                      .IsRequired();
-
                 entity.Property(e => e.Fullname)
                       .HasColumnName("Fullname");
             });
         }
 
-        public DbSet<User> Users { get; set; }
         public DbSet<BidList> BidLists { get; set; }
         public DbSet<CurvePoint> CurvePoints { get; set; }
         public DbSet<Rating> Ratings { get; set; }
