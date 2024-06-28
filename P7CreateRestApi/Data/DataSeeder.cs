@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Dot.Net.WebApi.Domain;
+﻿using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Identity;
 
 namespace Dot.Net.WebApi.Data
 {
@@ -11,7 +11,7 @@ namespace Dot.Net.WebApi.Data
             User? user = await userManager.FindByEmailAsync("admin@email.com");
             if (user == null)
             {
-                User newUser = new() { UserName = "admin@email.com", Email = "admin@email.com", Fullname = "Admin" , EmailConfirmed = true, LockoutEnabled = false };
+                User newUser = new() { UserName = "admin@email.com", Email = "admin@email.com", Fullname = "Admin", EmailConfirmed = true, LockoutEnabled = false };
                 await userManager.CreateAsync(newUser, "9vBZBB.QH83GeE.");
             }
         }

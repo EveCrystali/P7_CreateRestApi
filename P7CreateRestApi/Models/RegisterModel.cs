@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace P7CreateRestApi.Models
+namespace Dot.Net.WebApi.Models
 {
     public class RegisterModel
     {

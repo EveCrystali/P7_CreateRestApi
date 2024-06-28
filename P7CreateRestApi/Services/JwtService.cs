@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Dot.Net.WebApi.Models;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Dot.Net.WebApi.Services;
@@ -16,7 +17,7 @@ public class JwtService
 
     public string GenerateToken(string userId, string userName, string[] roles)
     {
-        var claims = new List<Claim>
+        List<Claim> claims = new()
         {
             new Claim(ClaimTypes.NameIdentifier, userId),
             new Claim(ClaimTypes.Name, userName)
@@ -24,10 +25,10 @@ public class JwtService
 
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        SigningCredentials creds = new(key, SecurityAlgorithms.HmacSha256);
 
-        var token = new JwtSecurityToken(
+        JwtSecurityToken token = new(
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Audience"],
             claims: claims,
@@ -35,5 +36,17 @@ public class JwtService
             signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public RefreshToken GenerateRefreshToken(string userId)
+    {
+        RefreshToken refreshToken = new()
+        {
+            Token = Guid.NewGuid().ToString(),
+            UserId = userId,
+            ExpiryDate = DateTime.UtcNow.AddDays(int.Parse(_configuration["Jwt:RefreshTokenLifetimeDays"])),
+            IsRevoked = false
+        };
+        return refreshToken;
     }
 }

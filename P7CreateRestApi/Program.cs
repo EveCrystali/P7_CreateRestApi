@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -51,11 +51,13 @@ builder.Services.AddAuthentication(options =>
 
 // Add JwtService
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddHostedService<TokenCleanupService>();
+
 
 // Add other services
 builder.Services.AddScoped<ICurvePointService, CurvePointService>();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -72,19 +74,19 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Seed the database
-using (var scope = app.Services.CreateScope())
+using (IServiceScope scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
+    IServiceProvider services = scope.ServiceProvider;
     try
     {
-        var userManager = services.GetRequiredService<UserManager<User>>();
-        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        UserManager<User> userManager = services.GetRequiredService<UserManager<User>>();
+        RoleManager<IdentityRole> roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         await DataSeeder.SeedRoles(roleManager);
         await DataSeeder.SeedAdmin(userManager);
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
+        ILogger<Program> logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while seeding the database.");
     }
 }

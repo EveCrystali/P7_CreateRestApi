@@ -27,7 +27,7 @@ namespace Dot.Net.WebApi
     {
         public override void OnEntry(MethodExecutionArgs args)
         {
-            var request = args.Arguments[0] as HttpRequest;
+            HttpRequest? request = args.Arguments[0] as HttpRequest;
             if (request != null)
             {
                 Console.WriteLine($"POSTSHARP: API call to {request.Path} with method {request.Method}");

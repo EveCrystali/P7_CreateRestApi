@@ -1,6 +1,7 @@
 using Dot.Net.WebApi.Controllers;
 using Dot.Net.WebApi.Controllers.Domain;
 using Dot.Net.WebApi.Domain;
+using Dot.Net.WebApi.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -121,5 +122,6 @@ namespace Dot.Net.WebApi.Data
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<RuleName> RuleNames { get; set; }
         public DbSet<Trade> Trades { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace P7CreateRestApi.Models
+﻿namespace Dot.Net.WebApi.Models
 {
     public class UserModel
     {

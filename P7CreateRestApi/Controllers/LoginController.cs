@@ -1,5 +1,5 @@
+using Dot.Net.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
-using P7CreateRestApi.Models;
 
 namespace Dot.Net.WebApi.Controllers
 {
