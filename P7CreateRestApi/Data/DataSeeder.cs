@@ -16,7 +16,6 @@ namespace Dot.Net.WebApi.Data
             }
         }
 
-        [LogAspect]
         public static async Task SeedRoles(RoleManager<IdentityRole> roleManager)
         {
             string[] roleNames = { "Admin", "User", "Trader" };

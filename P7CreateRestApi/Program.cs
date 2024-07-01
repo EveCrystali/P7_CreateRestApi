@@ -49,6 +49,14 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Add Logging
+builder.Services.AddLogging(config =>
+    {
+        config.ClearProviders();
+        config.AddConsole();
+        config.SetMinimumLevel(LogLevel.Information);
+    });
+
 // Add JwtService
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddHostedService<TokenCleanupService>();

@@ -3,6 +3,8 @@ using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace P7CreateRestApi.Controllers
 {
@@ -12,6 +14,8 @@ namespace P7CreateRestApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly LocalDbContext _context;
+
+        private readonly UserManager<User> _userManager;
 
         public UserController(LocalDbContext context)
         {
@@ -39,12 +43,20 @@ namespace P7CreateRestApi.Controllers
             return user;
         }
 
+        [Authorize(Policy = "User")]
         [HttpPut("update/{id}")]
         public async Task<IActionResult> PutUser(string id, User user)
         {
             if (id != user.Id)
             {
                 return BadRequest("The Id entered in the parameter is not the same as the Id enter in the body");
+            }
+
+            // Vérifiez que l'utilisateur connecté est l'utilisateur courant ou un administrateur
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null || (currentUser.Id != user.Id && !await _userManager.IsInRoleAsync(currentUser, "Admin")))
+            {
+                return Forbid();
             }
 
             _context.Entry(user).State = EntityState.Modified;
@@ -78,6 +90,7 @@ namespace P7CreateRestApi.Controllers
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
