@@ -18,10 +18,12 @@ namespace P7CreateRestApi.Controllers
             _context = context;
         }
 
-        [HttpGet("list")]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        [HttpGet]
+        [Route("list")]
+        public async Task<IActionResult> GetUsers()
         {
-            return await _context.Users.ToListAsync();
+            var users = await _context.Users.ToListAsync();
+            return users != null ? Ok(users) : BadRequest("Failed to get list of Users");
         }
 
         [HttpGet("{id}")]
@@ -66,7 +68,8 @@ namespace P7CreateRestApi.Controllers
             return NoContent();
         }
 
-        [HttpPost("Add")]
+        [HttpPost]
+        [Route("add")]
         public async Task<ActionResult<User>> PostUser(User user)
         {
             _context.Users.Add(user);

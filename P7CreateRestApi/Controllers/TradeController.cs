@@ -3,6 +3,7 @@ using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 
 namespace P7CreateRestApi.Controllers
 {
@@ -18,10 +19,12 @@ namespace P7CreateRestApi.Controllers
             _context = context;
         }
 
-        [HttpGet("list")]
-        public async Task<ActionResult<IEnumerable<Trade>>> GetTrades()
+        [HttpGet]
+        [Route("list")]
+        public async Task<ActionResult> GetTrades()
         {
-            return await _context.Trades.ToListAsync();
+            var trades = await _context.Trades.ToListAsync();
+            return trades != null ? Ok(trades) : BadRequest("Failed to get list of Trades");
         }
 
         [HttpGet("{id}")]

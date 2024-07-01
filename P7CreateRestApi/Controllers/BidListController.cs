@@ -19,9 +19,10 @@ namespace P7CreateRestApi.Controllers
         }
 
         [HttpGet("list")]
-        public async Task<ActionResult<IEnumerable<BidList>>> GetBidLists()
+        public async Task<ActionResult> GetBidLists()
         {
-            return await _context.BidLists.ToListAsync();
+            var BidLists = await _context.BidLists.ToListAsync();
+            return BidLists != null ? Ok(BidLists) : BadRequest("Failed to get list of BidLists");
         }
 
         [HttpGet("{id}")]

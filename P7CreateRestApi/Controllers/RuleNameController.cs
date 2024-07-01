@@ -18,10 +18,12 @@ namespace P7CreateRestApi.Controllers
             _context = context;
         }
 
-        [HttpGet("list")]
-        public async Task<ActionResult<IEnumerable<RuleName>>> GetRuleNames()
+        [HttpGet]
+        [Route("list")]
+        public async Task<ActionResult> GetRuleNames()
         {
-            return await _context.RuleNames.ToListAsync();
+            var ruleNames = await _context.RuleNames.ToListAsync();
+            return ruleNames != null ? Ok(ruleNames) : BadRequest("Failed to get list of RuleNames");
         }
 
         [HttpGet("{id}")]

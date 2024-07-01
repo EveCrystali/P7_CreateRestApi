@@ -1,6 +1,9 @@
+using Dot.Net.WebApi;
+using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -11,9 +14,12 @@ namespace Dot.Net.WebApi.Controllers
     {
         private readonly ICurvePointService _curvePointService;
 
-        public CurvePointController(ICurvePointService curvePointService)
+        private readonly LocalDbContext _context;
+
+        public CurvePointController(ICurvePointService curvePointService, LocalDbContext context)
         {
             _curvePointService = curvePointService;
+            _context = context;
         }
 
         [HttpPost]
@@ -56,9 +62,10 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpGet]
         [Route("list")]
-        public async Task<IActionResult> Home()
+        public async Task<IActionResult> GetCurvePoints()
         {
-            return Ok(await _curvePointService.GetAllCurvePoints());
+            var curvePoints = await _context.CurvePoints.ToListAsync();
+            return curvePoints != null ? Ok(curvePoints) : BadRequest("Failed to get list of CurvePoints");
         }
 
         [HttpPost]
