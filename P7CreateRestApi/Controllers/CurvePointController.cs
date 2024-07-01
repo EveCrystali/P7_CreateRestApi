@@ -1,6 +1,9 @@
+using Dot.Net.WebApi;
+using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -11,11 +14,15 @@ namespace Dot.Net.WebApi.Controllers
     {
         private readonly ICurvePointService _curvePointService;
 
-        public CurvePointController(ICurvePointService curvePointService)
+        private readonly LocalDbContext _context;
+
+        public CurvePointController(ICurvePointService curvePointService, LocalDbContext context)
         {
             _curvePointService = curvePointService;
+            _context = context;
         }
 
+        [LogAspect]
         [HttpPost]
         [Route("add")]
         public async Task<IActionResult> AddCurvePoint([FromBody] CurvePoint curvePoint)
@@ -31,6 +38,7 @@ namespace Dot.Net.WebApi.Controllers
             return Ok();
         }
 
+        [LogAspect]
         [HttpGet]
         [Route("{id}")]
         public async Task<IActionResult> GetCurvePoint(int id)
@@ -43,6 +51,7 @@ namespace Dot.Net.WebApi.Controllers
             return Ok(curvePoint);
         }
 
+        [LogAspect]
         [HttpDelete]
         [Route("delete/{id}")]
         public async Task<IActionResult> DeleteCurvePoint(int id)
@@ -54,13 +63,15 @@ namespace Dot.Net.WebApi.Controllers
             return returnDeletion == 0 ? Ok() : BadRequest("Failed to delete CurvePoint");
         }
 
+        [LogAspect]
         [HttpGet]
         [Route("list")]
-        public async Task<IActionResult> Home()
+        public async Task<ActionResult<IEnumerable<CurvePoint>>> GetCurvePoints()
         {
-            return Ok(await _curvePointService.GetAllCurvePoints());
+            return Ok(await _context.CurvePoints.ToListAsync());
         }
 
+        [LogAspect]
         [HttpPost]
         [Route("update/{id}")]
         public async Task<IActionResult> UpdateCurvePoint(int id, [FromBody] CurvePoint curvePoint)
