@@ -18,10 +18,12 @@ namespace P7CreateRestApi.Controllers
             _context = context;
         }
 
-        [HttpGet("list")]
-        public async Task<ActionResult<IEnumerable<Rating>>> GetRatings()
+        [HttpGet]
+        [Route("list")]
+        public async Task<ActionResult> GetRatings()
         {
-            return await _context.Ratings.ToListAsync();
+            var ratings = await _context.Ratings.ToListAsync();
+            return ratings != null ? Ok(ratings) : BadRequest("Failed to get list of Ratings");
         }
 
         [HttpGet("{id}")]
