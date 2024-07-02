@@ -64,13 +64,13 @@ namespace Dot.Net.WebApi
             if (httpContext != null)
             {
                 var request = httpContext.Request;
-                Console.WriteLine($"POSTSHARP: API call to {request.Path} with method {request.Method}");
+                _logger.LogInformation($"POSTSHARP: API call to {request.Path} with method {request.Method}");
             }
             else
             {
-                Console.WriteLine("POSTSHARP: No HttpRequest argument found.");
+                _logger.LogInformation("POSTSHARP: No HttpRequest argument found.");
             }
-            Console.WriteLine($"POSTSHARP: Entering {args.Method.Name}");
+           _logger.LogInformation($"POSTSHARP: Entering {args.Method.Name}");
         }
 
 

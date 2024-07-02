@@ -88,14 +88,16 @@ app.MapControllers();
 // Seed the database
 using (IServiceScope scope = app.Services.CreateScope())
 {
+    
     IServiceProvider services = scope.ServiceProvider;
     try
     {
+        ILogger<Program> logger = services.GetRequiredService<ILogger<Program>>();
         UserManager<User> userManager = services.GetRequiredService<UserManager<User>>();
         RoleManager<IdentityRole> roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         await DataSeeder.SeedRoles(roleManager);
         await DataSeeder.SeedAdmin(userManager);
-        await DataSeeder.SeedAdminRoles(userManager, roleManager);
+        await DataSeeder.SeedAdminRoles(userManager, roleManager, (ILogger<Dot.Net.WebApi.LogApiCallAspect>)logger);
     }
     catch (Exception ex)
     {
