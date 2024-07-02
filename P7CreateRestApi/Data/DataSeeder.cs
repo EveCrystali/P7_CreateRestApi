@@ -6,6 +6,7 @@ namespace Dot.Net.WebApi.Data
     [LogAspect]
     public static class DataSeeder
     {
+        
         public static async Task SeedAdmin(UserManager<User> userManager)
         {
             User? user = await userManager.FindByEmailAsync("admin@email.com");
@@ -27,6 +28,27 @@ namespace Dot.Net.WebApi.Data
                 if (!roleExist)
                 {
                     await roleManager.CreateAsync(new IdentityRole(roleName));
+                }
+            }
+        }
+
+        public static async Task SeedAdminRoles(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        {
+            // Vérifiez l'existence de l'utilisateur admin
+            User userAdmin = await userManager.FindByNameAsync("admin@email.com");
+            string[] roleNames = { "Admin", "User", "Trader" };
+
+            var result = await userManager.AddToRolesAsync(userAdmin, roleNames);
+            if (result.Succeeded)
+            {
+                Console.WriteLine("Les rôles ont été assignés avec succès.");
+            }
+            else
+            {
+                Console.WriteLine("Erreur lors de l'assignation des rôles :");
+                foreach (var error in result.Errors)
+                {
+                    Console.WriteLine($"- {error.Description}");
                 }
             }
         }
