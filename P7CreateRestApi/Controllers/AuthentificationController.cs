@@ -39,7 +39,7 @@ namespace P7CreateRestApi.Controllers
                 string token = _jwtService.GenerateToken(user.Id, user.UserName, userRoles.ToArray());
                 RefreshToken refreshToken = _jwtService.GenerateRefreshToken(user.Id);
 
-                _context.RefreshTokens.Add(refreshToken);
+                await _context.RefreshTokens.AddAsync(refreshToken);
                 await _context.SaveChangesAsync();
 
                 return Ok(new { Token = token, RefreshToken = refreshToken.Token });

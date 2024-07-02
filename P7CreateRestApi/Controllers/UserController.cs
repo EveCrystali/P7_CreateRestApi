@@ -1,10 +1,10 @@
 ﻿using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace P7CreateRestApi.Controllers
 {
@@ -26,7 +26,7 @@ namespace P7CreateRestApi.Controllers
         [Route("list")]
         public async Task<IActionResult> GetUsers()
         {
-            var users = await _context.Users.ToListAsync();
+            List<User> users = await _context.Users.ToListAsync();
             return users != null ? Ok(users) : BadRequest("Failed to get list of Users");
         }
 
@@ -43,7 +43,7 @@ namespace P7CreateRestApi.Controllers
             return user;
         }
 
-        [Authorize(Policy = "User")]
+        // [Authorize(Policy = "User")]
         [HttpPut("update/{id}")]
         public async Task<IActionResult> PutUser(string id, User user)
         {
@@ -53,8 +53,9 @@ namespace P7CreateRestApi.Controllers
             }
 
             // Vérifiez que l'utilisateur connecté est l'utilisateur courant ou un administrateur
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null || (currentUser.Id != user.Id && !await _userManager.IsInRoleAsync(currentUser, "Admin")))
+            // ajouter admin puisse aussi le faire
             {
                 return Forbid();
             }

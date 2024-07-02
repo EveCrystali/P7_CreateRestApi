@@ -23,6 +23,7 @@ namespace Dot.Net.WebApi.Repositories
         {
             return await DbContext.Users.ToListAsync();
         }
+
         public void Add(User user)
         {
             DbContext.Users.Add(user);

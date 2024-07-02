@@ -22,7 +22,7 @@ namespace P7CreateRestApi.Controllers
         [Route("list")]
         public async Task<ActionResult> GetRatings()
         {
-            var ratings = await _context.Ratings.ToListAsync();
+            List<Rating> ratings = await _context.Ratings.ToListAsync();
             return ratings != null ? Ok(ratings) : BadRequest("Failed to get list of Ratings");
         }
 
