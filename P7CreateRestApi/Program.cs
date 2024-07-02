@@ -5,6 +5,7 @@ using Dot.Net.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -19,9 +20,12 @@ builder.Services.AddDbContext<LocalDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add Identity
-builder.Services.AddIdentity<User, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<LocalDbContext>()
-    .AddDefaultTokenProviders();
+builder.Services.AddIdentity<User, IdentityRole>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores<LocalDbContext>()
+.AddDefaultTokenProviders();
 
 // Add Authorization policies
 builder.Services.AddAuthorizationBuilder()
@@ -83,6 +87,7 @@ using (IServiceScope scope = app.Services.CreateScope())
         RoleManager<IdentityRole> roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         await DataSeeder.SeedRoles(roleManager);
         await DataSeeder.SeedAdmin(userManager);
+        await DataSeeder.SeedAdminRoles(userManager, roleManager);
     }
     catch (Exception ex)
     {
