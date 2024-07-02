@@ -22,7 +22,7 @@ namespace P7CreateRestApi.Controllers
         [Route("list")]
         public async Task<ActionResult> GetRuleNames()
         {
-            var ruleNames = await _context.RuleNames.ToListAsync();
+            List<RuleName> ruleNames = await _context.RuleNames.ToListAsync();
             return ruleNames != null ? Ok(ruleNames) : BadRequest("Failed to get list of RuleNames");
         }
 

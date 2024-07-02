@@ -1,6 +1,8 @@
 ﻿using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +15,8 @@ namespace P7CreateRestApi.Controllers
     {
         private readonly LocalDbContext _context;
 
+        private readonly UserManager<User> _userManager;
+
         public UserController(LocalDbContext context)
         {
             _context = context;
@@ -22,7 +26,7 @@ namespace P7CreateRestApi.Controllers
         [Route("list")]
         public async Task<IActionResult> GetUsers()
         {
-            var users = await _context.Users.ToListAsync();
+            List<User> users = await _context.Users.ToListAsync();
             return users != null ? Ok(users) : BadRequest("Failed to get list of Users");
         }
 
@@ -39,12 +43,21 @@ namespace P7CreateRestApi.Controllers
             return user;
         }
 
+        // [Authorize(Policy = "User")]
         [HttpPut("update/{id}")]
         public async Task<IActionResult> PutUser(string id, User user)
         {
             if (id != user.Id)
             {
                 return BadRequest("The Id entered in the parameter is not the same as the Id enter in the body");
+            }
+
+            // Vérifiez que l'utilisateur connecté est l'utilisateur courant ou un administrateur
+            User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null || (currentUser.Id != user.Id && !await _userManager.IsInRoleAsync(currentUser, "Admin")))
+            // ajouter admin puisse aussi le faire
+            {
+                return Forbid();
             }
 
             _context.Entry(user).State = EntityState.Modified;
@@ -78,6 +91,7 @@ namespace P7CreateRestApi.Controllers
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {

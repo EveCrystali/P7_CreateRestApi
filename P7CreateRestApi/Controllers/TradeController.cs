@@ -3,7 +3,6 @@ using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 
 namespace P7CreateRestApi.Controllers
 {
@@ -23,7 +22,7 @@ namespace P7CreateRestApi.Controllers
         [Route("list")]
         public async Task<ActionResult> GetTrades()
         {
-            var trades = await _context.Trades.ToListAsync();
+            List<Trade> trades = await _context.Trades.ToListAsync();
             return trades != null ? Ok(trades) : BadRequest("Failed to get list of Trades");
         }
 

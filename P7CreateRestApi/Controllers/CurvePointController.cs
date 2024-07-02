@@ -1,7 +1,7 @@
-using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -60,11 +60,12 @@ namespace Dot.Net.WebApi.Controllers
             return returnDeletion == 0 ? Ok() : BadRequest("Failed to delete CurvePoint");
         }
 
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpGet]
         [Route("list")]
         public async Task<IActionResult> GetCurvePoints()
         {
-            var curvePoints = await _context.CurvePoints.ToListAsync();
+            List<CurvePoint> curvePoints = await _context.CurvePoints.ToListAsync();
             return curvePoints != null ? Ok(curvePoints) : BadRequest("Failed to get list of CurvePoints");
         }
 

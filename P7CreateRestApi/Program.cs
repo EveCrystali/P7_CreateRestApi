@@ -5,15 +5,29 @@ using Dot.Net.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new() { Title = "PostTrades.Api", Version = "v1" });
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Entrer Bearer suivi de votre token pour avoir l'authorisation",
+        Scheme = "Bearer",
+        Name = "Authorization",
+        BearerFormat = "JWT",
+        Type = SecuritySchemeType.ApiKey
+    });
+});
 
 // Add DbContext
 builder.Services.AddDbContext<LocalDbContext>(options =>
@@ -53,10 +67,19 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Add Logging
+builder.Services.AddLogging(config =>
+    {
+        config.ClearProviders();
+        config.AddConfiguration(builder.Configuration.GetSection("Logging"));
+        config.AddConsole();
+        config.SetMinimumLevel(LogLevel.Information);
+    });
+builder.Services.AddHostedService<LogCleanupService>();
+
 // Add JwtService
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddHostedService<TokenCleanupService>();
-
 
 // Add other services
 builder.Services.AddScoped<ICurvePointService, CurvePointService>();
@@ -83,11 +106,12 @@ using (IServiceScope scope = app.Services.CreateScope())
     IServiceProvider services = scope.ServiceProvider;
     try
     {
+        ILogger<Program> logger = services.GetRequiredService<ILogger<Program>>();
         UserManager<User> userManager = services.GetRequiredService<UserManager<User>>();
         RoleManager<IdentityRole> roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         await DataSeeder.SeedRoles(roleManager);
         await DataSeeder.SeedAdmin(userManager);
-        await DataSeeder.SeedAdminRoles(userManager, roleManager);
+        await DataSeeder.SeedAdminRoles(userManager, roleManager, logger);
     }
     catch (Exception ex)
     {
