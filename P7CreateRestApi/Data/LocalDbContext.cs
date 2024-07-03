@@ -13,11 +13,11 @@ namespace Dot.Net.WebApi.Data
         {
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(builder);
 
-            modelBuilder.Entity<BidList>(entity =>
+            builder.Entity<BidList>(entity =>
             {
                 entity.ToTable("BidList");
 
@@ -46,7 +46,7 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.Side).HasColumnName("Side");
             });
 
-            modelBuilder.Entity<CurvePoint>(entity =>
+            builder.Entity<CurvePoint>(entity =>
             {
                 entity.ToTable("CurvePoint");
 
@@ -58,7 +58,7 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.CreationDate).HasColumnName("CreationDate");
             });
 
-            modelBuilder.Entity<Rating>(entity =>
+            builder.Entity<Rating>(entity =>
             {
                 entity.ToTable("Rating");
 
@@ -69,7 +69,7 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.OrderNumber).HasColumnName("OrderNumber");
             });
 
-            modelBuilder.Entity<RuleName>(entity =>
+            builder.Entity<RuleName>(entity =>
             {
                 entity.ToTable("RuleName");
 
@@ -82,7 +82,7 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.SqlPart).HasColumnName("SqlPart");
             });
 
-            modelBuilder.Entity<Trade>(entity =>
+            builder.Entity<Trade>(entity =>
             {
                 entity.ToTable("Trade");
 
@@ -103,9 +103,12 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.RevisionName).HasColumnName("RevisionName");
                 entity.Property(e => e.RevisionDate).HasColumnName("RevisionDate");
                 entity.Property(e => e.DealName).HasColumnName("DealName");
+                entity.Property(e => e.DealType).HasColumnName("DealType");
+                entity.Property(e=> e.SourceListId).HasColumnName("SourceListId");
+                entity.Property(e => e.Side).HasColumnName("Side");
             });
 
-            modelBuilder.Entity<User>(entity =>
+            builder.Entity<User>(entity =>
             {
                 entity.ToTable("User");
                 entity.Property(e => e.UserName)
