@@ -4,3 +4,5 @@
 
 /.vs
 /P7CreateRestApi/.vs
+/P7CreateRestApi.Tests/bin/Debug/net8.0
+/P7CreateRestApi.Tests/obj

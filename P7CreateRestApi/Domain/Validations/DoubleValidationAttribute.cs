@@ -8,12 +8,12 @@ public class DoubleValidationAttribute : ValidationAttribute
     {
         if (value == null)
         {
-            return new ValidationResult("Value is required.");
+            return new ValidationResult("Please enter a valid double value.");
         }
 
         if (double.TryParse(value.ToString(), out _))
         {
-        return ValidationResult.Success ?? new ValidationResult("Validation succeeded.");
+            return ValidationResult.Success;
         }
 
         return new ValidationResult("Please enter a valid double value.");
