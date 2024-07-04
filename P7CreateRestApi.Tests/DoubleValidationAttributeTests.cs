@@ -7,7 +7,7 @@ namespace P7CreateRestApi.Tests;
 public class DoubleValidationAttributeTests
 {
     private static readonly ValidationResult ValidationSuccess = ValidationResult.Success;
-    private string ValidationFailMessage = "Please enter a valid double value.";
+    private readonly string ValidationFailMessage = "Please enter a valid double value.";
 
     [Theory]
     [InlineData("123.45", true)]
