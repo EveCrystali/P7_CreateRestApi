@@ -23,5 +23,18 @@ namespace Dot.Net.WebApi.Controllers.Domain
 
         [Range(byte.MinValue, byte.MaxValue, ErrorMessage = "OrderNumber must be an integer")]
         public byte? OrderNumber { get; set; }
+
+        public void Validate()
+        {
+            var validationResults = new List<ValidationResult>();
+            var validationContext = new ValidationContext(this, null, null);
+            bool isValid = Validator.TryValidateObject(this, validationContext, validationResults, true);
+
+            if (!isValid)
+            {
+                var errors = string.Join("; ", validationResults.Select(vr => vr.ErrorMessage));
+                throw new ValidationException($"Rating is not valid: {errors}");
+            }
+        }
     }
 }

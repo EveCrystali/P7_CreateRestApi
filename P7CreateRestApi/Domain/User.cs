@@ -13,6 +13,20 @@ namespace Dot.Net.WebApi.Domain
 
         [DataType(DataType.DateTime, ErrorMessage = "LastLoginDate must be a date and a time of day")]
         public DateTime? LastLoginDate { get; set; }
+
+        public void Validate()
+        {
+            var validationResults = new List<ValidationResult>();
+            var validationContext = new ValidationContext(this, null, null);
+            bool isValid = Validator.TryValidateObject(this, validationContext, validationResults, true);
+
+            if (!isValid)
+            {
+                var errors = string.Join("; ", validationResults.Select(vr => vr.ErrorMessage));
+                throw new ValidationException($"BidList is not valid: {errors}");
+            }
+        }
+
     }
 
     public static class UserExtensions
