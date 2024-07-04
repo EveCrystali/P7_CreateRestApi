@@ -35,5 +35,18 @@ namespace Dot.Net.WebApi.Controllers
         [DataType(DataType.MultilineText, ErrorMessage = "SqlPart must be a string")]
         [MaxLength(1000, ErrorMessage = "SqlPart can't be longer than 1000 characters")]
         public required string SqlPart { get; set; }
+
+        public void Validate()
+        {
+            var validationResults = new List<ValidationResult>();
+            var validationContext = new ValidationContext(this, null, null);
+            bool isValid = Validator.TryValidateObject(this, validationContext, validationResults, true);
+
+            if (!isValid)
+            {
+                var errors = string.Join("; ", validationResults.Select(vr => vr.ErrorMessage));
+                throw new ValidationException($"RuleName is not valid: {errors}");
+            }
+        }
     }
 }
