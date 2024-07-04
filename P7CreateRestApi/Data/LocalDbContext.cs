@@ -104,7 +104,7 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.RevisionDate).HasColumnName("RevisionDate");
                 entity.Property(e => e.DealName).HasColumnName("DealName");
                 entity.Property(e => e.DealType).HasColumnName("DealType");
-                entity.Property(e=> e.SourceListId).HasColumnName("SourceListId");
+                entity.Property(e => e.SourceListId).HasColumnName("SourceListId");
                 entity.Property(e => e.Side).HasColumnName("Side");
             });
 

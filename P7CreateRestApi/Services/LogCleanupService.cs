@@ -1,5 +1,4 @@
-﻿
-namespace Dot.Net.WebApi.Services;
+﻿namespace Dot.Net.WebApi.Services;
 
 public class LogCleanupService : IHostedService, IDisposable
 {
@@ -44,10 +43,10 @@ public class LogCleanupService : IHostedService, IDisposable
 
         if (Directory.Exists(logDirectory))
         {
-            var logFiles = Directory.GetFiles(logDirectory, "*.txt");
-            foreach (var logFile in logFiles)
+            string[] logFiles = Directory.GetFiles(logDirectory, "*.txt");
+            foreach (string logFile in logFiles)
             {
-                var creationTime = File.GetCreationTime(logFile);
+                DateTime creationTime = File.GetCreationTime(logFile);
                 if (creationTime < DateTime.Now.AddDays(-logRetentionDays))
                 {
                     File.Delete(logFile);

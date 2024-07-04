@@ -49,27 +49,27 @@ namespace Dot.Net.WebApi.Domain
         [DataType(DataType.Text, ErrorMessage = "BidSecurity must be a string")]
         [MaxLength(50, ErrorMessage = "BidSecurity can't be longer than 50 characters")]
         public required string BidSecurity { get; set; }
-        
+
         [Required(ErrorMessage = "BidStatus is mandatory")]
         [DataType(DataType.Text, ErrorMessage = "BidStatus must be a string")]
         [MaxLength(50, ErrorMessage = "BidStatus can't be longer than 50 characters")]
         public required string BidStatus { get; set; }
-        
+
         [Required(ErrorMessage = "Trader is mandatory")]
         [DataType(DataType.Text, ErrorMessage = "Trader must be a string")]
         [MaxLength(50, ErrorMessage = "Trader can't be longer than 50 characters")]
         public required string Trader { get; set; }
-        
+
         [Required(ErrorMessage = "Book is mandatory")]
         [DataType(DataType.Text, ErrorMessage = "Book must be a string")]
         [MaxLength(50, ErrorMessage = "Book can't be longer than 50 characters")]
         public required string Book { get; set; }
-        
+
         [Required(ErrorMessage = "CreationName is mandatory")]
         [DataType(DataType.Text, ErrorMessage = "CreationName must be a string")]
         [MaxLength(50, ErrorMessage = "CreationName can't be longer than 50 characters")]
         public required string CreationName { get; set; }
-        
+
         [DataType(DataType.DateTime, ErrorMessage = "CreationDate must be a date and a time of day")]
         public DateTime? CreationDate { get; set; }
 
@@ -78,26 +78,26 @@ namespace Dot.Net.WebApi.Domain
         [DataType(DataType.Text, ErrorMessage = "RevisionName must be a string")]
         [MaxLength(50, ErrorMessage = "RevisionName can't be longer than 50 characters")]
         public required string RevisionName { get; set; }
-        
+
         [DataType(DataType.DateTime, ErrorMessage = "RevisionDate must be a date and a time of day")]
         public DateTime? RevisionDate { get; set; }
-        
+
         [Required(ErrorMessage = "DealName is mandatory")]
         [DataType(DataType.Text, ErrorMessage = "DealName must be a string")]
         [MaxLength(50, ErrorMessage = "DealName can't be longer than 50 characters")]
         public required string DealName { get; set; }
-        
+
 
         [Required(ErrorMessage = "DealType is mandatory")]
         [DataType(DataType.Text, ErrorMessage = "DealType must be a string")]
         [MaxLength(50, ErrorMessage = "DealType can't be longer than 50 characters")]
         public required string DealType { get; set; }
-        
+
         [Required(ErrorMessage = "SourceListId is mandatory")]
         [DataType(DataType.Text, ErrorMessage = "SourceListId must be a string")]
         [MaxLength(25, ErrorMessage = "SourceListId can't be longer than 25 characters")]
         public required string SourceListId { get; set; }
-        
+
         [Required(ErrorMessage = "Side is mandatory")]
         [DataType(DataType.Text, ErrorMessage = "Side must be a string")]
         [MaxLength(50, ErrorMessage = "Side can't be longer than 50 characters")]

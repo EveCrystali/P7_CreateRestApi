@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Dot.Net.WebApi.Domain;
-using P7CreateRestApi.Tests;
 
 namespace P7CreateRestApi.Tests;
 
@@ -55,7 +54,7 @@ public class UserTests
         user.Fullname = input;
 
         // Act
-        bool result = ValidationHelper.TryValidateObject(user, out var validationResults);
+        bool result = ValidationHelper.TryValidateObject(user, out List<ValidationResult>? validationResults);
 
         // Assert
         if (resultExpected)

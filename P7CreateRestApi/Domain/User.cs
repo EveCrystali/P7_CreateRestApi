@@ -1,17 +1,10 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 
 namespace Dot.Net.WebApi.Domain
 {
     public class User : IdentityUser
     {
-        [Required(ErrorMessage = "Full name is required")]
-        [DataType(DataType.Text)]
-        [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage = "Full name should contain only letters and spaces")]
-        [StringLength(25, MinimumLength = 5, ErrorMessage = "Full name should be between 5 and 25 characters long")]
-        public required string Fullname { get; set; }
-
-        [DataType(DataType.DateTime, ErrorMessage = "LastLoginDate must be a date and a time of day")]
+        public string Fullname { get; set; }
         public DateTime? LastLoginDate { get; set; }
     }
 

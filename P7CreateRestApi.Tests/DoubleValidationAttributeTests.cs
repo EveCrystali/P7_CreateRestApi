@@ -1,6 +1,5 @@
-﻿using Xunit;
+﻿using System.ComponentModel.DataAnnotations;
 using Dot.Net.WebApi.Domain;
-using System.ComponentModel.DataAnnotations;
 
 namespace P7CreateRestApi.Tests;
 
@@ -19,11 +18,11 @@ public class DoubleValidationAttributeTests
     public void IsValid_ShouldReturnExpectedResult(string? input, bool resultExpected)
     {
         // Arrange
-        var attribute = new DoubleValidationAttribute();
-        var validationContext = new ValidationContext(new object());
+        DoubleValidationAttribute attribute = new();
+        ValidationContext validationContext = new(new object());
 
         // Act
-        var result = attribute.GetValidationResult(input, validationContext);
+        ValidationResult? result = attribute.GetValidationResult(input, validationContext);
 
         // Assert
         if (resultExpected)
