@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
+using System.Linq;
 
 namespace P7CreateRestApi.Tests;
 
@@ -35,23 +36,71 @@ public class BidListTests
         Side = "Side"
     };
 
-    public const string? stringNull = null;
-    public const string? string51 = "50string6666666666666666666666666666666666666666666";
-    public const string? string101 = "100string66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666";
-    private const string? string501 = "501string66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666" 
-                                        + "6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"
-                                        + "6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"
-                                        + "6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"
-                                        + "6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"
-                                        + "6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666";
-    public const string? stringEmpty = "";
-    public const string? stringSmall = "string";
-    public const string? stringWithNumbers = "1234567890";
-    public const string? stringWithSpecialChars = "!@#$%^&*()";
+    [Theory]
+    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_WithInvalidAccount_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    {
+        // Arrange
+        bidList.Account = input;
 
+        var expectedMessages = new List<string>
+        {
+            "Account is mandatory",
+            "Account must be a string",
+            "Account can't be longer than 50 characters"
+        };
+
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        // [Required(ErrorMessage = "Account is mandatory")]
+        // [DataType(DataType.Text, ErrorMessage = "Account must be a string")]
+        if (SampleTestVariables.stringMandatory.Contains(code))
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
+
+            // Vérifier si le message d'exception contient l'un des messages attendus
+            bool containsExpectedMessage = expectedMessages.Any(message => validationException.Message.Contains(message));
+
+            Assert.True(containsExpectedMessage, $"Expected one of the following messages: " +
+                $"\"Account is mandatory\",\r\n or \"Account must be a string\". Actual message: {validationException.Message}");
+        }
+        // [MaxLength(50, ErrorMessage = "Account can't be longer than 50 characters")]
+        else if (SampleTestVariables.moreThan51Char.Contains(code))
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
+
+            // Vérifier si le message d'exception contient le message de longueur
+            bool containsExpectedMessage = validationException.Message.Contains(expectedMessages[2]);
+
+            Assert.True(containsExpectedMessage, $"Expected message: {expectedMessages[2]}. Actual message: {validationException.Message}");
+        }
+        else
+        {
+            Assert.Null(ex);
+        }
+    }
 
     [Fact]
     public void Test_Validate_WithValidBidList_ShouldNotThrowException()
+    {
+        // Arrange
+
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        Assert.Null(ex);
+    }
+
+    [Theory]
+    [InlineData]
+    public void Test_Validate_WithValidBidList_DataTypeTextVarying_ShouldNotThrowException()
     {
         // Arrange
 
@@ -80,9 +129,9 @@ public class BidListTests
     }
 
     [Theory]
-    [InlineData(stringNull)]
-    [InlineData(stringEmpty)]
-    [InlineData(string51)]
+    [InlineData(SampleTestVariables.stringNull)]
+    [InlineData(SampleTestVariables.stringEmpty)]
+    [InlineData(SampleTestVariables.string51)]
     public void Test_Validate_WithInvalidBidList_ShouldThrowValidationException(string? input)
     {
         // Arrange
@@ -115,9 +164,9 @@ public class BidListTests
     }
 
     [Theory]
-    [InlineData(stringNull)]
-    [InlineData(stringEmpty)]
-    [InlineData(string51)]
+    [InlineData(SampleTestVariables.stringNull)]
+    [InlineData(SampleTestVariables.stringEmpty)]
+    [InlineData(SampleTestVariables.string51)]
     public void Test_Validate_WithInvalidBidType_ShouldThrowValidationException(string? input)
     {
         // Arrange
@@ -148,11 +197,10 @@ public class BidListTests
         Assert.True(containsExpectedMessage, $"Expected one of the following messages: {string.Join(", ", expectedMessages)}. Actual message: {validationException.Message}");
     }
 
-
     [Theory]
-    [InlineData(stringNull)]
-    [InlineData(stringEmpty)]
-    [InlineData(string101)]
+    [InlineData(SampleTestVariables.stringNull)]
+    [InlineData(SampleTestVariables.stringEmpty)]
+    [InlineData(SampleTestVariables.string101)]
     public void Test_Validate_WithInvalidBenchmark_ShouldThrowValidationException(string? input)
     {
         // Arrange
@@ -184,9 +232,9 @@ public class BidListTests
     }
 
     [Theory]
-    [InlineData(stringNull)]
-    [InlineData(stringEmpty)]
-    [InlineData(string501)]
+    [InlineData(SampleTestVariables.stringNull)]
+    [InlineData(SampleTestVariables.stringEmpty)]
+    [InlineData(SampleTestVariables.string501)]
     public void Test_Validate_WithInvalidCommentary_ShouldThrowValidationException(string? input)
     {
         // Arrange
@@ -216,5 +264,4 @@ public class BidListTests
         }
         Assert.True(containsExpectedMessage, $"Expected one of the following messages: {string.Join(", ", expectedMessages)}. Actual message: {validationException.Message}");
     }
-
 }
