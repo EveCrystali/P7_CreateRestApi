@@ -74,13 +74,13 @@ public static class SampleTestVariables
 
     };
 
-    public static readonly List<int?> stringMandatory =      [0, 1, 2];
-    public static readonly List<int> moreThan51Char =        [51, 101, 501, 514, 515, 512, 1014, 1015, 1012, 5014, 5015, 5012, 5145, 5124, 5125, 51254, 10145, 10124, 10125, 101254, 50145, 50124, 50125, 501254];
-    public static readonly List<int> moreThan101Char =       [101, 1014, 1015, 1012, 10145, 10124, 10125, 101254, 501, 5014, 5015, 5012, 50145, 50124, 50125, 501254];
-    public static readonly List<int> moreThan501Char =       [501, 5014, 5015, 5012, 50145, 50124, 50125, 501254];
-    public static readonly List<int> containsSpecialChars =  [5, 35, 515, 1015, 5015, 345, 325, 3254, 5145, 5125, 51254, 10145, 10125, 101254, 50145, 50125, 501254];
-    public static readonly List<int> containsSpace =         [2, 32, 512, 1012, 5012, 324, 325, 3254, 5124, 5125, 51254, 10124, 10125, 101254, 50124, 50125, 501254];
-    public static readonly List<int> containsNumbers =       [4, 34, 514, 1014, 5014, 345, 324, 3254, 5145, 5124, 51254, 10145, 10124, 101254, 50145, 50124, 501254];
-
+    public static readonly List<int?> stringMandatory = [0, 1, 2];
+    public static readonly List<int> moreThan51Char = [51, 101, 501, 514, 515, 512, 1014, 1015, 1012, 5014, 5015, 5012, 5145, 5124, 5125, 51254, 10145, 10124, 10125, 101254, 50145, 50124, 50125, 501254];
+    public static readonly List<int> moreThan101Char = [101, 1014, 1015, 1012, 10145, 10124, 10125, 101254, 501, 5014, 5015, 5012, 50145, 50124, 50125, 501254];
+    public static readonly List<int> moreThan501Char = [501, 5014, 5015, 5012, 50145, 50124, 50125, 501254];
+    public static readonly List<int> containsSpecialChars = [5, 35, 515, 1015, 5015, 345, 325, 3254, 5145, 5125, 51254, 10145, 10125, 101254, 50145, 50125, 501254];
+    public static readonly List<int> containsSpace = [2, 32, 512, 1012, 5012, 324, 325, 3254, 5124, 5125, 51254, 10124, 10125, 101254, 50124, 50125, 501254];
+    public static readonly List<int> containsNumbers = [4, 34, 514, 1014, 5014, 345, 324, 3254, 5145, 5124, 51254, 10145, 10124, 101254, 50145, 50124, 501254];
+    public static readonly List<int> lessThan51Char = [3, 4, 5, 34, 32, 35, 345, 324, 325, 3254];
 
 }
