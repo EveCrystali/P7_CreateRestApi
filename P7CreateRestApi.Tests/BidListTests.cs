@@ -106,7 +106,7 @@ public class BidListTests
         else
         {
             i++;
-            Assert.Fail("Unexpected result {i} times");
+            Assert.Fail($"Unexpected result {i} times {input}");
         }
     }
 
@@ -165,7 +165,7 @@ public class BidListTests
         else
         {
             i++;
-            Assert.Fail("Unexpected result {i} times");
+            Assert.Fail($"Unexpected result {i} times {input}");
         }
     }
 
@@ -224,7 +224,7 @@ public class BidListTests
         else
         {
             i++;
-            Assert.Fail($"Unexpected result {i} times with input {input}");
+            Assert.Fail($"Unexpected result {i} times {input} with input {input}");
         }
     }
 
@@ -283,7 +283,7 @@ public class BidListTests
         else
         {
             i++;
-            Assert.Fail($"Unexpected result {i} times with input {input}");
+            Assert.Fail($"Unexpected result {i} times {input} with input {input}");
         }
     }
 
@@ -342,7 +342,7 @@ public class BidListTests
         else
         {
             i++;
-            Assert.Fail("Unexpected result {i} times");
+            Assert.Fail($"Unexpected result {i} times {input}");
         }
     }
 
@@ -401,7 +401,7 @@ public class BidListTests
         else
         {
             i++;
-            Assert.Fail("Unexpected result {i} times");
+            Assert.Fail($"Unexpected result {i} times {input}");
         }
     }
 
@@ -460,7 +460,7 @@ public class BidListTests
         else
         {
             i++;
-            Assert.Fail("Unexpected result {i} times");
+            Assert.Fail($"Unexpected result {i} times {input}");
         }
     }
 
@@ -519,20 +519,304 @@ public class BidListTests
         else
         {
             i++;
-            Assert.Fail("Unexpected result {i} times");
+            Assert.Fail($"Unexpected result {i} times {input}");
         }
     }
 
+    // CreationName - 50 characters max - Mandatory
+    [Theory]
+    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_CreationName_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    {
+        // Arrange
+        bidList.CreationName = input;
+        int i = 0;
 
-    // TODO: CreationName - 50
+        var expectedMessages = new List<string>
+        {
+            "CreationName is mandatory",
+            "CreationName must be a string",
+            "CreationName can't be longer than 50 characters"
+        };
 
-    // TODO: RevisionName - 50
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
 
-    // TODO: DealName - 50
+        // Assert
+        // [Required(ErrorMessage = "CreationName is mandatory")]
+        // [DataType(DataType.Text, ErrorMessage = "CreationName must be a string")]
+        if (SampleTestVariables.stringMandatory.Contains(code))
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
 
-    // TODO: SourceListId - 25
+            // Check if the exception message contains any of the expected messages
+            bool containsExpectedMessage = expectedMessages.Any(message => validationException.Message.Contains(message));
 
-    // TODO: Side - 50
+            Assert.True(containsExpectedMessage, $"Expected one of the following messages: " +
+                $"\"CreationName is mandatory\",\r\n or \"CreationName must be a string\". Actual message: {validationException.Message}");
+        }
+        // [MaxLength(50, ErrorMessage = "CreationName can't be longer than 50 characters")]
+        else if (SampleTestVariables.moreThan51Char.Contains(code))
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
+
+            // Check if the exception message contains the length message
+            bool containsExpectedMessage = validationException.Message.Contains(expectedMessages[2]);
+
+            Assert.True(containsExpectedMessage, $"Expected message: {expectedMessages[2]}. Actual message: {validationException.Message}");
+        }
+        // Valid DATA
+        else if (SampleTestVariables.lessThan51Char.Contains(code))
+        {
+            Assert.Null(ex);
+            Assert.Equal(bidList.CreationName, input);
+        }
+        else
+        {
+            i++;
+            Assert.Fail($"Unexpected result {i} times {input}");
+        }
+    }
+
+    // RevisionName - 50 characters max - Mandatory
+    [Theory]
+    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_RevisionName_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    {
+        // Arrange
+        bidList.RevisionName = input;
+        int i = 0;
+
+        var expectedMessages = new List<string>
+        {
+            "RevisionName is mandatory",
+            "RevisionName must be a string",
+            "RevisionName can't be longer than 50 characters"
+        };
+
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        // [Required(ErrorMessage = "RevisionName is mandatory")]
+        // [DataType(DataType.Text, ErrorMessage = "RevisionName must be a string")]
+        if (SampleTestVariables.stringMandatory.Contains(code))
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
+
+            // Check if the exception message contains any of the expected messages
+            bool containsExpectedMessage = expectedMessages.Any(message => validationException.Message.Contains(message));
+
+            Assert.True(containsExpectedMessage, $"Expected one of the following messages: " +
+                $"\"RevisionName is mandatory\",\r\n or \"RevisionName must be a string\". Actual message: {validationException.Message}");
+        }
+        // [MaxLength(50, ErrorMessage = "RevisionName can't be longer than 50 characters")]
+        else if (SampleTestVariables.moreThan51Char.Contains(code))
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
+
+            // Check if the exception message contains the length message
+            bool containsExpectedMessage = validationException.Message.Contains(expectedMessages[2]);
+
+            Assert.True(containsExpectedMessage, $"Expected message: {expectedMessages[2]}. Actual message: {validationException.Message}");
+        }
+        // Valid DATA
+        else if (SampleTestVariables.lessThan51Char.Contains(code))
+        {
+            Assert.Null(ex);
+            Assert.Equal(bidList.RevisionName, input);
+        }
+        else
+        {
+            i++;
+            Assert.Fail($"Unexpected result {i} times {input}");
+        }
+    }
+
+    // DealName - 50 characters max - Mandatory
+    [Theory]
+    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_DealName_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    {
+        // Arrange
+        bidList.DealName = input;
+        int i = 0;
+
+        var expectedMessages = new List<string>
+        {
+            "DealName is mandatory",
+            "DealName must be a string",
+            "DealName can't be longer than 50 characters"
+        };
+
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        // [Required(ErrorMessage = "DealName is mandatory")]
+        // [DataType(DataType.Text, ErrorMessage = "DealName must be a string")]
+        if (SampleTestVariables.stringMandatory.Contains(code))
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
+
+            // Check if the exception message contains any of the expected messages
+            bool containsExpectedMessage = expectedMessages.Any(message => validationException.Message.Contains(message));
+
+            Assert.True(containsExpectedMessage, $"Expected one of the following messages: " +
+                $"\"DealName is mandatory\",\r\n or \"DealName must be a string\". Actual message: {validationException.Message}");
+        }
+        // [MaxLength(50, ErrorMessage = "DealName can't be longer than 50 characters")]
+        else if (SampleTestVariables.moreThan51Char.Contains(code))
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
+
+            // Check if the exception message contains the length message
+            bool containsExpectedMessage = validationException.Message.Contains(expectedMessages[2]);
+
+            Assert.True(containsExpectedMessage, $"Expected message: {expectedMessages[2]}. Actual message: {validationException.Message}");
+        }
+        // Valid DATA
+        else if (SampleTestVariables.lessThan51Char.Contains(code))
+        {
+            Assert.Null(ex);
+            Assert.Equal(bidList.DealName, input);
+        }
+        else
+        {
+            i++;
+            Assert.Fail($"Unexpected result {i} times {input}");
+        }
+    }
+
+    // SourceListId - 25 characters max - Mandatory
+    [Theory]
+    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_SourceListId_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    {
+        // Arrange
+        bidList.SourceListId = input;
+        int i = 0;
+
+        var expectedMessages = new List<string>
+        {
+            "SourceListId is mandatory",
+            "SourceListId must be a string",
+            "SourceListId can't be longer than 25 characters"
+        };
+
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        // [Required(ErrorMessage = "SourceListId is mandatory")]
+        // [DataType(DataType.Text, ErrorMessage = "SourceListId must be a string")]
+        if (SampleTestVariables.stringMandatory.Contains(code))
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
+
+            // Check if the exception message contains any of the expected messages
+            bool containsExpectedMessage = expectedMessages.Any(message => validationException.Message.Contains(message));
+
+            Assert.True(containsExpectedMessage, $"Expected one of the following messages: " +
+                $"\"SourceListId is mandatory\",\r\n or \"SourceListId must be a string\". Actual message: {validationException.Message}");
+        }
+        // [MaxLength(25, ErrorMessage = "SourceListId can't be longer than 25 characters")]
+        else if (SampleTestVariables.moreThan51Char.Contains(code) || code == 345 || code == 3254)
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
+
+            // Check if the exception message contains the length message
+            bool containsExpectedMessage = validationException.Message.Contains(expectedMessages[2]);
+
+            Assert.True(containsExpectedMessage, $"Expected message: {expectedMessages[2]}. Actual message: {validationException.Message}");
+        }
+        // Valid DATA
+        else if (SampleTestVariables.lessThan25Char.Contains(code))
+        {
+            Assert.Null(ex);
+            Assert.Equal(bidList.SourceListId, input);
+        }
+        else
+        {
+            i++;
+            Assert.Fail($"Unexpected result {i} times {input}");
+        }
+    }
+
+    // Side - 50 characters max - Mandatory
+    [Theory]
+    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_Side_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    {
+        // Arrange
+        bidList.Side = input;
+        int i = 0;
+
+        var expectedMessages = new List<string>
+        {
+            "Side is mandatory",
+            "Side must be a string",
+            "Side can't be longer than 50 characters"
+        };
+
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        // [Required(ErrorMessage = "Side is mandatory")]
+        // [DataType(DataType.Text, ErrorMessage = "Side must be a string")]
+        if (SampleTestVariables.stringMandatory.Contains(code))
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
+
+            // Check if the exception message contains any of the expected messages
+            bool containsExpectedMessage = expectedMessages.Any(message => validationException.Message.Contains(message));
+
+            Assert.True(containsExpectedMessage, $"Expected one of the following messages: " +
+                $"\"Side is mandatory\",\r\n or \"Side must be a string\". Actual message: {validationException.Message}");
+        }
+        // [MaxLength(50, ErrorMessage = "Side can't be longer than 50 characters")]
+        else if (SampleTestVariables.moreThan51Char.Contains(code))
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
+
+            // Check if the exception message contains the length message
+            bool containsExpectedMessage = validationException.Message.Contains(expectedMessages[2]);
+
+            Assert.True(containsExpectedMessage, $"Expected message: {expectedMessages[2]}. Actual message: {validationException.Message}");
+        }
+        // Valid DATA
+        else if (SampleTestVariables.lessThan51Char.Contains(code))
+        {
+            Assert.Null(ex);
+            Assert.Equal(bidList.Side, input);
+        }
+        else
+        {
+            i++;
+            Assert.Fail($"Unexpected result {i} times {input}");
+        }
+    }
 
 
     [Theory]
@@ -552,16 +836,6 @@ public class BidListTests
         Assert.Equal(bidList.BidListId, input);
     }
 
-    [Theory]
-    [InlineData]
-    public void Test_Validate_WithValidBidList_DataTypeTextVarying_ShouldNotThrowException()
-    {
-        // Arrange
+    
 
-        // Act
-        Exception? ex = Record.Exception(() => bidList.Validate());
-
-        // Assert
-        Assert.Null(ex);
-    }
 }
