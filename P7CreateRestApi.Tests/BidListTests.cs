@@ -51,7 +51,7 @@ public class BidListTests
 
     // Now testing sample string combinations on the different property
 
-    // Account
+    // Account - 50 characters max - Mandatory
     [Theory]
     [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
     public void Test_Validate_Account_StringVariation_ShouldReturnExpectedResults(string? input, int code)
@@ -110,7 +110,7 @@ public class BidListTests
         }
     }
 
-    // BidType
+    // BidType - 50 characters max - Mandatory
     [Theory]
     [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
     public void Test_Validate_BidType_StringVariation_ShouldReturnExpectedResults(string? input, int code)
@@ -169,7 +169,125 @@ public class BidListTests
         }
     }
 
-    // BidSecurity
+    // BenchMark - 100 characters max - Mandatory
+    [Theory]
+    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_BenchMark_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    {
+        // Arrange
+        bidList.Benchmark = input;
+        int i = 0;
+
+        var expectedMessages = new List<string>
+        {
+            "Benchmark is mandatory",
+            "Benchmark must be a string",
+            "Benchmark can't be longer than 100 characters"
+        };
+
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        // [Required(ErrorMessage = "Benchmark is mandatory")]
+        // [DataType(DataType.Text, ErrorMessage = "Benchmark must be a string")]
+        if (SampleTestVariables.stringMandatory.Contains(code))
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
+
+            // Check if the exception message contains any of the expected messages
+            bool containsExpectedMessage = expectedMessages.Any(message => validationException.Message.Contains(message));
+
+            Assert.True(containsExpectedMessage, $"Expected one of the following messages: " +
+                $"\"Benchmark is mandatory\",\r\n or \"Benchmark must be a string\". Actual message: {validationException.Message}");
+        }
+        // [MaxLength(100, ErrorMessage = "Benchmark can't be longer than 100 characters")]
+        else if (SampleTestVariables.moreThan101Char.Contains(code))
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
+
+            // Check if the exception message contains the length message
+            bool containsExpectedMessage = validationException.Message.Contains(expectedMessages[2]);
+
+            Assert.True(containsExpectedMessage, $"Expected message: {expectedMessages[2]}. Actual message: {validationException.Message}");
+        }
+        // Valid DATA
+        else if (SampleTestVariables.lessThan101Char.Contains(code))
+        {
+            Assert.Null(ex);
+            Assert.Equal(bidList.Benchmark, input);
+        }
+        else
+        {
+            i++;
+            Assert.Fail($"Unexpected result {i} times with input {input}");
+        }
+    }
+
+    // Commentary - 500 characters max - Mandatory
+    [Theory]
+    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_Commentary_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    {
+        // Arrange
+        bidList.Commentary = input;
+        int i = 0;
+
+        var expectedMessages = new List<string>
+        {
+            "Commentary is mandatory",
+            "Commentary must be a string",
+            "Commentary can't be longer than 500 characters"
+        };
+
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        // [Required(ErrorMessage = "Commentary is mandatory")]
+        // [DataType(DataType.Text, ErrorMessage = "Commentary must be a string")]
+        if (SampleTestVariables.stringMandatory.Contains(code))
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
+
+            // Check if the exception message contains any of the expected messages
+            bool containsExpectedMessage = expectedMessages.Any(message => validationException.Message.Contains(message));
+
+            Assert.True(containsExpectedMessage, $"Expected one of the following messages: " +
+                $"\"Commentary is mandatory\",\r\n or \"Commentary must be a string\". Actual message: {validationException.Message}");
+        }
+        // [MaxLength(500, ErrorMessage = "Commentary can't be longer than 500 characters")]
+        else if (SampleTestVariables.moreThan501Char.Contains(code))
+        {
+            Assert.NotNull(ex);
+            Assert.IsType<ValidationException>(ex);
+            var validationException = (ValidationException)ex;
+
+            // Check if the exception message contains the length message
+            bool containsExpectedMessage = validationException.Message.Contains(expectedMessages[2]);
+
+            Assert.True(containsExpectedMessage, $"Expected message: {expectedMessages[2]}. Actual message: {validationException.Message}");
+        }
+        // Valid DATA
+        else if (SampleTestVariables.lessThan501Char.Contains(code))
+        {
+            Assert.Null(ex);
+            Assert.Equal(bidList.Commentary, input);
+        }
+        else
+        {
+            i++;
+            Assert.Fail($"Unexpected result {i} times with input {input}");
+        }
+    }
+
+    // BidSecurity - 50 characters max - Mandatory
     [Theory]
     [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
     public void Test_Validate_BidSecurity_StringVariation_ShouldReturnExpectedResults(string? input, int code)
@@ -228,7 +346,7 @@ public class BidListTests
         }
     }
 
-    // BidStatus
+    // BidStatus - 50 characters max - Mandatory
     [Theory]
     [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
     public void Test_Validate_BidStatus_StringVariation_ShouldReturnExpectedResults(string? input, int code)
@@ -287,8 +405,7 @@ public class BidListTests
         }
     }
 
-
-    // Trader
+    // Trader - 50 characters max - Mandatory
     [Theory]
     [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
     public void Test_Validate_Trader_StringVariation_ShouldReturnExpectedResults(string? input, int code)
@@ -347,7 +464,7 @@ public class BidListTests
         }
     }
 
-    // Book
+    // Book - 50 characters max - Mandatory
     [Theory]
     [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
     public void Test_Validate_Book_StringVariation_ShouldReturnExpectedResults(string? input, int code)
@@ -405,6 +522,18 @@ public class BidListTests
             Assert.Fail("Unexpected result {i} times");
         }
     }
+
+
+    // TODO: CreationName - 50
+
+    // TODO: RevisionName - 50
+
+    // TODO: DealName - 50
+
+    // TODO: SourceListId - 25
+
+    // TODO: Side - 50
+
 
     [Theory]
     [InlineData(0)]

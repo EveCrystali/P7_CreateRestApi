@@ -82,5 +82,6 @@ public static class SampleTestVariables
     public static readonly List<int> containsSpace = [2, 32, 512, 1012, 5012, 324, 325, 3254, 5124, 5125, 51254, 10124, 10125, 101254, 50124, 50125, 501254];
     public static readonly List<int> containsNumbers = [4, 34, 514, 1014, 5014, 345, 324, 3254, 5145, 5124, 51254, 10145, 10124, 101254, 50145, 50124, 501254];
     public static readonly List<int> lessThan51Char = [3, 4, 5, 34, 32, 35, 345, 324, 325, 3254];
-
+    public static readonly List<int> lessThan101Char = [3, 4, 5, 34, 32, 35, 51, 345, 324, 325, 3254, 514, 512, 515, 3254, 5125, 51254, 5124, 5145, 51245];
+    public static readonly List<int> lessThan501Char = [3, 4, 5, 34, 32, 35, 51, 345, 324, 325, 3254, 514, 512, 515, 3254, 5125, 51254, 5124, 5145, 51245, 101, 1014, 1012, 1015, 10145, 10124, 10125, 101254];
 }
