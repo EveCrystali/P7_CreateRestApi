@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 using System.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Globalization;
 
 namespace P7CreateRestApi.Tests;
 
@@ -48,6 +50,8 @@ public class BidListTests
         // Assert
         Assert.Null(ex);
     }
+
+    // --------------- STRING PROPERTIES TESTS ------------------
 
     // Now testing sample string combinations on the different property
 
@@ -818,7 +822,9 @@ public class BidListTests
         }
     }
 
+    // --------------- STRING PROPERTIES TESTS ------------------
 
+    // --------------- NUMERIC PROPERTIES TESTS ------------------
     [Theory]
     [InlineData(0)]
     [InlineData(int.MinValue + 1)]
@@ -836,6 +842,123 @@ public class BidListTests
         Assert.Equal(bidList.BidListId, input);
     }
 
-    
+    [Theory]
+    [InlineData(double.MinValue + 1)]
+    [InlineData(0)]
+    [InlineData(double.MaxValue - 1)]
+    public void Test_Validate_WithValidBidList_GoodBidQuantity_ShouldNotThrowException(double input)
+    {
+        // Arrange
+        bidList.BidQuantity = input;
 
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        Assert.Null(ex);
+        Assert.Equal(bidList.BidQuantity, input);
+    }
+
+    [Theory]
+    [InlineData(double.MinValue + 1)]
+    [InlineData(0)]
+    [InlineData(double.MaxValue - 1)]
+    public void Test_Validate_WithValidBidList_GoodAskQuantity_ShouldNotThrowException(double input)
+    {
+        // Arrange
+        bidList.AskQuantity = input;
+
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        Assert.Null(ex);
+        Assert.Equal(bidList.AskQuantity, input);
+    }
+
+    [Theory]
+    [InlineData(double.MinValue + 1)]
+    [InlineData(0)]
+    [InlineData(double.MaxValue - 1)]
+    public void Test_Validate_WithValidBidList_GoodBid_ShouldNotThrowException(double input)
+    {
+        // Arrange
+        bidList.Bid = input;
+
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        Assert.Null(ex);
+        Assert.Equal(bidList.Bid, input);
+    }
+
+    [Theory]
+    [InlineData(double.MinValue + 1)]
+    [InlineData(0)]
+    [InlineData(double.MaxValue - 1)]
+    public void Test_Validate_WithValidBidList_GoodAsk_ShouldNotThrowException(double input)
+    {
+        // Arrange
+        bidList.Ask = input;
+
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        Assert.Null(ex);
+        Assert.Equal(bidList.Ask, input);
+    }
+
+    // --------------- NUMERIC PROPERTIES TESTS ------------------
+
+    // -------------- DATETIME PROPERTIES TESTS ------------------
+
+    [Theory]
+    // [InlineData(null)]
+    // [InlineData("")]
+    [InlineData("InvalidDateString")]
+    // [InlineData("08/07/2024 15:06")]
+    // [InlineData("2024-07-08T15:06:02.998Z")]
+    public void Test_Validate_WithValidBidList_CreationDateVariation_ShouldReturnAnException(string? input)
+    {
+        // FIXME: check if the date is in the format yyyy-MM-ddTHH:mm:ss.fffZ "TryParseExact"
+        if (!string.IsNullOrEmpty(input) && DateTime.TryParseExact(input, "yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTime tempDate))
+        {
+            bidList.CreationDate = tempDate;
+            Exception? ex = Record.Exception(() => bidList.Validate());
+            Assert.Null(ex);
+            Assert.Equal(bidList.CreationDate, DateTime.ParseExact(input, "yyyy-MM-ddTHH:mm:ss.fffZ", null));
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                try
+                {
+                    bidList.CreationDate = DateTime.Parse(input);
+                    Exception? ex = Assert.Throws<ValidationException>(() => bidList.Validate());
+                    Assert.Equal("CreationDate must be in the format yyyy-MM-ddTHH:mm:ss.fffZ", ex.Message);
+                }
+                catch
+                {
+                    // FIXME: instead of taking the new value, CreationDate is using the old value at the declaration UtcNow making it valid when it should not
+                    Exception? ex = Assert.Throws<ValidationException>(() => bidList.Validate());
+                    Assert.Equal("CreationDate must be in the format yyyy-MM-ddTHH:mm:ss.fffZ", ex.Message);
+                }
+            }
+            else
+            {
+                bidList.CreationDate = null;
+                Exception? ex = Record.Exception(() => bidList.Validate());
+                Assert.Null(ex);
+            }
+        }
+    }
+
+    // TODO: add CreatedDate tests
+
+    // TODO: add RevisionDate tests
+
+    // -------------- DATETIME PROPERTIES TESTS ------------------
 }

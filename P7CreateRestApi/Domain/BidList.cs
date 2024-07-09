@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace Dot.Net.WebApi.Domain
 {
-    public class BidList
+    public class BidList : IValidatable
     {
         [Required(ErrorMessage = "BidListId is mandatory")]
         [Range(int.MinValue, int.MaxValue, ErrorMessage = "BidListId must be an integer")]
@@ -105,15 +106,8 @@ namespace Dot.Net.WebApi.Domain
 
         public void Validate()
         {
-            var validationResults = new List<ValidationResult>();
-            var validationContext = new ValidationContext(this, null, null);
-            bool isValid = Validator.TryValidateObject(this, validationContext, validationResults, true);
-
-            if (!isValid)
-            {
-                var errors = string.Join("; ", validationResults.Select(vr => vr.ErrorMessage));
-                throw new ValidationException($"BidList is not valid: {errors}");
-            }
+            ValidationExtensions.Validate(this);
         }
+
     }
 }
