@@ -56,7 +56,7 @@ namespace P7CreateRestApi.Controllers
             // Vérifiez que l'utilisateur connecté est l'utilisateur courant ou un administrateur
             User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null || (currentUser.Id != user.Id && !await _userManager.IsInRoleAsync(currentUser, "Admin")))
-            // ajouter admin puisse aussi le faire
+            // TODO: an Admin should be able to do it also
             {
                 return Forbid();
             }
@@ -70,22 +70,23 @@ namespace P7CreateRestApi.Controllers
                 return BadRequest(ex.Message);
             }
 
-            _context.Entry(user).State = EntityState.Modified;
-
-            try
+            var existingUser = await _userManager.FindByIdAsync(id);
+            if (existingUser == null)
             {
-                await _context.SaveChangesAsync();
+                return NotFound("User with this Id does not exist.");
             }
-            catch (DbUpdateConcurrencyException)
+
+            // Update only allowed properties to prevent overposting
+            existingUser.Fullname = user.Fullname;
+            existingUser.Email = user.Email;
+            existingUser.PhoneNumber = user.PhoneNumber;
+            existingUser.LastLoginDate = user.LastLoginDate;
+
+            // Use UserManager to update user information
+            var result = await _userManager.UpdateAsync(existingUser);
+            if (!result.Succeeded)
             {
-                if (!UserExists(id))
-                {
-                    return NotFound("User with this Id does not exist");
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest(result.Errors);
             }
 
             return NoContent();
