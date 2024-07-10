@@ -6,3 +6,6 @@
 /P7CreateRestApi/.vs
 /P7CreateRestApi.Tests/bin/Debug/net8.0
 /P7CreateRestApi.Tests/obj
+P7CreateRestApi.Tests/coverage-report/
+P7CreateRestApi.Tests/__Instrumented/
+P7CreateRestApi/logs/

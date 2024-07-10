@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Dot.Net.WebApi.Domain
 {
-    public class CurvePoint
+    public class CurvePoint : IValidatable
     {
         public int Id { get; set; }
 
@@ -23,15 +23,7 @@ namespace Dot.Net.WebApi.Domain
 
         public void Validate()
         {
-            var validationResults = new List<ValidationResult>();
-            var validationContext = new ValidationContext(this, null, null);
-            bool isValid = Validator.TryValidateObject(this, validationContext, validationResults, true);
-
-            if (!isValid)
-            {
-                var errors = string.Join("; ", validationResults.Select(vr => vr.ErrorMessage));
-                throw new ValidationException($"CurvePoint is not valid: {errors}");
-            }
+            ValidationExtensions.Validate(this);
         }
     }
 }

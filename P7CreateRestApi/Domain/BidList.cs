@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Dot.Net.WebApi.Domain
 {
-    public class BidList
+    public class BidList : IValidatable
     {
         [Required(ErrorMessage = "BidListId is mandatory")]
         [Range(int.MinValue, int.MaxValue, ErrorMessage = "BidListId must be an integer")]
@@ -39,11 +39,9 @@ namespace Dot.Net.WebApi.Domain
         public DateTime? BidListDate { get; set; }
 
         [Required(ErrorMessage = "Commentary is mandatory")]
-
         [DataType(DataType.MultilineText, ErrorMessage = "Commentary must be a string")]
         [MaxLength(500, ErrorMessage = "Commentary can't be longer than 500 characters")]
         public required string Commentary { get; set; }
-
 
         [Required(ErrorMessage = "BidSecurity is mandatory")]
         [DataType(DataType.Text, ErrorMessage = "BidSecurity must be a string")]
@@ -73,7 +71,6 @@ namespace Dot.Net.WebApi.Domain
         [DataType(DataType.DateTime, ErrorMessage = "CreationDate must be a date and a time of day")]
         public DateTime? CreationDate { get; set; }
 
-
         [Required(ErrorMessage = "RevisionName is mandatory")]
         [DataType(DataType.Text, ErrorMessage = "RevisionName must be a string")]
         [MaxLength(50, ErrorMessage = "RevisionName can't be longer than 50 characters")]
@@ -86,7 +83,6 @@ namespace Dot.Net.WebApi.Domain
         [DataType(DataType.Text, ErrorMessage = "DealName must be a string")]
         [MaxLength(50, ErrorMessage = "DealName can't be longer than 50 characters")]
         public required string DealName { get; set; }
-
 
         [Required(ErrorMessage = "DealType is mandatory")]
         [DataType(DataType.Text, ErrorMessage = "DealType must be a string")]
@@ -105,15 +101,7 @@ namespace Dot.Net.WebApi.Domain
 
         public void Validate()
         {
-            var validationResults = new List<ValidationResult>();
-            var validationContext = new ValidationContext(this, null, null);
-            bool isValid = Validator.TryValidateObject(this, validationContext, validationResults, true);
-
-            if (!isValid)
-            {
-                var errors = string.Join("; ", validationResults.Select(vr => vr.ErrorMessage));
-                throw new ValidationException($"BidList is not valid: {errors}");
-            }
+            ValidationExtensions.Validate(this);
         }
     }
 }
