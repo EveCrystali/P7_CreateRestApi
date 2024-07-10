@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
-using System.Linq;
-using System.Reflection;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Dot.Net.WebApi.Domain
 {
@@ -44,7 +39,7 @@ namespace Dot.Net.WebApi.Domain
                 }
                 else if (value == null && prop.PropertyType == typeof(DateTime))
                 {
-                     throw new ValidationException($"{prop.Name} must not be null or empty");
+                    throw new ValidationException($"{prop.Name} must not be null or empty");
                 }
             }
         }
@@ -53,6 +48,7 @@ namespace Dot.Net.WebApi.Domain
         {
             if (date == null)
             {
+                // if date is null, no validation is required
                 return;
             }
             bool isValid = DateTime.TryParseExact(date.Value.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
@@ -64,8 +60,6 @@ namespace Dot.Net.WebApi.Domain
             {
                 throw new ValidationException($"{propertyName} must be in the format yyyy-MM-ddTHH:mm:ss.fffZ");
             }
-
-            // if date is null, no validation is required
         }
     }
 }

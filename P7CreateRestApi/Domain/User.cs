@@ -19,6 +19,7 @@ namespace Dot.Net.WebApi.Domain
             ValidationExtensions.Validate(this);
         }
     }
+
     public static class UserExtensions
     {
         public static bool IsUserActive(this User user)

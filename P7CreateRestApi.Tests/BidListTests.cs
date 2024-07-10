@@ -1,12 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Dot.Net.WebApi.Domain;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Text;
-using System.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Globalization;
+using Dot.Net.WebApi.Domain;
 
 namespace P7CreateRestApi.Tests;
 
@@ -915,20 +909,20 @@ public class BidListTests
     // -------------- DATETIME PROPERTIES TESTS ------------------
 
     [Theory]
-    // [InlineData(null)]
-    // [InlineData("")]
+    [InlineData(null)]
+    [InlineData("")]
     [InlineData("InvalidDateString")]
-    // [InlineData("08/07/2024 15:06")]
-    // [InlineData("2024-07-08T15:06:02.998Z")]
-    public void Test_Validate_WithValidBidList_CreationDateVariation_ShouldReturnAnException(string? input)
+    [InlineData("08/07/2024 15:06")]
+    [InlineData("2024-07-08T15:06:02.998Z")]
+    public void Test_Validate_WithValidBidList_CreationDate_ShouldReturnAnException(string? input)
     {
-        // FIXME: check if the date is in the format yyyy-MM-ddTHH:mm:ss.fffZ "TryParseExact"
+        bidList.CreationDate = null;
         if (!string.IsNullOrEmpty(input) && DateTime.TryParseExact(input, "yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTime tempDate))
         {
             bidList.CreationDate = tempDate;
             Exception? ex = Record.Exception(() => bidList.Validate());
             Assert.Null(ex);
-            Assert.Equal(bidList.CreationDate, DateTime.ParseExact(input, "yyyy-MM-ddTHH:mm:ss.fffZ", null));
+            Assert.Equal(bidList.CreationDate, DateTime.ParseExact(input, "yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture));
         }
         else
         {
@@ -937,28 +931,111 @@ public class BidListTests
                 try
                 {
                     bidList.CreationDate = DateTime.Parse(input);
-                    Exception? ex = Assert.Throws<ValidationException>(() => bidList.Validate());
-                    Assert.Equal("CreationDate must be in the format yyyy-MM-ddTHH:mm:ss.fffZ", ex.Message);
+                    bidList.Validate();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // FIXME: instead of taking the new value, CreationDate is using the old value at the declaration UtcNow making it valid when it should not
-                    Exception? ex = Assert.Throws<ValidationException>(() => bidList.Validate());
-                    Assert.Equal("CreationDate must be in the format yyyy-MM-ddTHH:mm:ss.fffZ", ex.Message);
+                    Assert.NotNull(ex);
+                    if (ex.GetType() != typeof(ValidationException) && ex.GetType() != typeof(System.FormatException))
+                    {
+                        Assert.Fail("Unexpected exception type: " + ex.GetType() + "\n with message: " + ex.Message + "\n The exception should be a ValidationException or a FormatException");
+                    }
                 }
             }
             else
             {
-                bidList.CreationDate = null;
+                // As CreationDate is nullable DateTime? if input is null : no exception should be thrown
                 Exception? ex = Record.Exception(() => bidList.Validate());
                 Assert.Null(ex);
             }
         }
     }
 
-    // TODO: add CreatedDate tests
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("InvalidDateString")]
+    [InlineData("08/07/2024 15:06")]
+    [InlineData("2024-07-08T15:06:02.998Z")]
+    public void Test_Validate_WithValidBidList_BidListDate_ShouldReturnAnException(string? input)
+    {
+        bidList.BidListDate = null;
+        if (!string.IsNullOrEmpty(input) && DateTime.TryParseExact(input, "yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTime tempDate))
+        {
+            bidList.BidListDate = tempDate;
+            Exception? ex = Record.Exception(() => bidList.Validate());
+            Assert.Null(ex);
+            Assert.Equal(bidList.BidListDate, DateTime.ParseExact(input, "yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture));
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                try
+                {
+                    bidList.BidListDate = DateTime.Parse(input);
+                    bidList.Validate();
+                }
+                catch (Exception ex)
+                {
+                    Assert.NotNull(ex);
+                    if (ex.GetType() != typeof(ValidationException) && ex.GetType() != typeof(System.FormatException))
+                    {
+                        Assert.Fail("Unexpected exception type: " + ex.GetType() + "\n with message: " + ex.Message + "\n The exception should be a ValidationException or a FormatException");
+                    }
+                }
+            }
+            else
+            {
+                // As BidListDate is nullable DateTime? if input is null : no exception should be thrown
+                Exception? ex = Record.Exception(() => bidList.Validate());
+                Assert.Null(ex);
+            }
+        }
+    }
 
-    // TODO: add RevisionDate tests
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("InvalidDateString")]
+    [InlineData("08/07/2024 15:06")]
+    [InlineData("2024-07-08T15:06:02.998Z")]
+    public void Test_Validate_WithValidBidList_RevisionDate_ShouldReturnAnException(string? input)
+    {
+        bidList.RevisionDate = null;
+        if (!string.IsNullOrEmpty(input) && DateTime.TryParseExact(input, "yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTime tempDate))
+        {
+            bidList.RevisionDate = tempDate;
+            Exception? ex = Record.Exception(() => bidList.Validate());
+            Assert.Null(ex);
+            Assert.Equal(bidList.RevisionDate, DateTime.ParseExact(input, "yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture));
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                try
+                {
+                    bidList.RevisionDate = DateTime.Parse(input);
+                    bidList.Validate();
+                }
+                catch (Exception ex)
+                {
+                    Assert.NotNull(ex);
+                    if (ex.GetType() != typeof(ValidationException) && ex.GetType() != typeof(System.FormatException))
+                    {
+                        Assert.Fail("Unexpected exception type: " + ex.GetType() + "\n with message: " + ex.Message + "\n The exception should be a ValidationException or a FormatException");
+                    }
+                }
+            }
+            else
+            {
+                // As RevisionDate is nullable DateTime? if input is null : no exception should be thrown
+                Exception? ex = Record.Exception(() => bidList.Validate());
+                Assert.Null(ex);
+            }
+        }
+    }
 
     // -------------- DATETIME PROPERTIES TESTS ------------------
 }

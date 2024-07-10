@@ -5,12 +5,14 @@ public static class SampleTestVariables
     public const string? stringNull = null;
     public const string? string51 = "50string6666666666666666666666666666666666666666666";
     public const string? string101 = "100string66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666";
+
     public const string? string501 = "501string66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"
                                         + "6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"
                                         + "6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"
                                         + "6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"
                                         + "6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"
                                         + "6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666";
+
     public const string? stringEmpty = "";
     public const string? stringSpace = " ";
     public const string? stringSmall = "string";
@@ -19,7 +21,7 @@ public static class SampleTestVariables
 
     // Creation of a set of strings to be used in the tests
     public static TheoryData<string?, int> StringCombinationsTest => new()
-    {           
+    {
         // Incrementing the int number by 1 for each new combination, providing a unique code for each combination
         // The int number purpose is to make the test results more readable when a error occurs
 
@@ -50,7 +52,7 @@ public static class SampleTestVariables
         {string501 + stringNumbers, 5014},
         {string501 + stringSpace, 5012},
         {string501 + stringSpecialChars, 5015},
-                
+
         // Triple combinations
         {stringSmall + stringNumbers + stringSpecialChars, 345},
         {stringSmall + stringSpace + stringNumbers, 324},
@@ -71,7 +73,6 @@ public static class SampleTestVariables
         {string501 + stringSpace + stringNumbers, 50124},
         {string501 + stringSpace + stringSpecialChars, 50125},
         {string501 + stringSpace + stringSpecialChars + stringNumbers, 501254},
-
     };
 
     public static readonly List<int?> stringMandatory = [0, 1, 2];
