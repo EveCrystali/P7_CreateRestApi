@@ -113,6 +113,8 @@ namespace Dot.Net.WebApi.Data
                 entity.ToTable("User");
 
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id)
+                    .ValueGeneratedOnAdd(); 
                 entity.Property(e => e.UserName)
                       .HasColumnName("UserName")
                       .IsRequired()
@@ -120,6 +122,7 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.Fullname)
                       .HasColumnName("Fullname");
             });
+
         }
 
         public DbSet<BidList> BidLists { get; set; }

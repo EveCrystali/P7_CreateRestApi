@@ -17,9 +17,10 @@ namespace P7CreateRestApi.Controllers
 
         private readonly UserManager<User> _userManager;
 
-        public UserController(LocalDbContext context)
+        public UserController(LocalDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -60,6 +61,15 @@ namespace P7CreateRestApi.Controllers
                 return Forbid();
             }
 
+            try
+            {
+                user.Validate();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
             _context.Entry(user).State = EntityState.Modified;
 
             try
@@ -85,13 +95,27 @@ namespace P7CreateRestApi.Controllers
         [Route("add")]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-            //  user.Id must be  set by the database automatically, so we set it to 0 to force it
-            user.Id = 0;
+            try
+            {
+                user.Validate();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            user.Id = null;
 
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            var result = await _userManager.CreateAsync(user, user.PasswordHash); // Assure-toi que PasswordHash est correctement géré
+
+            if (result.Succeeded)
+            {
+                return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            }
+            else
+            {
+                return BadRequest(result.Errors);
+            }
         }
 
         [Authorize(Policy = "RequireAdminRole")]
