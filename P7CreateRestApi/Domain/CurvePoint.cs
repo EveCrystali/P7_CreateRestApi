@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Dot.Net.WebApi.Domain
 {
-    public class CurvePoint
+    public class CurvePoint : IValidatable
     {
         public int Id { get; set; }
 
@@ -20,5 +20,10 @@ namespace Dot.Net.WebApi.Domain
 
         [DataType(DataType.DateTime, ErrorMessage = "CreationDate must be a date and a time of day")]
         public DateTime? CreationDate { get; set; }
+
+        public void Validate()
+        {
+            ValidationExtensions.Validate(this);
+        }
     }
 }

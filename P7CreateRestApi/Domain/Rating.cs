@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Dot.Net.WebApi.Domain;
 
 namespace Dot.Net.WebApi.Controllers.Domain
 {
-    public class Rating
+    public class Rating : IValidatable
     {
         public int Id { get; set; }
 
@@ -23,5 +24,10 @@ namespace Dot.Net.WebApi.Controllers.Domain
 
         [Range(byte.MinValue, byte.MaxValue, ErrorMessage = "OrderNumber must be an integer")]
         public byte? OrderNumber { get; set; }
+
+        public void Validate()
+        {
+            ValidationExtensions.Validate(this);
+        }
     }
 }

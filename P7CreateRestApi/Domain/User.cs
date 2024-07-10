@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Dot.Net.WebApi.Domain
 {
-    public class User : IdentityUser
+    public class User : IdentityUser, IValidatable
     {
         [Required(ErrorMessage = "Full name is required")]
         [DataType(DataType.Text)]
@@ -13,6 +13,11 @@ namespace Dot.Net.WebApi.Domain
 
         [DataType(DataType.DateTime, ErrorMessage = "LastLoginDate must be a date and a time of day")]
         public DateTime? LastLoginDate { get; set; }
+
+        public void Validate()
+        {
+            ValidationExtensions.Validate(this);
+        }
     }
 
     public static class UserExtensions

@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Dot.Net.WebApi.Domain;
 
 namespace Dot.Net.WebApi.Controllers
 {
-    public class RuleName
+    public class RuleName : IValidatable
     {
         public int Id { get; set; }
 
@@ -35,5 +36,10 @@ namespace Dot.Net.WebApi.Controllers
         [DataType(DataType.MultilineText, ErrorMessage = "SqlPart must be a string")]
         [MaxLength(1000, ErrorMessage = "SqlPart can't be longer than 1000 characters")]
         public required string SqlPart { get; set; }
+
+        public void Validate()
+        {
+            ValidationExtensions.Validate(this);
+        }
     }
 }

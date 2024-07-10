@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Dot.Net.WebApi.Domain
 {
-    public class Trade
+    public class Trade : IValidatable
     {
         public int TradeId { get; set; }
 
@@ -91,5 +91,10 @@ namespace Dot.Net.WebApi.Domain
         [DataType(DataType.Text, ErrorMessage = "Side must be a string")]
         [MaxLength(50, ErrorMessage = "Side can't be longer than 50 characters")]
         public required string Side { get; set; }
+
+        public void Validate()
+        {
+            ValidationExtensions.Validate(this);
+        }
     }
 }
