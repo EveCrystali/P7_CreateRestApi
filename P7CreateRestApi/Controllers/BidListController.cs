@@ -1,4 +1,5 @@
-﻿using Dot.Net.WebApi;
+﻿using System.ComponentModel.DataAnnotations;
+using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
@@ -46,6 +47,15 @@ namespace P7CreateRestApi.Controllers
                 return BadRequest("The Id entered in the parameter is not the same as the Id enter in the body");
             }
 
+            try
+            {
+                bidList.Validate();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
             _context.Entry(bidList).State = EntityState.Modified;
 
             try
@@ -67,9 +77,22 @@ namespace P7CreateRestApi.Controllers
             return NoContent();
         }
 
-        [HttpPost("add/{id}")]
+        [HttpPost("add")]
         public async Task<ActionResult<BidList>> PostBidList(BidList bidList)
         {
+
+            try
+            {
+                bidList.Validate();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            // bidList.BidListId must be  set by the database automatically, so we set it to 0 to force it
+            bidList.BidListId = 0;
+
             _context.BidLists.Add(bidList);
             await _context.SaveChangesAsync();
 

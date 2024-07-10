@@ -1,6 +1,7 @@
 ﻿using Dot.Net.WebApi;
 using Dot.Net.WebApi.Controllers;
 using Dot.Net.WebApi.Data;
+using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,6 +48,15 @@ namespace P7CreateRestApi.Controllers
                 return BadRequest("The Id entered in the parameter is not the same as the Id enter in the body");
             }
 
+            try
+            {
+                ruleName.Validate();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
             _context.Entry(ruleName).State = EntityState.Modified;
 
             try
@@ -71,6 +81,18 @@ namespace P7CreateRestApi.Controllers
         [HttpPost("add")]
         public async Task<ActionResult<RuleName>> PostRuleName(RuleName ruleName)
         {
+            try
+            {
+                ruleName.Validate();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            // ruleName.Id must be set by the database automatically, so we set it to 0 to force it
+            ruleName.Id = 0;
+
             _context.RuleNames.Add(ruleName);
             await _context.SaveChangesAsync();
 

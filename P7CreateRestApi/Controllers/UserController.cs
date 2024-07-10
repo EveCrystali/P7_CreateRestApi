@@ -85,6 +85,9 @@ namespace P7CreateRestApi.Controllers
         [Route("add")]
         public async Task<ActionResult<User>> PostUser(User user)
         {
+            //  user.Id must be  set by the database automatically, so we set it to 0 to force it
+            user.Id = 0;
+
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
