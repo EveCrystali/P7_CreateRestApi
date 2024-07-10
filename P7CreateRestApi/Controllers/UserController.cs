@@ -17,9 +17,10 @@ namespace P7CreateRestApi.Controllers
 
         private readonly UserManager<User> _userManager;
 
-        public UserController(LocalDbContext context)
+        public UserController(LocalDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -55,27 +56,37 @@ namespace P7CreateRestApi.Controllers
             // Vérifiez que l'utilisateur connecté est l'utilisateur courant ou un administrateur
             User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null || (currentUser.Id != user.Id && !await _userManager.IsInRoleAsync(currentUser, "Admin")))
-            // ajouter admin puisse aussi le faire
+            // TODO: an Admin should be able to do it also
             {
                 return Forbid();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                user.Validate();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!UserExists(id))
-                {
-                    return NotFound("User with this Id does not exist");
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest(ex.Message);
+            }
+
+            var existingUser = await _userManager.FindByIdAsync(id);
+            if (existingUser == null)
+            {
+                return NotFound("User with this Id does not exist.");
+            }
+
+            // Update only allowed properties to prevent overposting
+            existingUser.Fullname = user.Fullname;
+            existingUser.Email = user.Email;
+            existingUser.PhoneNumber = user.PhoneNumber;
+            existingUser.LastLoginDate = user.LastLoginDate;
+
+            // Use UserManager to update user information
+            var result = await _userManager.UpdateAsync(existingUser);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
             }
 
             return NoContent();
@@ -85,13 +96,27 @@ namespace P7CreateRestApi.Controllers
         [Route("add")]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-            //  user.Id must be  set by the database automatically, so we set it to 0 to force it
-            user.Id = 0;
+            try
+            {
+                user.Validate();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            user.Id = null;
 
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            var result = await _userManager.CreateAsync(user, user.PasswordHash); // Assure-toi que PasswordHash est correctement géré
+
+            if (result.Succeeded)
+            {
+                return CreatedAtAction("GetUser", new { id = user.Id }, user);
+            }
+            else
+            {
+                return BadRequest(result.Errors);
+            }
         }
 
         [Authorize(Policy = "RequireAdminRole")]
