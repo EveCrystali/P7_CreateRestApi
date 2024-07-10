@@ -111,6 +111,8 @@ namespace Dot.Net.WebApi.Data
             builder.Entity<User>(entity =>
             {
                 entity.ToTable("User");
+
+                entity.HasKey(e => e.Id);
                 entity.Property(e => e.UserName)
                       .HasColumnName("UserName")
                       .IsRequired()

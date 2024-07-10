@@ -47,6 +47,15 @@ namespace P7CreateRestApi.Controllers
                 return BadRequest("The Id entered in the parameter is not the same as the Id enter in the body");
             }
 
+            try
+            {
+                rating.Validate();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
             _context.Entry(rating).State = EntityState.Modified;
 
             try
@@ -71,6 +80,18 @@ namespace P7CreateRestApi.Controllers
         [HttpPost("add")]
         public async Task<ActionResult<Rating>> PostRating(Rating rating)
         {
+            try
+            {
+                rating.Validate();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            // rating.Id must be set by the database automatically, so we set it to 0 to force it
+            rating.Id = 0;
+
             _context.Ratings.Add(rating);
             await _context.SaveChangesAsync();
 
