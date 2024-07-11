@@ -1,4 +1,5 @@
 using System.Text;
+using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Services;
@@ -13,6 +14,8 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
@@ -85,6 +88,9 @@ builder.Services.AddHostedService<TokenCleanupService>();
 builder.Services.AddScoped<ICurvePointService, CurvePointService>();
 
 WebApplication app = builder.Build();
+
+// Set the ServiceProvider for logging aspect
+ServiceProviderHelper.ServiceProvider = app.Services;
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
