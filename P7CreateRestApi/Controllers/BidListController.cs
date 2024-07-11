@@ -19,6 +19,7 @@ namespace P7CreateRestApi.Controllers
             _context = context;
         }
 
+        
         [HttpGet("list")]
         public async Task<ActionResult> GetBidLists()
         {
