@@ -5,6 +5,36 @@ using PostSharp.Serialization;
 
 namespace Dot.Net.WebApi
 {
+    public static class ServiceProviderHelper
+    {
+        private static IServiceProvider _serviceProvider;
+
+        public static IServiceProvider ServiceProvider
+        {
+            get
+            {
+                if (_serviceProvider == null)
+                {
+                    throw new InvalidOperationException("ServiceProvider has not been initialized.");
+                }
+                return _serviceProvider;
+            }
+            set
+            {
+                if (_serviceProvider != null)
+                {
+                    throw new InvalidOperationException("ServiceProvider is already set.");
+                }
+                _serviceProvider = value;
+            }
+        }
+
+        public static T GetService<T>()
+        {
+            return (T)ServiceProvider.GetService(typeof(T));
+        }
+    }
+
     [PSerializable]
     public class LogAspect : OnMethodBoundaryAspect
     {
@@ -31,7 +61,7 @@ namespace Dot.Net.WebApi
             }
             catch (Exception ex)
             {
-                string messageLog = $"Failed to write to log file: {ex.Message}";
+                string messageLog = $"LogAspect: Failed to write to log file: {ex.Message}";
                 _logger.LogError(messageLog);
             }
         }
@@ -44,21 +74,21 @@ namespace Dot.Net.WebApi
 
         public override void OnEntry(MethodExecutionArgs args)
         {
-            string messageLog = $"POSTSHARP: Entering {args.Method.Name}";
+            string messageLog = $"LogAspect: Entering {args.Method.Name}";
             _logger.LogInformation(messageLog);
             LogToFile(messageLog);
         }
 
         public override void OnExit(MethodExecutionArgs args)
         {
-            string messageLog = $"POSTSHARP: Exiting {args.Method.Name}";
+            string messageLog = $"LogAspect: Exiting {args.Method.Name}";
             _logger.LogInformation(messageLog);
             LogToFile(messageLog);
         }
 
         public override void OnException(MethodExecutionArgs args)
         {
-            string messageLog = $"POSTSHARP: Exception in {args.Method.Name}: {args.Exception.Message}";
+            string messageLog = $"LogAspect: Exception in {args.Method.Name}: {args.Exception.Message}";
             _logger.LogError(messageLog);
             LogToFile(messageLog);
         }
@@ -70,11 +100,14 @@ namespace Dot.Net.WebApi
         [NonSerialized]
         private ILogger<LogApiCallAspect> _logger;
 
+        [NonSerialized]
+        private IHttpContextAccessor _httpContextAccessor;
+
         public static readonly ILoggerFactory _loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 
-        public static readonly string _logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", "app.log");
+        public static readonly string _logFilePath = Path.Combine("logs", $"Log-{DateTime.Now:yyyy-MM-dd}.txt");
 
-        private void EnsureLogDirectoryExists()
+        public void EnsureLogDirectoryExists()
         {
             string? logDirectory = Path.GetDirectoryName(_logFilePath);
             if (!Directory.Exists(logDirectory) && logDirectory != null)
@@ -83,7 +116,7 @@ namespace Dot.Net.WebApi
             }
         }
 
-        private void LogToFile(string message)
+        public void LogToFile(string message)
         {
             try
             {
@@ -91,71 +124,87 @@ namespace Dot.Net.WebApi
             }
             catch (Exception ex)
             {
-                string messageLog = $"Failed to write to log file: {ex.Message}";
+                string messageLog = $"LogApiCallAspect: Failed to write to log file: {ex.Message}";
                 _logger.LogError(messageLog);
             }
         }
 
         public override void RuntimeInitialize(MethodBase method)
         {
-            _logger = _loggerFactory.CreateLogger<LogApiCallAspect>();
-            EnsureLogDirectoryExists();
+            if (ServiceProviderHelper.ServiceProvider == null)
+            {
+                throw new InvalidOperationException("LogApiCallAspect: ServiceProvider is not initialized");
+            }
+
+            _logger = ServiceProviderHelper.GetService<ILogger<LogApiCallAspect>>();
+            if (_logger == null)
+            {
+                throw new InvalidOperationException("LogApiCallAspect: Logger is not available");
+            }
+
+            _httpContextAccessor = ServiceProviderHelper.GetService<IHttpContextAccessor>();
+            if (_httpContextAccessor == null)
+            {
+                throw new InvalidOperationException("LogApiCallAspect: HttpContextAccessor is not available");
+            }
         }
 
         public override void OnEntry(MethodExecutionArgs args)
         {
-            HttpContext? httpContext = (HttpContext?)args.Instance.GetType()
-                .GetProperty("HttpContext")
-                ?.GetValue(args.Instance, null);
+            if (_logger == null)
+            {
+                throw new InvalidOperationException("LogApiCallAspect: Logger is not available");
+            }
 
-            if (httpContext != null)
+            _logger.LogWarning("Entering method {0}", args.Method.Name);
+
+            if (_httpContextAccessor.HttpContext == null)
             {
-                HttpRequest request = httpContext.Request;
-                string messageLog = $"API call to {request.Path} with method {request.Method}";
-                _logger.LogInformation(messageLog);
-                LogToFile(messageLog);
+                string messageLog3 = "LogApiCallAspect: _httpContextAccessor.HttpContext is null.";
+                _logger.LogWarning(messageLog3);
+                LogToFile(messageLog3);
+                return;
             }
-            else
-            {
-                string messageLog = $"POSTSHARP: No HttpContext argument found.";
-                _logger.LogInformation(messageLog);
-                LogToFile(messageLog);
-            }
-            string messageLog2 = $"POSTSHARP: Entering {args.Method.Name}";
+
+            HttpRequest request = _httpContextAccessor.HttpContext.Request;
+            string messageLog = $"LogApiCallAspect: API call to {request.Path} with method {request.Method}";
+            _logger.LogInformation(messageLog);
+            LogToFile(messageLog);
+
+            string messageLog2 = $"LogApiCallAspect: Entering {args.Method.Name}";
             _logger.LogInformation(messageLog2);
             LogToFile(messageLog2);
         }
 
         public override void OnSuccess(MethodExecutionArgs args)
         {
-            HttpContext? httpContext = (HttpContext?)args.Instance.GetType()
-                .GetProperty("HttpContext")
-                ?.GetValue(args.Instance, null);
-
-            if (httpContext != null)
+            if (_logger == null)
             {
-                HttpResponse response = httpContext.Response;
-                string messageLog = $"API call succeeded: Status {response.StatusCode}";
-                _logger.LogInformation(messageLog);
-                LogToFile(messageLog);
-
-                if (args.ReturnValue is ObjectResult result)
-                {
-                    string messageLog2 = $"POSTSHARP: Response Body: {System.Text.Json.JsonSerializer.Serialize(result.Value)}";
-                    _logger.LogInformation(messageLog2);
-                    LogToFile(messageLog2);
-                }
+                throw new InvalidOperationException("LogApiCallAspect: Logger is not available");
             }
-            else
+
+            HttpContext httpContext = _httpContextAccessor.HttpContext;
+            HttpResponse response = httpContext.Response;
+            string messageLog = $"LogApiCallAspect: API call succeeded: Status {response.StatusCode}";
+            _logger.LogInformation(messageLog);
+            LogToFile(messageLog);
+
+            if (args.ReturnValue is ObjectResult result)
             {
-                _logger.LogWarning("POSTSHARP: No HttpContext found.");
-                LogToFile("POSTSHARP: No HttpContext found.");
+                string messageLog2 = $"LogApiCallAspect: Response Body: {System.Text.Json.JsonSerializer.Serialize(result.Value)}";
+                _logger.LogInformation(messageLog2);
+                LogToFile(messageLog2);
             }
         }
 
         public override void OnException(MethodExecutionArgs args)
         {
-            string messageLog = $"API call failed: {args.Exception.Message}";
+            if (_logger == null)
+            {
+                throw new InvalidOperationException("LogApiCallAspect: Logger is not available");
+            }
+
+            string messageLog = $"LogApiCallAspect: API call failed: {args.Exception.Message}";
             _logger.LogError(messageLog);
             LogToFile(messageLog);
         }
