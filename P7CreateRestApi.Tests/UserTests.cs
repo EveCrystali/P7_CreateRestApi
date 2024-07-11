@@ -54,7 +54,7 @@ public class UserTests
         user.Fullname = input;
 
         // Act
-        bool result = ValidationHelper.TryValidateObject(user, out List<ValidationResult>? validationResults);
+        bool result = TestHelper.TryValidateObject(user, out List<ValidationResult>? validationResults);
 
         // Assert
         if (resultExpected)
