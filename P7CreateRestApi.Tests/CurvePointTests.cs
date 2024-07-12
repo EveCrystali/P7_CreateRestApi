@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using Dot.Net.WebApi.Domain;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
 
 namespace P7CreateRestApi.Tests;
 
@@ -17,8 +16,8 @@ public class CurvePointTests
         Term = 1,
         CurvePointValue = 1,
         CreationDate = DateTime.Now
-
     };
+
     // --------------- VALID DATA ------------------
 
     // ALL DATA VALID
@@ -145,7 +144,6 @@ public class CurvePointTests
         Assert.Null(curvePoint.CurvePointValue);
     }
 
-
     // --------------- NUMERIC PROPERTIES TESTS ------------------
 
     // -------------- DATETIME PROPERTIES TESTS ------------------
@@ -235,8 +233,6 @@ public class CurvePointTests
             }
         }
     }
-
-
 
     // -------------- DATETIME PROPERTIES TESTS ------------------
 }

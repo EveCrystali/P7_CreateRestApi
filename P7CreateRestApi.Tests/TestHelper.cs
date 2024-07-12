@@ -28,27 +28,27 @@ public static class TestHelper
     /// <param name="NoSpecialChars">Indicates whether the input string should not contain special characters.</param>
     /// <param name="NoNumbers">Indicates whether the input string should not contain numbers.</param>
     public static void ValidateStringProperty<T>(
-        T instance,             
-        string propertyName,    
-        string? input,          
-        int code,               
-        int minLength = 0,      
-        int? maxLength = null,  
-        bool mandatory = false, 
-        bool NoSpecialChars = false, 
-        bool NoNumbers = false 
+        T instance,
+        string propertyName,
+        string? input,
+        int code,
+        int minLength = 0,
+        int? maxLength = null,
+        bool mandatory = false,
+        bool NoSpecialChars = false,
+        bool NoNumbers = false
     ) where T : IValidatable
     {
         // Arrange
 
         // Get the property of the specified type and name
-        var property = typeof(T).GetProperty(propertyName);
+        PropertyInfo? property = typeof(T).GetProperty(propertyName);
 
         // Set the value of the property to the specified input string
         property.SetValue(instance, input);
 
         // Get the expected validation messages for the property
-        var expectedMessages = GetValidationMessages(property);
+        List<string> expectedMessages = GetValidationMessages(property);
 
         // Get the effective maximum length of the input string
         int effectiveMaxLength = maxLength ?? GetMaxLength(property);
@@ -97,10 +97,9 @@ public static class TestHelper
         }
     }
 
-
     public static List<string> GetValidationMessages(PropertyInfo property)
     {
-        var attributes = property.GetCustomAttributes(typeof(ValidationAttribute), true);
+        object[] attributes = property.GetCustomAttributes(typeof(ValidationAttribute), true);
         return attributes.Select(attr => ((ValidationAttribute)attr).ErrorMessage).ToList();
     }
 
@@ -108,23 +107,22 @@ public static class TestHelper
     {
         Assert.NotNull(ex);
         Assert.IsType<ValidationException>(ex);
-        var validationException = (ValidationException)ex;
+        ValidationException validationException = (ValidationException)ex;
 
         bool containsExpectedMessage = expectedMessages.Any(message => validationException.Message.Contains(message));
 
         Assert.True(containsExpectedMessage, $"Expected one of the following messages: {string.Join(", ", expectedMessages)}. Actual message: {validationException.Message}");
     }
 
-
     public static int GetMaxLength(PropertyInfo property)
     {
-        var maxLengthAttribute = property.GetCustomAttribute<MaxLengthAttribute>();
+        MaxLengthAttribute? maxLengthAttribute = property.GetCustomAttribute<MaxLengthAttribute>();
         if (maxLengthAttribute != null)
         {
             return maxLengthAttribute.Length;
         }
 
-        var stringLengthAttribute = property.GetCustomAttribute<StringLengthAttribute>();
+        StringLengthAttribute? stringLengthAttribute = property.GetCustomAttribute<StringLengthAttribute>();
         if (stringLengthAttribute != null)
         {
             return stringLengthAttribute.MaximumLength;
@@ -132,5 +130,4 @@ public static class TestHelper
 
         throw new InvalidOperationException($"The property '{property.Name}' does not have a MaxLength or StringLength attribute.");
     }
-
 }

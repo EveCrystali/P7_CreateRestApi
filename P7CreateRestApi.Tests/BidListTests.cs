@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using Dot.Net.WebApi.Domain;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
 
 namespace P7CreateRestApi.Tests;
 
@@ -34,6 +33,7 @@ public class BidListTests
         SourceListId = "SourceListId",
         Side = "Side"
     };
+
     // --------------- VALID DATA ------------------
 
     // ALL DATA VALID
@@ -181,7 +181,7 @@ public class BidListTests
     [InlineData(double.MinValue + 1)]
     [InlineData(0)]
     [InlineData(double.MaxValue - 1)]
-    public void Test_Validate_WithValidBidList_GoodBidQuantity_ShouldNotThrowException(double input)
+    public void Test_Validate_WithValidBidList_BidQuantity_ShouldNotThrowException(double input)
     {
         // Arrange
         bidList.BidQuantity = input;
@@ -194,11 +194,25 @@ public class BidListTests
         Assert.Equal(bidList.BidQuantity, input);
     }
 
+    [Fact]
+    public void Test_Validate_WithValidBidList_BidQuantityIsNull_ShouldNotThrowException()
+    {
+        // Arrange
+        bidList.BidQuantity = null;
+
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        Assert.Null(ex);
+        Assert.Null(bidList.BidQuantity);
+    }
+
     [Theory]
     [InlineData(double.MinValue + 1)]
     [InlineData(0)]
     [InlineData(double.MaxValue - 1)]
-    public void Test_Validate_WithValidBidList_GoodAskQuantity_ShouldNotThrowException(double input)
+    public void Test_Validate_WithValidBidList_AskQuantity_ShouldNotThrowException(double input)
     {
         // Arrange
         bidList.AskQuantity = input;
@@ -211,11 +225,25 @@ public class BidListTests
         Assert.Equal(bidList.AskQuantity, input);
     }
 
+    [Fact]
+    public void Test_Validate_WithValidBidList_AskQuantityIsNull_ShouldNotThrowException()
+    {
+        // Arrange
+        bidList.AskQuantity = null;
+
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        Assert.Null(ex);
+        Assert.Null(bidList.AskQuantity);
+    }
+
     [Theory]
     [InlineData(double.MinValue + 1)]
     [InlineData(0)]
     [InlineData(double.MaxValue - 1)]
-    public void Test_Validate_WithValidBidList_GoodBid_ShouldNotThrowException(double input)
+    public void Test_Validate_WithValidBidList_Bid_ShouldNotThrowException(double input)
     {
         // Arrange
         bidList.Bid = input;
@@ -228,11 +256,25 @@ public class BidListTests
         Assert.Equal(bidList.Bid, input);
     }
 
+    [Fact]
+    public void Test_Validate_WithValidBidList_BidIsNull_ShouldNotThrowException()
+    {
+        // Arrange
+        bidList.Bid = null;
+
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        Assert.Null(ex);
+        Assert.Null(bidList.Bid);
+    }
+
     [Theory]
     [InlineData(double.MinValue + 1)]
     [InlineData(0)]
     [InlineData(double.MaxValue - 1)]
-    public void Test_Validate_WithValidBidList_GoodAsk_ShouldNotThrowException(double input)
+    public void Test_Validate_WithValidBidList_Ask_ShouldNotThrowException(double input)
     {
         // Arrange
         bidList.Ask = input;
@@ -243,6 +285,20 @@ public class BidListTests
         // Assert
         Assert.Null(ex);
         Assert.Equal(bidList.Ask, input);
+    }
+
+    [Fact]
+    public void Test_Validate_WithValidBidList_AskIsNull_ShouldNotThrowException()
+    {
+        // Arrange
+        bidList.Ask = null;
+
+        // Act
+        Exception? ex = Record.Exception(() => bidList.Validate());
+
+        // Assert
+        Assert.Null(ex);
+        Assert.Null(bidList.Ask);
     }
 
     // --------------- NUMERIC PROPERTIES TESTS ------------------
