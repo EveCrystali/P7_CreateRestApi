@@ -5,7 +5,7 @@ namespace Dot.Net.WebApi.Domain
 {
     public class User : IdentityUser, IValidatable
     {
-        [Required(ErrorMessage = "Full name is required")]
+        [Required(ErrorMessage = "Full name is mandatory")]
         [DataType(DataType.Text)]
         [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage = "Full name should contain only letters and spaces")]
         [StringLength(25, MinimumLength = 5, ErrorMessage = "Full name should be between 5 and 25 characters long")]
