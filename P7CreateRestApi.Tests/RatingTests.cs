@@ -7,7 +7,7 @@ namespace P7CreateRestApi.Tests;
 public class RatingTests
 {
     // --------------- VALID DATA ------------------
-    // CurvePoint with all valid data is declarated here because it will be used in all tests
+    // Rating with all valid data is declarated here because it will be used in all tests
     public Rating rating = new()
     {
         Id = 1,
