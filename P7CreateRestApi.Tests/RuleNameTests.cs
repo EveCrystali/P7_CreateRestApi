@@ -37,8 +37,9 @@ public class RuleNameTest
     // --------------- STRING PROPERTIES TESTS ------------------
 
     // Name - 50 characters max - Mandatory
+    // Name - 50 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 50, MemberType = typeof(SampleTestVariables))]
     public void Test_Validate_Name_StringVariation_ShouldReturnExpectedResults(string? input, int code)
     {
         TestHelper.ValidateStringProperty(ruleName, nameof(RuleName.Name), input, code, mandatory: true);
@@ -46,7 +47,7 @@ public class RuleNameTest
 
     // Description - 500 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 500, MemberType = typeof(SampleTestVariables))]
     public void Test_Validate_Description_StringVariation_ShouldReturnExpectedResults(string? input, int code)
     {
         TestHelper.ValidateStringProperty(ruleName, nameof(RuleName.Description), input, code, mandatory: true);
@@ -54,7 +55,7 @@ public class RuleNameTest
 
     // Json - 5000 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 5000, MemberType = typeof(SampleTestVariables))]
     public void Test_Validate_Json_StringVariation_ShouldReturnExpectedResults(string? input, int code)
     {
         TestHelper.ValidateStringProperty(ruleName, nameof(RuleName.Json), input, code, mandatory: true);
@@ -62,7 +63,7 @@ public class RuleNameTest
 
     // Template - 1000 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 1000, MemberType = typeof(SampleTestVariables))]
     public void Test_Validate_Template_StringVariation_ShouldReturnExpectedResults(string? input, int code)
     {
         TestHelper.ValidateStringProperty(ruleName, nameof(RuleName.Template), input, code, mandatory: true);
@@ -70,7 +71,7 @@ public class RuleNameTest
 
     // SqlStr - 1000 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 1000, MemberType = typeof(SampleTestVariables))]
     public void Test_Validate_SqlStr_StringVariation_ShouldReturnExpectedResults(string? input, int code)
     {
         TestHelper.ValidateStringProperty(ruleName, nameof(RuleName.SqlStr), input, code, mandatory: true);
@@ -78,12 +79,12 @@ public class RuleNameTest
 
     // SqlPart - 1000 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 1000, MemberType = typeof(SampleTestVariables))]
     public void Test_Validate_SqlPart_StringVariation_ShouldReturnExpectedResults(string? input, int code)
     {
         TestHelper.ValidateStringProperty(ruleName, nameof(RuleName.SqlPart), input, code, mandatory: true);
-    }  
+    }
 
-    
+
     // --------------- STRING PROPERTIES TESTS ------------------
 }
