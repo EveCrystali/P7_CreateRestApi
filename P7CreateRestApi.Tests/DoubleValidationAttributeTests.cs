@@ -15,10 +15,38 @@ public class DoubleValidationAttributeTests
     [InlineData("abc", false)]
     [InlineData("", false)]
     [InlineData(null, false)]
-    public void IsValid_ShouldReturnExpectedResult(string? input, bool resultExpected)
+    public void DoubleValidationAttribute_ShouldReturnExpectedResult(string? input, bool resultExpected)
     {
         // Arrange
         DoubleValidationAttribute attribute = new();
+        ValidationContext validationContext = new(new object());
+
+        // Act
+        ValidationResult? result = attribute.GetValidationResult(input, validationContext);
+
+        // Assert
+        if (resultExpected)
+        {
+            Assert.Equal(ValidationSuccess, result);
+        }
+        else
+        {
+            Assert.NotEqual(ValidationSuccess, result);
+            Assert.Equal(ValidationFailMessage, result.ErrorMessage);
+        }
+    }
+
+    [Theory]
+    [InlineData("123.45", true)]
+    [InlineData("0", true)]
+    [InlineData("-123.45", true)]
+    [InlineData("abc", false)]
+    [InlineData("", false)]
+    [InlineData(null, true)]
+    public void DoubleValidationNullableAttribute_ShouldReturnExpectedResult(string? input, bool resultExpected)
+    {
+        // Arrange
+        DoubleNullableValidationAttribute attribute = new();
         ValidationContext validationContext = new(new object());
 
         // Act

@@ -18,16 +18,16 @@ namespace Dot.Net.WebApi.Domain
         [MaxLength(50, ErrorMessage = "BidType can't be longer than 50 characters")]
         public required string BidType { get; set; }
 
-        [DoubleValidation(ErrorMessage = "BidQuantity must be a valid double")]
+        [DoubleNullableValidation(ErrorMessage = "BidQuantity must be a valid double")]
         public double? BidQuantity { get; set; }
 
-        [DoubleValidation(ErrorMessage = "AskQuantity must be a valid double")]
+        [DoubleNullableValidation(ErrorMessage = "AskQuantity must be a valid double")]
         public double? AskQuantity { get; set; }
 
-        [DoubleValidation(ErrorMessage = "Bid must be a valid double")]
+        [DoubleNullableValidation(ErrorMessage = "Bid must be a valid double")]
         public double? Bid { get; set; }
 
-        [DoubleValidation(ErrorMessage = "Ask must be a valid double")]
+        [DoubleNullableValidation(ErrorMessage = "Ask must be a valid double")]
         public double? Ask { get; set; }
 
         [Required(ErrorMessage = "Benchmark is mandatory")]

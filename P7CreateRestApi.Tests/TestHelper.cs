@@ -2,6 +2,7 @@
 using System.Reflection;
 using Dot.Net.WebApi.Domain;
 
+
 namespace P7CreateRestApi.Tests;
 
 public static class TestHelper
@@ -28,34 +29,42 @@ public static class TestHelper
     /// <param name="NoSpecialChars">Indicates whether the input string should not contain special characters.</param>
     /// <param name="NoNumbers">Indicates whether the input string should not contain numbers.</param>
     public static void ValidateStringProperty<T>(
-        T instance,             
-        string propertyName,    
-        string? input,          
-        int code,               
-        int minLength = 0,      
-        int? maxLength = null,  
-        bool mandatory = false, 
-        bool NoSpecialChars = false, 
-        bool NoNumbers = false 
+        T instance,
+        string propertyName,
+        string? input,
+        int code,
+        int minLength = 0,
+        int? maxLength = null,
+        bool mandatory = false,
+        bool NoSpecialChars = false,
+        bool NoNumbers = false
     ) where T : IValidatable
     {
         // Arrange
 
         // Get the property of the specified type and name
-        var property = typeof(T).GetProperty(propertyName);
+        PropertyInfo? property = typeof(T).GetProperty(propertyName);
 
         // Set the value of the property to the specified input string
-        property.SetValue(instance, input);
+        if (property != null)
+        {
+            // Set the value of the property to the specified input string
+            property.SetValue(instance, input);
+        }
+        else
+        {
+            throw new ArgumentException($"Property {propertyName} not found in type {typeof(T).Name}");
+        }
 
         // Get the expected validation messages for the property
-        var expectedMessages = GetValidationMessages(property);
+        List<string> expectedMessages = GetValidationMessages(property);
 
         // Get the effective maximum length of the input string
         int effectiveMaxLength = maxLength ?? GetMaxLength(property);
 
         // Act
 
-        // Try to validate the instance using the specified validation method
+        // Try to validate the instance using the validation method
         Exception? ex = Record.Exception(() => instance.Validate());
 
         // Assert
@@ -97,34 +106,32 @@ public static class TestHelper
         }
     }
 
-
     public static List<string> GetValidationMessages(PropertyInfo property)
     {
-        var attributes = property.GetCustomAttributes(typeof(ValidationAttribute), true);
-        return attributes.Select(attr => ((ValidationAttribute)attr).ErrorMessage).ToList();
+        object[] attributes = property.GetCustomAttributes(typeof(ValidationAttribute), true);
+        return attributes.Select(static attr => ((ValidationAttribute)attr).ErrorMessage).ToList();
     }
 
     public static void AssertValidationException(Exception? ex, List<string> expectedMessages)
     {
         Assert.NotNull(ex);
         Assert.IsType<ValidationException>(ex);
-        var validationException = (ValidationException)ex;
+        ValidationException validationException = (ValidationException)ex;
 
-        bool containsExpectedMessage = expectedMessages.Any(message => validationException.Message.Contains(message));
+        bool containsExpectedMessage = expectedMessages.Exists(message => validationException.Message.Contains(message));
 
-        Assert.True(containsExpectedMessage, $"Expected one of the following messages: {string.Join(", ", expectedMessages)}. Actual message: {validationException.Message}");
+        Assert.True(containsExpectedMessage, $"Expected one of the following messages: \"{string.Join(", ", expectedMessages)}\". Actual message: \"{validationException.Message}\".");
     }
-
 
     public static int GetMaxLength(PropertyInfo property)
     {
-        var maxLengthAttribute = property.GetCustomAttribute<MaxLengthAttribute>();
+        MaxLengthAttribute? maxLengthAttribute = property.GetCustomAttribute<MaxLengthAttribute>();
         if (maxLengthAttribute != null)
         {
             return maxLengthAttribute.Length;
         }
 
-        var stringLengthAttribute = property.GetCustomAttribute<StringLengthAttribute>();
+        StringLengthAttribute? stringLengthAttribute = property.GetCustomAttribute<StringLengthAttribute>();
         if (stringLengthAttribute != null)
         {
             return stringLengthAttribute.MaximumLength;
@@ -132,5 +139,8 @@ public static class TestHelper
 
         throw new InvalidOperationException($"The property '{property.Name}' does not have a MaxLength or StringLength attribute.");
     }
-
 }
+
+
+
+
