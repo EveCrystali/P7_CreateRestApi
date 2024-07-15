@@ -9,3 +9,8 @@
 P7CreateRestApi.Tests/coverage-report/
 P7CreateRestApi.Tests/__Instrumented/
 P7CreateRestApi/logs/
+P7CreateRestApi/Migrations/20240711092136_M7.cs
+P7CreateRestApi/Migrations/20240711092136_M7.Designer.cs
+P7CreateRestApi/Migrations/LocalDbContextModelSnapshot.cs
+.vscode/
+
