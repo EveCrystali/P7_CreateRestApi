@@ -2,7 +2,6 @@
 using System.Reflection;
 using Dot.Net.WebApi.Domain;
 
-
 namespace P7CreateRestApi.Tests;
 
 public static class TestHelper
@@ -140,7 +139,3 @@ public static class TestHelper
         throw new InvalidOperationException($"The property '{property.Name}' does not have a MaxLength or StringLength attribute.");
     }
 }
-
-
-
-

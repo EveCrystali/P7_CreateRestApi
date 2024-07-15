@@ -7,13 +7,13 @@ namespace Dot.Net.WebApi.Domain
     {
         public static void Validate(this IValidatable entity)
         {
-            var validationResults = new List<ValidationResult>();
-            var validationContext = new ValidationContext(entity, null, null);
+            List<ValidationResult> validationResults = new();
+            ValidationContext validationContext = new(entity, null, null);
             bool isValid = Validator.TryValidateObject(entity, validationContext, validationResults, true);
 
             if (!isValid)
             {
-                var errors = string.Join("; ", validationResults.Select(vr => vr.ErrorMessage));
+                string errors = string.Join("; ", validationResults.Select(vr => vr.ErrorMessage));
                 throw new ValidationException($"{entity.GetType().Name} is not valid: {errors}");
             }
 
@@ -23,12 +23,12 @@ namespace Dot.Net.WebApi.Domain
 
         public static void ValidateDateTimeProperties(this IValidatable entity)
         {
-            var dateTimeProperties = entity.GetType().GetProperties()
+            IEnumerable<System.Reflection.PropertyInfo> dateTimeProperties = entity.GetType().GetProperties()
                 .Where(prop => prop.PropertyType == typeof(DateTime?) || prop.PropertyType == typeof(DateTime));
 
-            foreach (var prop in dateTimeProperties)
+            foreach (System.Reflection.PropertyInfo? prop in dateTimeProperties)
             {
-                var value = prop.GetValue(entity) as DateTime?;
+                DateTime? value = prop.GetValue(entity) as DateTime?;
                 if (value != null && value.HasValue)
                 {
                     ValidateDateTime(value, prop.Name);

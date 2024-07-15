@@ -1,98 +1,96 @@
-﻿// using System.ComponentModel.DataAnnotations;
-// using System.Globalization;
-// using Dot.Net.WebApi.Domain;
+﻿using Dot.Net.WebApi.Domain;
 
-// namespace P7CreateRestApi.Tests;
+namespace P7CreateRestApi.Tests;
 
-// public class RatingTests
-// {
-//     // --------------- VALID DATA ------------------
-//     // Rating with all valid data is declarated here because it will be used in all tests
-//     public Rating rating = new()
-//     {
-//         Id = 1,
-//         MoodysRating = "MRating",
-//         SandPRating = "SPRating",
-//         FitchRating = "FRating",
-//         OrderNumber = 1
-//     };
+public class RatingTests
+{
+    // --------------- VALID DATA ------------------
+    // Rating with all valid data is declarated here because it will be used in all tests
+    public Rating rating = new()
+    {
+        Id = 1,
+        MoodysRating = "MRating",
+        SandPRating = "SPRating",
+        FitchRating = "FRating",
+        OrderNumber = 1
+    };
 
-//     // --------------- VALID DATA ------------------
+    // --------------- VALID DATA ------------------
 
-//     // ALL DATA VALID
-//     [Fact]
-//     public void Test_Validate_WithValidRating_ShouldNotThrowException()
-//     {
-//         // Arrange
+    // ALL DATA VALID
+    [Fact]
+    public void Test_Validate_WithValidRating_ShouldNotThrowException()
+    {
+        // Arrange
 
-//         // Act
-//         Exception? ex = Record.Exception(() => rating.Validate());
+        // Act
+        Exception? ex = Record.Exception(() => rating.Validate());
 
-//         // Assert
-//         Assert.Null(ex);
-//     }
+        // Assert
+        Assert.Null(ex);
+    }
 
-//     // --------------- NUMERIC PROPERTIES TESTS ------------------
-    
+    // --------------- NUMERIC PROPERTIES TESTS ------------------
 
-//     [Theory]
-//     [InlineData(byte.MinValue)]
-//     [InlineData(1)]
-//     [InlineData(byte.MaxValue)]
-//     public void Test_Validate_WithValidRating_OrderNumber_ShouldNotThrowException(byte input)
-//     {
-//         // Arrange
-//         rating.OrderNumber = input;
 
-//         // Act
-//         Exception? ex = Record.Exception(() => rating.Validate());
+    [Theory]
+    [InlineData(byte.MinValue)]
+    [InlineData(1)]
+    [InlineData(byte.MaxValue)]
+    public void Test_Validate_WithValidRating_OrderNumber_ShouldNotThrowException(byte input)
+    {
+        // Arrange
+        rating.OrderNumber = input;
 
-//         // Assert
-//         Assert.Null(ex);
-//         Assert.Equal(rating.OrderNumber, input);
-//     }
+        // Act
+        Exception? ex = Record.Exception(() => rating.Validate());
 
-//     [Fact]
-//     public void Test_Validate_WithNullRating_OrderNumber_ShouldNotThrowException()
-//     {
-//         // Arrange
-//         rating.OrderNumber = null;
+        // Assert
+        Assert.Null(ex);
+        Assert.Equal(rating.OrderNumber, input);
+    }
 
-//         // Act
-//         Exception? ex = Record.Exception(() => rating.Validate());
+    [Fact]
+    public void Test_Validate_WithNullRating_OrderNumber_ShouldNotThrowException()
+    {
+        // Arrange
+        rating.OrderNumber = null;
 
-//         // Assert
-//         Assert.Null(ex);
-//         Assert.Null(rating.OrderNumber);
-//     }
+        // Act
+        Exception? ex = Record.Exception(() => rating.Validate());
 
-//     // --------------- NUMERIC PROPERTIES TESTS ------------------
+        // Assert
+        Assert.Null(ex);
+        Assert.Null(rating.OrderNumber);
+    }
 
-//     // --------------- STRING PROPERTIES TESTS ------------------
+    // --------------- NUMERIC PROPERTIES TESTS ------------------
 
-//     // MoodysRating - 10 characters max - Mandatory
-//     [Theory]
-//     [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-//     public void Test_Validate_MoodysRating_StringVariation_ShouldReturnExpectedResults(string? input, int code)
-//     {
-//         TestHelper.ValidateStringProperty(rating, nameof(Rating.MoodysRating), input, code, mandatory: true);
-//     }
+    // --------------- STRING PROPERTIES TESTS ------------------
 
-//     // SandPRating - 10 characters max - Mandatory
-//     [Theory]
-//     [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-//     public void Test_Validate_SandPRating_StringVariation_ShouldReturnExpectedResults(string? input, int code)
-//     {
-//         TestHelper.ValidateStringProperty(rating, nameof(Rating.SandPRating), input, code, maxLength: 10, mandatory: true);
-//     }
+    // MoodysRating - 10 characters max - Mandatory
+    [Theory]
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 10, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_MoodysRating_StringVariation_ShouldReturnExpectedResults(string? input, string description)
+    {
+        TestHelper.ValidateStringProperty(rating, nameof(Rating.MoodysRating), input, description, mandatory: true);
+    }
 
-//     // FitchRating - 10 characters max - Mandatory
-//     [Theory]
-//     [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-//     public void Test_Validate_FitchRating_StringVariation_ShouldReturnExpectedResults(string? input, int code)
-//     {
-//         TestHelper.ValidateStringProperty(rating, nameof(Rating.FitchRating), input, code, maxLength: 10, mandatory: true);
-//     }
+    // SandPRating - 10 characters max - Mandatory
+    [Theory]
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 10, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_SandPRating_StringVariation_ShouldReturnExpectedResults(string? input, string description)
+    {
+        TestHelper.ValidateStringProperty(rating, nameof(Rating.SandPRating), input, description, maxLength: 10, mandatory: true);
+    }
 
-//     // --------------- STRING PROPERTIES TESTS ------------------
-// }
+    // FitchRating - 10 characters max - Mandatory
+    [Theory]
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 10, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_FitchRating_StringVariation_ShouldReturnExpectedResults(string? input, string description)
+    {
+        TestHelper.ValidateStringProperty(rating, nameof(Rating.FitchRating), input, description, maxLength: 10, mandatory: true);
+    }
+
+    // --------------- STRING PROPERTIES TESTS ------------------
+}

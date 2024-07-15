@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Dot.Net.WebApi;
+﻿using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +18,7 @@ namespace P7CreateRestApi.Controllers
             _context = context;
         }
 
-        
+
         [HttpGet("list")]
         public async Task<ActionResult> GetBidLists()
         {
