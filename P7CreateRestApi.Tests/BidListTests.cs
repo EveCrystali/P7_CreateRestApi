@@ -55,106 +55,106 @@ public class BidListTests
 
     // Account - 50 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_Account_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 50, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_Account_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(bidList, nameof(BidList.Account), input, code, mandatory: true);
+        TestHelper.ValidateStringProperty(bidList, nameof(BidList.Account), input, description, mandatory: true);
     }
 
     // BidType - 50 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_BidType_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 50, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_BidType_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(bidList, nameof(BidList.BidType), input, code, mandatory: true);
+        TestHelper.ValidateStringProperty(bidList, nameof(BidList.BidType), input, description, mandatory: true);
     }
 
     // Benchmark - 100 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_Benchmark_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 100, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_Benchmark_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(bidList, nameof(BidList.Benchmark), input, code, mandatory: true);
+        TestHelper.ValidateStringProperty(bidList, nameof(BidList.Benchmark), input, description, mandatory: true);
     }
 
     // Commentary - 500 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_Commentary_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 500, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_Commentary_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(bidList, nameof(BidList.Commentary), input, code, mandatory: true);
+        TestHelper.ValidateStringProperty(bidList, nameof(BidList.Commentary), input, description, mandatory: true);
     }
 
     // BidSecurity - 50 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_BidSecurity_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 50, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_BidSecurity_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(bidList, nameof(BidList.BidSecurity), input, code, mandatory: true);
+        TestHelper.ValidateStringProperty(bidList, nameof(BidList.BidSecurity), input, description, mandatory: true);
     }
 
     // BidStatus - 50 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_BidStatus_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 50, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_BidStatus_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(bidList, nameof(BidList.BidStatus), input, code, mandatory: true);
+        TestHelper.ValidateStringProperty(bidList, nameof(BidList.BidStatus), input, description, mandatory: true);
     }
 
     // Trader - 50 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_Trader_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 50, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_Trader_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(bidList, nameof(BidList.Trader), input, code, mandatory: true);
+        TestHelper.ValidateStringProperty(bidList, nameof(BidList.Trader), input, description, mandatory: true);
     }
 
     // Book - 50 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_Book_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 50, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_Book_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(bidList, nameof(BidList.Book), input, code, mandatory: true);
+        TestHelper.ValidateStringProperty(bidList, nameof(BidList.Book), input, description, mandatory: true);
     }
 
     // CreationName - 50 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_CreationName_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 50, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_CreationName_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(bidList, nameof(BidList.CreationName), input, code, mandatory: true);
+        TestHelper.ValidateStringProperty(bidList, nameof(BidList.CreationName), input, description, mandatory: true);
     }
 
     // RevisionName - 50 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_RevisionName_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 50, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_RevisionName_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(bidList, nameof(BidList.RevisionName), input, code, mandatory: true);
+        TestHelper.ValidateStringProperty(bidList, nameof(BidList.RevisionName), input, description, mandatory: true);
     }
 
     // DealName - 50 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_DealName_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 50, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_DealName_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(bidList, nameof(BidList.DealName), input, code, mandatory: true);
+        TestHelper.ValidateStringProperty(bidList, nameof(BidList.DealName), input, description, mandatory: true);
     }
 
     // SourceListId - 25 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_SourceListId_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 25, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_SourceListId_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(bidList, nameof(BidList.SourceListId), input, code, maxLength: 25, mandatory: true);
+        TestHelper.ValidateStringProperty(bidList, nameof(BidList.SourceListId), input, description, maxLength: 25, mandatory: true);
     }
 
     // Side - 50 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_Side_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 50, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_Side_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(bidList, nameof(BidList.Side), input, code, mandatory: true);
+        TestHelper.ValidateStringProperty(bidList, nameof(BidList.Side), input, description, mandatory: true);
     }
 
     // --------------- STRING PROPERTIES TESTS ------------------

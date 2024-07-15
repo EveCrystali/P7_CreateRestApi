@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Dot.Net.WebApi.Domain;
 
 namespace Dot.Net.WebApi.Domain
 {

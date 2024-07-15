@@ -1,5 +1,4 @@
 ﻿using Dot.Net.WebApi;
-using Dot.Net.WebApi.Controllers;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;

@@ -6,7 +6,7 @@ public class DoubleValidationAttribute : ValidationAttribute
 {
     protected override ValidationResult IsValid(object? value, ValidationContext validationContext)
     {
-        if (value == null )
+        if (value == null)
         {
             return new ValidationResult("Please enter a valid double value.");
         }

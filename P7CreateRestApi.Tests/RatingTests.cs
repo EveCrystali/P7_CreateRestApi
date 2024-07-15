@@ -1,13 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using Dot.Net.WebApi.Domain;
+﻿using Dot.Net.WebApi.Domain;
 
 namespace P7CreateRestApi.Tests;
 
 public class RatingTests
 {
     // --------------- VALID DATA ------------------
-    // CurvePoint with all valid data is declarated here because it will be used in all tests
+    // Rating with all valid data is declarated here because it will be used in all tests
     public Rating rating = new()
     {
         Id = 1,
@@ -33,7 +31,7 @@ public class RatingTests
     }
 
     // --------------- NUMERIC PROPERTIES TESTS ------------------
-    
+
 
     [Theory]
     [InlineData(byte.MinValue)]
@@ -72,26 +70,26 @@ public class RatingTests
 
     // MoodysRating - 10 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_MoodysRating_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 10, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_MoodysRating_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(rating, nameof(Rating.MoodysRating), input, code, mandatory: true);
+        TestHelper.ValidateStringProperty(rating, nameof(Rating.MoodysRating), input, description, mandatory: true);
     }
 
     // SandPRating - 10 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_SandPRating_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 10, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_SandPRating_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(rating, nameof(Rating.SandPRating), input, code, maxLength: 10, mandatory: true);
+        TestHelper.ValidateStringProperty(rating, nameof(Rating.SandPRating), input, description, maxLength: 10, mandatory: true);
     }
 
     // FitchRating - 10 characters max - Mandatory
     [Theory]
-    [MemberData(nameof(SampleTestVariables.StringCombinationsTest), MemberType = typeof(SampleTestVariables))]
-    public void Test_Validate_FitchRating_StringVariation_ShouldReturnExpectedResults(string? input, int code)
+    [MemberData(nameof(SampleTestVariables.GetStringCombinationsTest), 10, MemberType = typeof(SampleTestVariables))]
+    public void Test_Validate_FitchRating_StringVariation_ShouldReturnExpectedResults(string? input, string description)
     {
-        TestHelper.ValidateStringProperty(rating, nameof(Rating.FitchRating), input, code, maxLength: 10, mandatory: true);
+        TestHelper.ValidateStringProperty(rating, nameof(Rating.FitchRating), input, description, maxLength: 10, mandatory: true);
     }
 
     // --------------- STRING PROPERTIES TESTS ------------------

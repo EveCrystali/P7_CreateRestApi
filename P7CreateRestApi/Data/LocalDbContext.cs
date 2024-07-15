@@ -1,4 +1,3 @@
-using Dot.Net.WebApi.Controllers;
 using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -113,7 +112,7 @@ namespace Dot.Net.WebApi.Data
 
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id)
-                    .ValueGeneratedOnAdd(); 
+                    .ValueGeneratedOnAdd();
                 entity.Property(e => e.UserName)
                       .HasColumnName("UserName")
                       .IsRequired()

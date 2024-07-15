@@ -70,7 +70,7 @@ namespace P7CreateRestApi.Controllers
                 return BadRequest(ex.Message);
             }
 
-            var existingUser = await _userManager.FindByIdAsync(id);
+            User? existingUser = await _userManager.FindByIdAsync(id);
             if (existingUser == null)
             {
                 return NotFound("User with this Id does not exist.");
@@ -83,7 +83,7 @@ namespace P7CreateRestApi.Controllers
             existingUser.LastLoginDate = user.LastLoginDate;
 
             // Use UserManager to update user information
-            var result = await _userManager.UpdateAsync(existingUser);
+            IdentityResult result = await _userManager.UpdateAsync(existingUser);
             if (!result.Succeeded)
             {
                 return BadRequest(result.Errors);
@@ -107,7 +107,7 @@ namespace P7CreateRestApi.Controllers
 
             user.Id = null;
 
-            var result = await _userManager.CreateAsync(user, user.PasswordHash); // Assure-toi que PasswordHash est correctement géré
+            IdentityResult result = await _userManager.CreateAsync(user, user.PasswordHash); // Assure-toi que PasswordHash est correctement géré
 
             if (result.Succeeded)
             {

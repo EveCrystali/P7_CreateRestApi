@@ -2,7 +2,6 @@
 using System.Reflection;
 using Dot.Net.WebApi.Domain;
 
-
 namespace P7CreateRestApi.Tests;
 
 public static class TestHelper
@@ -21,7 +20,7 @@ public static class TestHelper
     /// <param name="instance">The instance whose property is to be validated.</param>
     /// <param name="propertyName">The name of the string property to be validated.</param>
     /// <param name="input">The input string to be validated.</param>
-    /// <param name="code">The expected validation code.</param>
+    /// <param name="description">The description of the input string.</param>
     /// <param name="validateMethod">The method used to validate the instance.</param>
     /// <param name="minLength">The minimum length of the input string.</param>
     /// <param name="maxLength">The maximum length of the input string. If null, the maximum length is retrieved from the property's validation attributes.</param>
@@ -32,7 +31,7 @@ public static class TestHelper
         T instance,
         string propertyName,
         string? input,
-        int code,
+        string description,
         int minLength = 0,
         int? maxLength = null,
         bool mandatory = false,
@@ -140,7 +139,3 @@ public static class TestHelper
         throw new InvalidOperationException($"The property '{property.Name}' does not have a MaxLength or StringLength attribute.");
     }
 }
-
-
-
-

@@ -1,100 +1,210 @@
-﻿namespace P7CreateRestApi.Tests;
+﻿using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
 
-public static class SampleTestVariables
+namespace P7CreateRestApi.Tests
 {
-    public const string? stringNull = null;
-    public const string? string51 = "50string6666666666666666666666666666666666666666666";
-    public const string? string101 = "100string66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666";
-
-    public const string? string501 = "501string66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"
-                                        + "6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"
-                                        + "6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"
-                                        + "6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"
-                                        + "6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666"
-                                        + "6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666";
-
-    public const string? stringEmpty = "";
-    public const string? stringSpace = " ";
-    public const string? stringSmall = "string";
-    public const string? stringNumbers = "1234567890";
-    public const string? stringSpecialChars = "!@#$%^&*()";
-
-    // Creation of a set of strings to be used in the tests
-    public static TheoryData<string?, int> StringCombinationsTest => new()
+    public static class SampleTestVariables
     {
-        // Incrementing the int number by 1 for each new combination, providing a unique code for each combination
-        // The int number purpose is to make the test results more readable when a error occurs
+        private static readonly string? stringNull = null;
+        private static readonly string stringEmpty = "";
+        private static readonly string stringSpace = " ";
+        private static readonly string stringNumbers = "1234567890";
+        private static readonly string stringSpecialChars = "!@#$%^&*()*/-+<>?{}[]|";
 
-        // Simple combinations
-        { stringNull, 0},
-        { stringEmpty, 1},
-        { stringSpace, 2},
-        { stringSmall, 3},
-        { stringNumbers, 4},
-        { stringSpecialChars, 5},
-        { string51,51},
-        { string101, 101},
-        { string501, 501},
+        private static List<string?> baseStrings = new()
+        {
+            stringNull,
+            stringEmpty,
+            stringSpace,
+            stringNumbers,
+            stringSpecialChars
+        };
 
-        // Double combinations
-        {stringSmall + stringNumbers, 34},
-        {stringSmall + stringSpace, 32},
-        {stringSmall + stringSpecialChars, 35},
+        private static string GenerateString(int length, char fillChar = 's')
+        {
+            if (length <= 0)
+            {
+                return string.Empty;
+            }
+            return new string(fillChar, length);
+        }
 
-        {string51 + stringNumbers, 514},
-        {string51 + stringSpace, 512},
-        {string51 + stringSpecialChars, 515},
+        public static TheoryData<string?, string> GetStringCombinationsTest(int maxLength)
+        {
+            HashSet<(string?, string)> combinations = new();
+            TheoryData<string?, string> result = new();
 
-        {string101 + stringNumbers, 1014},
-        {string101 + stringSpace, 1012},
-        {string101 + stringSpecialChars, 1015},
+            // Handle cases where maxLength is < baseString.Length
+            List<string?> newBaseStrings = [];
 
-        {string501 + stringNumbers, 5014},
-        {string501 + stringSpace, 5012},
-        {string501 + stringSpecialChars, 5015},
+            foreach (string? baseString in baseStrings)
+            {
+                if (baseString?.Length >= maxLength)
+                {
+                    string modifiedBaseString = baseString[..maxLength];
+                    newBaseStrings.Add(modifiedBaseString);
+                }
+                else
+                {
+                    newBaseStrings.Add(baseString);
+                }
+            }
 
-        // Triple combinations
-        {stringSmall + stringNumbers + stringSpecialChars, 345},
-        {stringSmall + stringSpace + stringNumbers, 324},
-        {stringSmall + stringSpace + stringSpecialChars, 325},
-        {stringSmall + stringSpace + stringSpecialChars + stringNumbers, 3254},
+            baseStrings = newBaseStrings;
 
-        {string51 + stringNumbers + stringSpecialChars, 5145},
-        {string51 + stringSpace + stringNumbers, 5124},
-        {string51 + stringSpace + stringSpecialChars, 5125},
-        {string51 + stringSpace + stringSpecialChars + stringNumbers, 51254},
+            // Generate single base string combinations
+            for (int i = 0; i < baseStrings.Count; i++)
+            {
+                string? baseString = baseStrings[i];
+                string description = baseString switch
+                {
+                    null => "null",
+                    "" => "empty",
+                    " " => "space",
+                    "1234567890" => "numbers",
+                    "!@#$%^&*()*/-+<>?{}[]|" => "specialChars",
+                    _ => "unknown"
+                };
+                combinations.Add((baseString, description));
+                if (baseString != null)
+                {
+                    combinations.Add((baseString + GenerateString(maxLength - 1 - baseString.Length), description + $" + s{maxLength - 1 - baseString.Length} |TOTAL chars: {maxLength - 1}"));
+                    combinations.Add((baseString + GenerateString(maxLength - baseString.Length), description + $" + s{maxLength - baseString.Length} | TOTAL chars: {maxLength}"));
+                    combinations.Add((baseString + GenerateString(maxLength + 1 - baseString.Length), description + $" + s{maxLength + 1 - baseString.Length} | TOTAL chars: {maxLength + 1}"));
+                }
+            }
 
-        {string101 + stringNumbers + stringSpecialChars, 10145},
-        {string101 + stringSpace + stringNumbers, 10124},
-        {string101 + stringSpace + stringSpecialChars, 10125},
-        {string101 + stringSpace + stringSpecialChars + stringNumbers, 101254},
+            // Generate double combinations
+            for (int i = 0; i < baseStrings.Count; i++)
+            {
+                for (int j = i + 1; j < baseStrings.Count; j++)
+                {
+                    string? base1 = baseStrings[i];
+                    string? base2 = baseStrings[j];
+                    string desc1 = base1 switch
+                    {
+                        null => "null",
+                        "" => "empty",
+                        " " => "space",
+                        "1234567890" => "numbers",
+                        "!@#$%^&*()*/-+<>?{}[]|" => "specialChars",
+                        _ => "unknown"
+                    };
+                    string desc2 = base2 switch
+                    {
+                        null => "null",
+                        "" => "empty",
+                        " " => "space",
+                        "1234567890" => "numbers",
+                        "!@#$%^&*()*/-+<>?{}[]|" => "specialChars",
+                        _ => "unknown"
+                    };
+                    if (base1 != null && base2 != null)
+                    {
+                        combinations.Add((base1 + base2, desc1 + " + " + desc2));
+                        AddPaddedCombination(combinations, base1, base2, maxLength - 1, desc1 + " + " + desc2 + $" + s{maxLength - 1 - base1.Length - base2.Length} | TOTAL chars: {maxLength - 1}");
+                        AddPaddedCombination(combinations, base1, base2, maxLength, desc1 + " + " + desc2 + $" + s{maxLength - base1.Length - base2.Length} | TOTAL chars: {maxLength}");
+                        AddPaddedCombination(combinations, base1, base2, maxLength + 1, desc1 + " + " + desc2 + $" + s{maxLength + 1 - base1.Length - base2.Length} | TOTAL chars: {maxLength + 1}");
+                    }
+                }
+            }
 
-        {string501 + stringNumbers + stringSpecialChars, 50145},
-        {string501 + stringSpace + stringNumbers, 50124},
-        {string501 + stringSpace + stringSpecialChars, 50125},
-        {string501 + stringSpace + stringSpecialChars + stringNumbers, 501254},
-    };
+            // Generate triple combinations
+            for (int i = 0; i < baseStrings.Count; i++)
+            {
+                for (int j = i + 1; j < baseStrings.Count; j++)
+                {
+                    for (int k = j + 1; k < baseStrings.Count; k++)
+                    {
+                        string? base1 = baseStrings[i];
+                        string? base2 = baseStrings[j];
+                        string? base3 = baseStrings[k];
+                        string desc1 = base1 switch
+                        {
+                            null => "null",
+                            "" => "empty",
+                            " " => "space",
+                            "1234567890" => "numbers",
+                            "!@#$%^&*()*/-+<>?{}[]|" => "specialChars",
+                            _ => "unknown"
+                        };
+                        string desc2 = base2 switch
+                        {
+                            null => "null",
+                            "" => "empty",
+                            " " => "space",
+                            "1234567890" => "numbers",
+                            "!@#$%^&*()*/-+<>?{}[]|" => "specialChars",
+                            _ => "unknown"
+                        };
+                        string desc3 = base3 switch
+                        {
+                            null => "null",
+                            "" => "empty",
+                            " " => "space",
+                            "1234567890" => "numbers",
+                            "!@#$%^&*()*/-+<>?{}[]|" => "specialChars",
+                            _ => "unknown"
+                        };
+                        if (base1 != null && base2 != null && base3 != null)
+                        {
+                            combinations.Add((base1 + base2 + base3, desc1 + " + " + desc2 + " + " + desc3));
+                            AddPaddedCombination(combinations, base1, base2 + base3, maxLength - 1, desc1 + " + " + desc2 + " + " + desc3 + $" + s{maxLength - 1} | TOTAL chars: {maxLength - 1}");
+                            AddPaddedCombination(combinations, base1, base2 + base3, maxLength, desc1 + " + " + desc2 + " + " + desc3 + $" + s{maxLength} | TOTAL chars: {maxLength}");
+                            AddPaddedCombination(combinations, base1, base2 + base3, maxLength + 1, desc1 + " + " + desc2 + " + " + desc3 + $" + s{maxLength + 1} | TOTAL chars: {maxLength + 1}");
+                        }
+                    }
+                }
+            }
 
-    public static readonly List<int?> stringMandatory = [0, 1, 2];
-    public static readonly List<int> containsSpecialChars = [5, 35, 515, 1015, 5015, 345, 325, 3254, 5145, 5125, 51254, 10145, 10125, 101254, 50145, 50125, 501254];
-    public static readonly List<int> containsSpace = [2, 32, 512, 1012, 5012, 324, 325, 3254, 5124, 5125, 51254, 10124, 10125, 101254, 50124, 50125, 501254];
-    public static readonly List<int> containsNumbers = [4, 34, 514, 1014, 5014, 345, 324, 3254, 5145, 5124, 51254, 10145, 10124, 101254, 50145, 50124, 501254];
+            // Add combinations to result
+            foreach ((string?, string) combo in combinations)
+            {
+                result.Add(combo.Item1, combo.Item2);
+            }
 
-    public static List<int> moreThanNChar(int maxLength)
-    {
-        return StringCombinationsTest
-            .Select(item => ((string)item[0], (int)item[1]))
-            .Where(entry => entry.Item1?.Length > maxLength)
-            .Select(entry => entry.Item2)
-            .ToList();
-    }
+            return result;
+        }
 
-    public static List<int> lessThanNChar(int maxLength)
-    {
-        return StringCombinationsTest
-            .Select(item => ((string)item[0], (int)item[1]))
-            .Where(entry => entry.Item1?.Length <= maxLength)
-            .Select(entry => entry.Item2)
-            .ToList();
+        private static void AddPaddedCombination(HashSet<(string?, string)> combinations, string base1, string base2, int targetLength, string description)
+        {
+            int paddingLength = targetLength - base1.Length - base2.Length;
+            if (paddingLength >= 0)
+            {
+                combinations.Add((base1 + GenerateString(paddingLength) + base2, description));
+            }
+        }
+
+        public static ImmutableList<int?> GenerateStringMandatory(TheoryData<string?, int> data)
+        {
+            return data
+                .Where(item => item[0] == null || string.IsNullOrWhiteSpace((string?)item[0]))
+                .Select(item => (int?)item[1])
+                .ToImmutableList();
+        }
+
+        public static ImmutableList<int?> GenerateContainsSpecialChars(TheoryData<string?, int> data)
+        {
+            return data
+                .Where(item => item[0] != null && ((string)item[0]).Any(ch => !char.IsLetterOrDigit(ch)))
+                .Select(item => (int?)item[1])
+                .ToImmutableList();
+        }
+
+        public static ImmutableList<int?> MoreThanNChar(TheoryData<string?, int> data, int maxLength)
+        {
+            return data
+                .Where(item => item[0]?.ToString()?.Length > maxLength)
+                .Select(item => (int?)item[1])
+                .ToImmutableList();
+        }
+
+        public static ImmutableList<int?> LessThanNChar(TheoryData<string?, int> data, int maxLength)
+        {
+            return data
+                .Where(item => item[0]?.ToString()?.Length <= maxLength)
+                .Select(item => (int?)item[1])
+                .ToImmutableList();
+        }
     }
 }
