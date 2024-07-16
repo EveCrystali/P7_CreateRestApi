@@ -16,16 +16,16 @@ namespace Dot.Net.WebApi.Domain
         [MaxLength(50, ErrorMessage = "AccountType can't be longer than 50 characters")]
         public required string AccountType { get; set; }
 
-        [DoubleValidation(ErrorMessage = "BuyQuantity must be a valid double")]
+        [DoubleNullableValidation(ErrorMessage = "BuyQuantity must be a valid double")]
         public double? BuyQuantity { get; set; }
 
-        [DoubleValidation(ErrorMessage = "SellQuantity must be a valid double")]
+        [DoubleNullableValidation(ErrorMessage = "SellQuantity must be a valid double")]
         public double? SellQuantity { get; set; }
 
-        [DoubleValidation(ErrorMessage = "BuyPrice must be a valid double")]
+        [DoubleNullableValidation(ErrorMessage = "BuyPrice must be a valid double")]
         public double? BuyPrice { get; set; }
 
-        [DoubleValidation(ErrorMessage = "SellPrice must be a valid double")]
+        [DoubleNullableValidation(ErrorMessage = "SellPrice must be a valid double")]
         public double? SellPrice { get; set; }
 
         [DataType(DataType.DateTime, ErrorMessage = "TradeDate must be a date and a time of day")]
