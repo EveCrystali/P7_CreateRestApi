@@ -3,20 +3,17 @@ using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Dot.Net.WebApi.Services;
 
 namespace P7CreateRestApi.Controllers
 {
     [LogApiCallAspect]
     [Route("[controller]")]
     [ApiController]
-    public class RatingController : ControllerBase
+    public class RatingController(LocalDbContext context, UpdateService updateService) : ControllerBase
     {
-        private readonly LocalDbContext _context;
-
-        public RatingController(LocalDbContext context)
-        {
-            _context = context;
-        }
+        private readonly LocalDbContext _context = context;
+        private readonly UpdateService _updateService = updateService;
 
         [HttpGet]
         [Route("list")]
@@ -42,39 +39,7 @@ namespace P7CreateRestApi.Controllers
         [HttpPut("update/{id}")]
         public async Task<IActionResult> PutRating(int id, Rating rating)
         {
-            if (id != rating.Id)
-            {
-                return BadRequest("The Id entered in the parameter is not the same as the Id enter in the body");
-            }
-
-            try
-            {
-                rating.Validate();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-            _context.Entry(rating).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!RatingExists(id))
-                {
-                    NotFound("Rating with this Id does not exist");
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return await _updateService.UpdateEntity(id, rating, RatingExists, t => t.Id);
         }
 
         [HttpPost("add")]
@@ -113,9 +78,9 @@ namespace P7CreateRestApi.Controllers
             return NoContent();
         }
 
-        private bool RatingExists(int id)
+        private bool RatingExists(Rating rating)
         {
-            return _context.Ratings.Any(e => e.Id == id);
+            return _context.Ratings.Any(e => e.Id == rating.Id);
         }
     }
 }

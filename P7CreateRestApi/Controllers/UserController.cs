@@ -44,7 +44,7 @@ namespace P7CreateRestApi.Controllers
             return user;
         }
 
-        // [Authorize(Policy = "User")]
+        [Authorize(Policy = "User")]
         [HttpPut("update/{id}")]
         public async Task<IActionResult> PutUser(string id, User user)
         {
@@ -53,10 +53,9 @@ namespace P7CreateRestApi.Controllers
                 return BadRequest("The Id entered in the parameter is not the same as the Id enter in the body");
             }
 
-            // Vérifiez que l'utilisateur connecté est l'utilisateur courant ou un administrateur
+            // Verify that the connected user is the user being updated or an administrator
             User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null || (currentUser.Id != user.Id && !await _userManager.IsInRoleAsync(currentUser, "Admin")))
-            // TODO: an Admin should be able to do it also
             {
                 return Forbid();
             }

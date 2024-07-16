@@ -113,7 +113,7 @@ namespace P7CreateRestApi.Controllers
                 return NotFound();
             }
 
-            List<RefreshToken> userTokens = _context.RefreshTokens.Where(rt => rt.UserId == model.UserId).ToList();
+            List<RefreshToken> userTokens = [.. _context.RefreshTokens.Where(rt => rt.UserId == model.UserId)];
             foreach (RefreshToken? token in userTokens)
             {
                 token.IsRevoked = true;

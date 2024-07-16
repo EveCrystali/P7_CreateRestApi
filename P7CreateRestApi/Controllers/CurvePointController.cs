@@ -10,17 +10,10 @@ namespace Dot.Net.WebApi.Controllers
     [LogApiCallAspect]
     [ApiController]
     [Route("[controller]")]
-    public class CurvePointController : ControllerBase
+    public class CurvePointController(ICurvePointService curvePointService, LocalDbContext context) : ControllerBase
     {
-        private readonly ICurvePointService _curvePointService;
-
-        private readonly LocalDbContext _context;
-
-        public CurvePointController(ICurvePointService curvePointService, LocalDbContext context)
-        {
-            _curvePointService = curvePointService;
-            _context = context;
-        }
+        private readonly ICurvePointService _curvePointService = curvePointService;
+        private readonly LocalDbContext _context = context;
 
         [HttpPost]
         [Route("add")]
