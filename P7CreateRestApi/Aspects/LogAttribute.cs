@@ -5,10 +5,16 @@ using PostSharp.Serialization;
 
 namespace Dot.Net.WebApi
 {
+/// <summary>
+    /// Helper class for managing the ServiceProvider.
+    /// </summary>
     public static class ServiceProviderHelper
     {
         private static IServiceProvider _serviceProvider;
 
+        /// <summary>
+        /// Gets or sets the ServiceProvider instance.
+        /// </summary>
         public static IServiceProvider ServiceProvider
         {
             get
@@ -29,6 +35,11 @@ namespace Dot.Net.WebApi
             }
         }
 
+        /// <summary>
+        /// Gets a service of type T from the ServiceProvider.
+        /// </summary>
+        /// <typeparam name="T">The type of service to retrieve.</typeparam>
+        /// <returns>The service of type T.</returns>
         public static T GetService<T>()
         {
             return (T)ServiceProvider.GetService(typeof(T));
@@ -129,20 +140,31 @@ namespace Dot.Net.WebApi
             }
         }
 
+        /// <summary>
+        /// Initializes the aspect by retrieving the logger and http context accessor from the service provider.
+        /// </summary>
+        /// <param name="method">The method being executed.</param>
         public override void RuntimeInitialize(MethodBase method)
         {
+            // Check if service provider is initialized
             if (ServiceProviderHelper.ServiceProvider == null)
             {
                 throw new InvalidOperationException("LogApiCallAspect: ServiceProvider is not initialized");
             }
 
+            // Get logger from service provider
             _logger = ServiceProviderHelper.GetService<ILogger<LogApiCallAspect>>();
+
+            // Check if logger is available
             if (_logger == null)
             {
                 throw new InvalidOperationException("LogApiCallAspect: Logger is not available");
             }
 
+            // Get http context accessor from service provider
             _httpContextAccessor = ServiceProviderHelper.GetService<IHttpContextAccessor>();
+
+            // Check if http context accessor is available
             if (_httpContextAccessor == null)
             {
                 throw new InvalidOperationException("LogApiCallAspect: HttpContextAccessor is not available");
