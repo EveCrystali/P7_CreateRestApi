@@ -10,10 +10,11 @@ namespace P7CreateRestApi.Controllers
     [LogApiCallAspect]
     [Route("[controller]")]
     [ApiController]
-    public class BidListController(LocalDbContext context, UpdateService updateService) : ControllerBase
+    public class BidListController(LocalDbContext context, IUpdateService<BidList> updateService) : ControllerBase
     {
         private readonly LocalDbContext _context = context;
-        private readonly UpdateService _updateService = updateService;
+        private readonly IUpdateService<BidList> _updateService = updateService;
+
 
         [HttpGet("list")]
         public async Task<ActionResult> GetBidLists()

@@ -7,10 +7,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Dot.Net.WebApi.Services;
 
-public class UpdateService(LocalDbContext context)
-{
-    private readonly LocalDbContext _context = context;
+public class UpdateService<T> : IUpdateService<T> where T : class
+    {
+        private readonly LocalDbContext _context;
 
+        public UpdateService(LocalDbContext context)
+        {
+            _context = context;
+        }
     /// <summary>
     /// This service is used to update an entity in the database.
     /// It checks if the entity to be updated is valid, if the id parameter is the same as the id of the entity in the body,
@@ -22,7 +26,7 @@ public class UpdateService(LocalDbContext context)
     /// <param name="existsFunc">A function that checks if the entity exists in the database.</param>
     /// <param name="getIdFunc">A function that gets the id of the entity.</param>
     /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation. The task result contains the HTTP response.</returns>
-    public async Task<IActionResult> UpdateEntity<T>(int id, T entity, Func<T, bool> existsFunc, Func<T, int> getIdFunc) where T : class
+    public async Task<IActionResult> UpdateEntity(int id, T entity, Func<T, bool> existsFunc, Func<T, int> getIdFunc) 
     {
         // Check if the id parameter is the same as the id of the entity in the body
         if (id != getIdFunc(entity))
@@ -59,7 +63,7 @@ public class UpdateService(LocalDbContext context)
                 throw;
             }
         }
-        
+
         return new NoContentResult();
     }
 }

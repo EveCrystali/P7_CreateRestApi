@@ -10,10 +10,10 @@ namespace P7CreateRestApi.Controllers
     [LogApiCallAspect]
     [Route("[controller]")]
     [ApiController]
-    public class RuleNameController(LocalDbContext context, UpdateService updateService) : ControllerBase
+    public class RuleNameController(LocalDbContext context, IUpdateService<RuleName> updateService) : ControllerBase
     {
         private readonly LocalDbContext _context = context;
-        private readonly UpdateService _updateService = updateService;
+        private readonly IUpdateService<RuleName> _updateService = updateService;
 
         [HttpGet]
         [Route("list")]
