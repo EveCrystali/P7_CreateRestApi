@@ -17,23 +17,20 @@ namespace P7CreateRestApi.Tests;
 public class BidListControllerTests
 {
     private readonly LocalDbContext _context;
-    private readonly Mock<UpdateService> _mockUpdateService;
+    private readonly Mock<IUpdateService<BidList>> _mockUpdateService;
     private readonly BidListController _controller;
 
-
-    private readonly UpdateService updateService;
 
     public BidListControllerTests()
     {
 
-         var options = new DbContextOptionsBuilder<LocalDbContext>()
-                        .UseInMemoryDatabase(databaseName: "TestDatabase")
-                        .Options;
+        var options = new DbContextOptionsBuilder<LocalDbContext>()
+                         .UseInMemoryDatabase(databaseName: "TestDatabase")
+                         .Options;
 
         _context = new LocalDbContext(options);
 
-
-        _mockUpdateService = new Mock<UpdateService>();
+        _mockUpdateService = new Mock<IUpdateService<BidList>>();
 
         _controller = new BidListController(_context, _mockUpdateService.Object);
     }
