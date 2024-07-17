@@ -33,7 +33,7 @@ namespace P7CreateRestApi.Controllers
                 return NotFound("Trade with this Id does not exist");
             }
 
-            return trade;
+            return Ok(trade);
         }
 
         [HttpPut("update/{id}")]
