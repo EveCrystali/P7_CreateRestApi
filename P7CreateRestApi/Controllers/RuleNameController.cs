@@ -33,7 +33,7 @@ namespace P7CreateRestApi.Controllers
                 return NotFound("RuleName with this Id does not exist");
             }
 
-            return ruleName;
+            return Ok(ruleName);
         }
 
         [HttpPut("update/{id}")]

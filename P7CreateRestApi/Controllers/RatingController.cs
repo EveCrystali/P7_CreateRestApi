@@ -33,7 +33,7 @@ namespace P7CreateRestApi.Controllers
                 return NotFound("Rating with this Id does not exist");
             }
 
-            return rating;
+            return Ok(rating);
         }
 
         [HttpPut("update/{id}")]

@@ -41,7 +41,7 @@ namespace P7CreateRestApi.Controllers
                 return NotFound("No User found with this Id");
             }
 
-            return user;
+            return Ok(user);
         }
 
         [Authorize(Policy = "User")]

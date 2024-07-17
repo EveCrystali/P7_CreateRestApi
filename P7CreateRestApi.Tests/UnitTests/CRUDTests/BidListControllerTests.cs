@@ -13,61 +13,26 @@ using Dot.Net.WebApi;
 using Microsoft.Extensions.DependencyInjection;
 using Dot.Net.WebApi.Helpers;
 using Microsoft.AspNetCore.Http;
+using P7CreateRestApi.Tests;
 
 
 namespace P7CreateRestApi.Tests;
 
-public class BidListControllerTests
+public class BidListControllerTests : TestBase<BidList>
 {
-
-    static BidListControllerTests()
-    {
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddLogging();
-        serviceCollection.AddDbContext<LocalDbContext>(options =>
-            options.UseInMemoryDatabase("TestDatabase"));
-        serviceCollection.AddScoped(typeof(IUpdateService<>), typeof(UpdateService<>));
-        serviceCollection.AddHttpContextAccessor();  
-        serviceCollection.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); 
-
-        var serviceProvider = serviceCollection.BuildServiceProvider();
-        ServiceProviderHelper.Initialize(serviceProvider);
-    }
-
-    private readonly LocalDbContext _context;
-    private readonly Mock<IUpdateService<BidList>> _mockUpdateService;
     private readonly BidListController _controller;
 
     public BidListControllerTests()
     {
-        var options = new DbContextOptionsBuilder<LocalDbContext>()
-                      .UseInMemoryDatabase("TestDatabase")
-                      .Options;
-
-        _context = new LocalDbContext(options);
-        _mockUpdateService = new Mock<IUpdateService<BidList>>();
-
-        var httpContextAccessor = new HttpContextAccessor();
-
-        // Simulate an HTTP context
-        var context = new DefaultHttpContext();
-        httpContextAccessor.HttpContext = context;
-
         _controller = new BidListController(_context, _mockUpdateService.Object);
-
-        // Reset the database (usefull to run tests in parallel)
-        _context.BidLists.RemoveRange(_context.BidLists);
-        _context.SaveChanges();
     }
 
-    [Fact]
-    public async Task PostBidList_ValidData_ShouldReturnCreatedAtAction()
+    private BidList CreateValidBidList(int i)
     {
-        // Arrange
-        BidList bidList = new()
+        return new BidList
         {
             // Set valid properties
-            BidListId = 1,
+            BidListId = i,
             Account = "ValidAccount",
             BidType = "ValidBidType",
             Benchmark = "ValidBenchmark",
@@ -83,6 +48,13 @@ public class BidListControllerTests
             SourceListId = "ValidSourceListId",
             Side = "ValidSide"
         };
+    }
+
+    [Fact]
+    public async Task PostBidList_ValidData_ShouldReturnCreatedAtAction()
+    {
+        // Arrange
+        BidList bidList = CreateValidBidList(1);
 
         // Act
         var result = await _controller.PostBidList(bidList);
@@ -99,43 +71,10 @@ public class BidListControllerTests
         // Arrange
         List<BidList> bidLists = new()
         {
-        new() {
-            // Set valid properties
-            BidListId = 2,
-            Account = "ValidAccount",
-            BidType = "ValidBidType",
-            Benchmark = "ValidBenchmark",
-            Commentary = "ValidCommentary",
-            BidSecurity = "ValidSecurity",
-            BidStatus = "ValidStatus",
-            Trader = "ValidTrader",
-            Book = "ValidBook",
-            CreationName = "ValidCreationName",
-            RevisionName = "ValidRevisionName",
-            DealName = "ValidDealName",
-            DealType = "ValidDealType",
-            SourceListId = "ValidSourceListId",
-            Side = "ValidSide"
-        },
-        new() {
-            // Set valid properties
-            BidListId = 3,
-            Account = "ValidAccount2",
-            BidType = "ValidBidType2",
-            Benchmark = "ValidBenchmark2",
-            Commentary = "ValidCommentary2",
-            BidSecurity = "ValidSecurity2",
-            BidStatus = "ValidStatus2",
-            Trader = "ValidTrader2",
-            Book = "ValidBook2",
-            CreationName = "ValidCreationName2",
-            RevisionName = "ValidRevisionName2",
-            DealName = "ValidDealName2",
-            DealType = "ValidDealType2",
-            SourceListId = "ValidSourceListId2",
-            Side = "ValidSide2"
-        }
-    };
+         CreateValidBidList(1),
+         CreateValidBidList(2)
+        };
+
         _context.BidLists.AddRange(bidLists);
         await _context.SaveChangesAsync();
 
@@ -152,25 +91,7 @@ public class BidListControllerTests
     public async Task GetBidList_ExistingId_ShouldReturnBidList()
     {
         // Arrange
-        BidList bidList = new()
-        {
-            // Set valid properties
-            BidListId = 1,
-            Account = "ValidAccount",
-            BidType = "ValidBidType",
-            Benchmark = "ValidBenchmark",
-            Commentary = "ValidCommentary",
-            BidSecurity = "ValidSecurity",
-            BidStatus = "ValidStatus",
-            Trader = "ValidTrader",
-            Book = "ValidBook",
-            CreationName = "ValidCreationName",
-            RevisionName = "ValidRevisionName",
-            DealName = "ValidDealName",
-            DealType = "ValidDealType",
-            SourceListId = "ValidSourceListId",
-            Side = "ValidSide"
-        };
+        BidList bidList = CreateValidBidList(1);
         _context.BidLists.Add(bidList);
         await _context.SaveChangesAsync();
 
@@ -198,25 +119,7 @@ public class BidListControllerTests
     public async Task PutBidList_ValidUpdate_ShouldReturnNoContent()
     {
         // Arrange
-        BidList bidList = new()
-        {
-            // Set valid properties
-            BidListId = 1,
-            Account = "ValidAccount",
-            BidType = "ValidBidType",
-            Benchmark = "ValidBenchmark",
-            Commentary = "ValidCommentary",
-            BidSecurity = "ValidSecurity",
-            BidStatus = "ValidStatus",
-            Trader = "ValidTrader",
-            Book = "ValidBook",
-            CreationName = "ValidCreationName",
-            RevisionName = "ValidRevisionName",
-            DealName = "ValidDealName",
-            DealType = "ValidDealType",
-            SourceListId = "ValidSourceListId",
-            Side = "ValidSide"
-        };
+        BidList bidList = CreateValidBidList(1);
         _context.BidLists.Add(bidList);
         await _context.SaveChangesAsync();
 
@@ -254,24 +157,7 @@ public class BidListControllerTests
     public async Task PutBidList_InvalidUpdate_ShouldReturnNotFound()
     {
         // Arrange
-        BidList updatedBidList = new()
-        {
-            BidListId = 99,
-            Account = "ValidAccount",
-            BidType = "ValidBidType",
-            Benchmark = "ValidBenchmark",
-            Commentary = "ValidCommentary",
-            BidSecurity = "ValidSecurity",
-            BidStatus = "ValidStatus",
-            Trader = "ValidTrader",
-            Book = "ValidBook",
-            CreationName = "ValidCreationName",
-            RevisionName = "ValidRevisionName",
-            DealName = "ValidDealName",
-            DealType = "ValidDealType",
-            SourceListId = "ValidSourceListId",
-            Side = "ValidSide"
-        };
+        BidList updatedBidList = CreateValidBidList(99);
 
         _mockUpdateService
             .Setup(s => s.UpdateEntity(It.IsAny<int>(), It.IsAny<BidList>(), It.IsAny<Func<BidList, bool>>(), It.IsAny<Func<BidList, int>>()))
@@ -288,25 +174,7 @@ public class BidListControllerTests
     public async Task DeleteBidList_ExistingId_ShouldReturnNoContent()
     {
         // Arrange
-        BidList bidList = new()
-        {
-            // Set valid properties
-            BidListId = 1,
-            Account = "ValidAccount",
-            BidType = "ValidBidType",
-            Benchmark = "ValidBenchmark",
-            Commentary = "ValidCommentary",
-            BidSecurity = "ValidSecurity",
-            BidStatus = "ValidStatus",
-            Trader = "ValidTrader",
-            Book = "ValidBook",
-            CreationName = "ValidCreationName",
-            RevisionName = "ValidRevisionName",
-            DealName = "ValidDealName",
-            DealType = "ValidDealType",
-            SourceListId = "ValidSourceListId",
-            Side = "ValidSide"
-        };
+        BidList bidList = CreateValidBidList(1);
         _context.BidLists.Add(bidList);
         await _context.SaveChangesAsync();
 
