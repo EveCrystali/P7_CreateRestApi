@@ -32,7 +32,7 @@ namespace P7CreateRestApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        public async Task<ActionResult<User>> GetUser(string id)
         {
             User? user = await _context.Users.FindAsync(id);
 
@@ -120,7 +120,7 @@ namespace P7CreateRestApi.Controllers
 
         [Authorize(Policy = "RequireAdminRole")]
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(string id)
         {
             User? user = await _context.Users.FindAsync(id);
             if (user == null)
