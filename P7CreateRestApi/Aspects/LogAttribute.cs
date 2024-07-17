@@ -2,49 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using PostSharp.Aspects;
 using PostSharp.Serialization;
+using Dot.Net.WebApi.Helpers;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using System;
 
 namespace Dot.Net.WebApi
 {
-/// <summary>
-    /// Helper class for managing the ServiceProvider.
-    /// </summary>
-    public static class ServiceProviderHelper
-    {
-        private static IServiceProvider _serviceProvider;
-
-        /// <summary>
-        /// Gets or sets the ServiceProvider instance.
-        /// </summary>
-        public static IServiceProvider ServiceProvider
-        {
-            get
-            {
-                if (_serviceProvider == null)
-                {
-                    throw new InvalidOperationException("ServiceProvider has not been initialized.");
-                }
-                return _serviceProvider;
-            }
-            set
-            {
-                if (_serviceProvider != null)
-                {
-                    throw new InvalidOperationException("ServiceProvider is already set.");
-                }
-                _serviceProvider = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets a service of type T from the ServiceProvider.
-        /// </summary>
-        /// <typeparam name="T">The type of service to retrieve.</typeparam>
-        /// <returns>The service of type T.</returns>
-        public static T GetService<T>()
-        {
-            return (T)ServiceProvider.GetService(typeof(T));
-        }
-    }
 
     [PSerializable]
     public class LogAspect : OnMethodBoundaryAspect

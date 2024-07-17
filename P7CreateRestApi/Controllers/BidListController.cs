@@ -33,7 +33,7 @@ namespace P7CreateRestApi.Controllers
                 return NotFound("BidList with this Id doesn't exist");
             }
 
-            return bidList;
+            return Ok(bidList);
         }
 
         [HttpPut("update/{id}")]
