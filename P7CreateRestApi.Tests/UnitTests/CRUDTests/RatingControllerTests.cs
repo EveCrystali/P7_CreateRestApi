@@ -36,7 +36,6 @@ public class RatingControllerTests : TestBase<Rating>
             MoodysRating = "ValidM",
             SandPRating = "ValidSP",
             FitchRating = "ValidF",
-            OrderNumber = 1  
         };
     }
 
