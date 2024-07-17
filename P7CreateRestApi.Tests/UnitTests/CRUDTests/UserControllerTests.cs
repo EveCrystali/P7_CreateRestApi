@@ -12,6 +12,7 @@ using P7CreateRestApi.Controllers;
 using Xunit;
 using P7CreateRestApi.Tests;
 using System.Security.Claims;
+using Dot.Net.WebApi.Services;
 
 
 namespace P7CreateRestApi.Tests;
@@ -20,11 +21,13 @@ public class UserControllerTests : TestBase<User>
 {
     private readonly UserController _controller;
     private readonly Mock<UserManager<User>> _mockUserManager;
+    private readonly Mock<JwtRevocationService> _mockJwtRevocationService;
 
     public UserControllerTests()
     {
         _mockUserManager = MockUserManager<User>();
-        _controller = new UserController(_context, _mockUserManager.Object);
+        _mockJwtRevocationService = new Mock<JwtRevocationService>();
+        _controller = new UserController(_context, _mockUserManager.Object, _mockJwtRevocationService.Object);
     }
 
     private Mock<UserManager<TUser>> MockUserManager<TUser>() where TUser : class
@@ -132,12 +135,31 @@ public class UserControllerTests : TestBase<User>
     }
 
     [Fact]
-    public async Task DeleteUser_ExistingId_ShouldReturnNoContent()
+    public async Task DeleteUser_ExistingIdAndAdmin_ShouldReturnNoContent()
     {
         // Arrange
         User user = new() { Id = "1", UserName = "userone", Fullname = "User One", Email = "userone@example.com" };
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
+
+        // Simulate an HTTP context with an admin user
+        var userClaims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(ClaimTypes.Role, "Admin")
+        };
+        var identity = new ClaimsIdentity(userClaims, "TestAuthType");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipal
+        };
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = httpContext
+        };
 
         // Act
         var result = await _controller.DeleteUser("1");
@@ -147,8 +169,90 @@ public class UserControllerTests : TestBase<User>
     }
 
     [Fact]
+    public async Task DeleteUser_NotAuthenticated_ShouldReturnUnauthorized()
+    {
+        // Arrange
+        User user = new() { Id = "1", UserName = "userone", Fullname = "User One", Email = "userone@example.com" };
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        // Simulate an HTTP context with no user
+        var httpContext = new DefaultHttpContext();
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = httpContext
+        };
+
+        // Act
+        var result = await _controller.DeleteUser("1");
+
+        // Assert
+        Assert.IsType<ForbidResult>(result);
+    }
+
+    [Fact]
+    public async Task DeleteUser_NotAdmin_ShouldReturnForbid()
+    {
+        // Arrange
+        User user = new() { Id = "1", UserName = "userone", Fullname = "User One", Email = "userone@example.com" };
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        // Simulate an HTTP context with a non-admin user
+        var userClaims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.Id),
+        new Claim(ClaimTypes.Name, user.UserName),
+        // No Admin role
+    };
+        var identity = new ClaimsIdentity(userClaims, "TestAuthType");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipal
+        };
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = httpContext
+        };
+
+        // Act
+        var result = await _controller.DeleteUser("1");
+
+        // Assert
+        Assert.IsType<ForbidResult>(result);
+    }
+
+
+
+    [Fact]
     public async Task DeleteUser_NonExistingId_ShouldReturnNotFound()
     {
+        // Arrange
+        User user = new() { Id = "1", UserName = "userone", Fullname = "User One", Email = "userone@example.com" };
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        // Simulate an HTTP context with an admin user
+        var userClaims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(ClaimTypes.Role, "Admin")
+        };
+        var identity = new ClaimsIdentity(userClaims, "TestAuthType");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipal
+        };
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = httpContext
+        };
+
         // Act
         var result = await _controller.DeleteUser("99");
 

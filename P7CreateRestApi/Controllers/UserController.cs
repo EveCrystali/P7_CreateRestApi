@@ -1,10 +1,12 @@
 ﻿using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Dot.Net.WebApi.Services;
 
 namespace P7CreateRestApi.Controllers
 {
@@ -17,12 +19,15 @@ namespace P7CreateRestApi.Controllers
 
         private readonly UserManager<User> _userManager;
 
-        public UserController(LocalDbContext context, UserManager<User> userManager)
+        private readonly JwtRevocationService _jwtRevocationService;
+
+        public UserController(LocalDbContext context, UserManager<User> userManager, JwtRevocationService jwtRevocationService)
         {
             _context = context;
             _userManager = userManager;
+            _jwtRevocationService = jwtRevocationService;
         }
-
+        
         [HttpGet]
         [Route("list")]
         public async Task<IActionResult> GetUsers()
@@ -122,16 +127,35 @@ namespace P7CreateRestApi.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            User? user = await _context.Users.FindAsync(id);
-            if (user == null)
+            // Verify that the connected user is the user being deleted or an administrator
+            User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+
+            if (currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Admin") || id == currentUser.Id))
             {
-                return NotFound();
+                User? user = await _context.Users.FindAsync(id);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                if (id == currentUser.Id)
+                {
+                    // Revoke JWT token and log out the user
+                    await _jwtRevocationService.RevokeUserTokensAsync(currentUser.Id);
+
+                    // Sign out the user
+                    await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+                }
+
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            else
+            {
+                return Forbid();
+            }
         }
 
         private bool UserExists(string id)
