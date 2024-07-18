@@ -32,18 +32,9 @@ public class UserControllerTests : TestBase<User>
         {
             ControllerContext = new ControllerContext
             {
-                HttpContext = new DefaultHttpContext
-                {
-                    RequestServices = serviceProvider
-                }
+                HttpContext = new DefaultHttpContext { RequestServices = serviceProvider }
             }
         };
-    }
-
-    private Mock<UserManager<TUser>> MockUserManager<TUser>() where TUser : class
-    {
-        Mock<IUserStore<TUser>> store = new();
-        return new Mock<UserManager<TUser>>(store.Object, null, null, null, null, null, null, null, null);
     }
 
     [Fact]
@@ -140,6 +131,7 @@ public class UserControllerTests : TestBase<User>
         {
             User userToDelete = new() { Id = userIdToDelete, UserName = "userNameToDelete", Fullname = "User NameToDelete", Email = "usernametodelete@example.com" };
             _context.Users.Add(userToDelete);
+            await _context.SaveChangesAsync();
         }
 
         await _context.SaveChangesAsync();
@@ -149,6 +141,14 @@ public class UserControllerTests : TestBase<User>
         if (isActiveUser)
         {
             SetupMockActiveUser(user);
+        }
+
+        // Reload the user to ensure the context is aware of the current state of the entity
+        _context.Entry(user).Reload();
+        if (userIdToDelete != "1")
+        {
+            User? userToDelete = await _context.Users.FindAsync(userIdToDelete);
+            _context.Entry(userToDelete).Reload();
         }
 
         // Act
@@ -191,14 +191,10 @@ public class UserControllerTests : TestBase<User>
         ClaimsPrincipal claimsPrincipal = new(identity);
 
         Mock<IAuthenticationService> mockAuthService = new();
-        mockAuthService
-            .Setup(x => x.SignOutAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<AuthenticationProperties>()))
-            .Returns(Task.CompletedTask);
+        mockAuthService.Setup(x => x.SignOutAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<AuthenticationProperties>())).Returns(Task.CompletedTask);
 
         Mock<IServiceProvider> mockServiceProvider = new();
-        mockServiceProvider
-            .Setup(x => x.GetService(typeof(IAuthenticationService)))
-            .Returns(mockAuthService.Object);
+        mockServiceProvider.Setup(x => x.GetService(typeof(IAuthenticationService))).Returns(mockAuthService.Object);
 
         DefaultHttpContext httpContext = new()
         {
@@ -228,14 +224,10 @@ public class UserControllerTests : TestBase<User>
         ClaimsPrincipal claimsPrincipal = new(identity);
 
         Mock<IAuthenticationService> mockAuthService = new();
-        mockAuthService
-            .Setup(x => x.SignOutAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<AuthenticationProperties>()))
-            .Returns(Task.CompletedTask);
+        mockAuthService.Setup(x => x.SignOutAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<AuthenticationProperties>())).Returns(Task.CompletedTask);
 
         Mock<IServiceProvider> mockServiceProvider = new();
-        mockServiceProvider
-            .Setup(x => x.GetService(typeof(IAuthenticationService)))
-            .Returns(mockAuthService.Object);
+        mockServiceProvider.Setup(x => x.GetService(typeof(IAuthenticationService))).Returns(mockAuthService.Object);
 
         DefaultHttpContext httpContext = new()
         {

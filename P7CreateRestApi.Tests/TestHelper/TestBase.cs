@@ -1,7 +1,10 @@
-﻿using Dot.Net.WebApi.Data;
+﻿using System.Security.Claims;
+using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Helpers;
 using Dot.Net.WebApi.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -134,5 +137,29 @@ public abstract class TestBase<TEntity> : IDisposable where TEntity : class
         _context.SaveChanges();
 
         _serviceProvider = ServiceProviderHelper.ServiceProvider;
+    }
+
+    /// <summary>
+    /// Configures the controller context for the specified controller with the given claims principal.
+    /// </summary>
+    /// <param name="controller">The controller to configure.</param>
+    /// <param name="user">The claims principal representing the authenticated user.</param>
+    protected void SetupControllerContext(ControllerBase controller, ClaimsPrincipal user)
+    {
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = user }
+        };
+    }
+
+    /// <summary>
+    /// Creates a mock UserManager for the specified user type.
+    /// </summary>
+    /// <typeparam name="TUser">The user type.</typeparam>
+    /// <returns>A mock UserManager.</returns>
+    protected Mock<UserManager<TUser>> MockUserManager<TUser>() where TUser : class
+    {
+        Mock<IUserStore<TUser>> store = new();
+        return new Mock<UserManager<TUser>>(store.Object, null, null, null, null, null, null, null, null);
     }
 }

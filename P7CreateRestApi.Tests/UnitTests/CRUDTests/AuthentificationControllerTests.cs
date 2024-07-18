@@ -3,7 +3,6 @@ using Dot.Net.WebApi.Controllers;
 using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Models;
 using Dot.Net.WebApi.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +30,18 @@ namespace P7CreateRestApi.Tests
             return new Mock<UserManager<TUser>>(store.Object, null, null, null, null, null, null, null, null);
         }
 
+        private ClaimsPrincipal CreateClaimsPrincipal(string userId, string userName, string role)
+        {
+            List<Claim> claims = new()
+            {
+                new Claim(ClaimTypes.NameIdentifier, userId),
+                new Claim(ClaimTypes.Name, userName),
+                new Claim(ClaimTypes.Role, role)
+            };
+            ClaimsIdentity identity = new(claims, "TestAuthType");
+            return new ClaimsPrincipal(identity);
+        }
+
         [Fact]
         public async Task Login_ValidCredentials_ShouldReturnTokenAndRefreshToken()
         {
@@ -41,10 +52,8 @@ namespace P7CreateRestApi.Tests
             _mockUserManager.Setup(um => um.FindByNameAsync(loginModel.Username)).ReturnsAsync(user);
             _mockUserManager.Setup(um => um.CheckPasswordAsync(user, loginModel.Password)).ReturnsAsync(true);
             _mockUserManager.Setup(um => um.GetRolesAsync(user)).ReturnsAsync(new List<string> { "User" });
-            _mockJwtService.Setup(js => js.GenerateToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>()))
-                .Returns("token");
-            _mockJwtService.Setup(js => js.GenerateRefreshToken(It.IsAny<string>()))
-                .Returns(new RefreshToken { Token = "refreshToken", UserId = user.Id });
+            _mockJwtService.Setup(js => js.GenerateToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>())).Returns("token");
+            _mockJwtService.Setup(js => js.GenerateRefreshToken(It.IsAny<string>())).Returns(new RefreshToken { Token = "refreshToken", UserId = user.Id });
 
             // Act
             IActionResult result = await _controller.Login(loginModel);
@@ -71,10 +80,8 @@ namespace P7CreateRestApi.Tests
         {
             // Arrange
             RegisterModel registerModel = new() { Username = "testuser", Fullname = "Test User", Password = "Password123" };
-            _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<User>(), registerModel.Password))
-                .ReturnsAsync(IdentityResult.Success);
-            _mockUserManager.Setup(um => um.AddToRoleAsync(It.IsAny<User>(), "User"))
-                .ReturnsAsync(IdentityResult.Success);
+            _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<User>(), registerModel.Password)).ReturnsAsync(IdentityResult.Success);
+            _mockUserManager.Setup(um => um.AddToRoleAsync(It.IsAny<User>(), "User")).ReturnsAsync(IdentityResult.Success);
 
             // Act
             IActionResult result = await _controller.Register(registerModel);
@@ -104,39 +111,20 @@ namespace P7CreateRestApi.Tests
                 IsRevoked = false
             };
 
-            // Ajout du jeton d'actualisation au contexte
             _context.RefreshTokens.Add(oldRefreshToken);
             await _context.SaveChangesAsync();
 
-            // Simulation des méthodes UserManager
             _mockUserManager.Setup(um => um.FindByIdAsync("1")).ReturnsAsync(user);
             _mockUserManager.Setup(um => um.GetRolesAsync(user)).ReturnsAsync(new List<string> { "User" });
 
-            // Simulation des méthodes JwtService
-            _mockJwtService.Setup(js => js.GenerateToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>()))
-                .Returns("newToken");
-            _mockJwtService.Setup(js => js.GenerateRefreshToken(It.IsAny<string>()))
-                .Returns(new RefreshToken { Token = "newRefreshToken", UserId = user.Id });
+            _mockJwtService.Setup(js => js.GenerateToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>())).Returns("newToken");
+            _mockJwtService.Setup(js => js.GenerateRefreshToken(It.IsAny<string>())).Returns(new RefreshToken { Token = "newRefreshToken", UserId = user.Id });
 
-            // Simuler l'authentification
-            List<Claim> claims = new()
-            {
-        new Claim(ClaimTypes.NameIdentifier, user.Id),
-        new Claim(ClaimTypes.Name, user.UserName),
-        new Claim(ClaimTypes.Role, "User")
-    };
-            ClaimsIdentity identity = new(claims, "TestAuthType");
-            ClaimsPrincipal claimsPrincipal = new(identity);
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(user.Id, user.UserName, "User");
+            SetupControllerContext(_controller, claimsPrincipal);
 
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext { User = claimsPrincipal }
-            };
-
-            // Act
             IActionResult result = await _controller.Refresh(refreshRequest);
 
-            // Assert
             OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
             object? returnValue = okResult.Value;
 
@@ -170,22 +158,10 @@ namespace P7CreateRestApi.Tests
 
             _mockUserManager.Setup(um => um.FindByIdAsync("1")).ReturnsAsync(user);
 
-            // Simuler l'authentification d'un administrateur
-            List<Claim> claims = new()
-            {
-        new Claim(ClaimTypes.NameIdentifier, "adminId"),
-        new Claim(ClaimTypes.Name, "admin"),
-        new Claim(ClaimTypes.Role, "Admin")
-    };
-            ClaimsIdentity identity = new(claims, "TestAuthType");
-            ClaimsPrincipal claimsPrincipal = new(identity);
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal("adminId", "admin", "Admin");
+            SetupControllerContext(_controller, claimsPrincipal);
 
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext { User = claimsPrincipal }
-            };
-
-            // Act
+            //Act
             IActionResult result = await _controller.RevokeAllTokens(revokeRequest);
 
             // Assert
