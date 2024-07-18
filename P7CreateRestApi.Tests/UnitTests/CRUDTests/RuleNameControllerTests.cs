@@ -1,20 +1,7 @@
-﻿
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using Dot.Net.WebApi.Data;
-using Dot.Net.WebApi.Controllers;
-using Dot.Net.WebApi.Domain;
+﻿using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using P7CreateRestApi.Controllers;
-using Microsoft.AspNetCore.Mvc;
-using Dot.Net.WebApi.Services;
-using Microsoft.EntityFrameworkCore;
-using Dot.Net.WebApi;
-using Microsoft.Extensions.DependencyInjection;
-using Dot.Net.WebApi.Helpers;
-using Microsoft.AspNetCore.Http;
-using P7CreateRestApi.Tests;
-
 
 namespace P7CreateRestApi.Tests;
 
@@ -32,13 +19,13 @@ public class RuleNameControllerTests : TestBase<RuleName>
         return new RuleName
         {
             // Set valid properties
-           Id = i,
-           Name = "ValidRuleName",
-           Description = "ValidDescription",
-           Json = "ValidJson",
-           Template = "ValidTemplate",
-           SqlStr = "ValidSqlStr",
-           SqlPart = "ValidSqlPart"
+            Id = i,
+            Name = "ValidRuleName",
+            Description = "ValidDescription",
+            Json = "ValidJson",
+            Template = "ValidTemplate",
+            SqlStr = "ValidSqlStr",
+            SqlPart = "ValidSqlPart"
         };
     }
 
@@ -49,11 +36,11 @@ public class RuleNameControllerTests : TestBase<RuleName>
         RuleName ruleName = CreateValidRuleName(1);
 
         // Act
-        var result = await _controller.PostRuleName(ruleName);
+        ActionResult<RuleName> result = await _controller.PostRuleName(ruleName);
 
         // Assert
-        var actionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
-        var returnValue = Assert.IsType<RuleName>(actionResult.Value);
+        CreatedAtActionResult actionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
+        RuleName returnValue = Assert.IsType<RuleName>(actionResult.Value);
         Assert.Equal(ruleName, returnValue);
     }
 
@@ -71,11 +58,11 @@ public class RuleNameControllerTests : TestBase<RuleName>
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.GetRuleNames();
+        ActionResult result = await _controller.GetRuleNames();
 
         // Assert
-        var actionResult = Assert.IsType<OkObjectResult>(result);
-        var returnValue = Assert.IsType<List<RuleName>>(actionResult.Value);
+        OkObjectResult actionResult = Assert.IsType<OkObjectResult>(result);
+        List<RuleName> returnValue = Assert.IsType<List<RuleName>>(actionResult.Value);
         Assert.Equal(2, returnValue.Count);
     }
 
@@ -88,7 +75,7 @@ public class RuleNameControllerTests : TestBase<RuleName>
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.GetRuleName(1);
+        ActionResult<RuleName> result = await _controller.GetRuleName(1);
 
         // Assert
         ActionResult<RuleName> actionResult = Assert.IsType<ActionResult<RuleName>>(result);
@@ -101,7 +88,7 @@ public class RuleNameControllerTests : TestBase<RuleName>
     public async Task GetRuleName_NonExistingId_ShouldReturnNotFound()
     {
         // Act
-        var result = await _controller.GetRuleName(1);
+        ActionResult<RuleName> result = await _controller.GetRuleName(1);
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result.Result);
@@ -131,7 +118,7 @@ public class RuleNameControllerTests : TestBase<RuleName>
         .ReturnsAsync(new NoContentResult());
 
         // Act
-        var result = await _controller.PutRuleName(1, updatedRuleName);
+        IActionResult result = await _controller.PutRuleName(1, updatedRuleName);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -148,7 +135,7 @@ public class RuleNameControllerTests : TestBase<RuleName>
             .ReturnsAsync(new NotFoundObjectResult("Not Found"));
 
         // Act
-        var result = await _controller.PutRuleName(99, updatedRuleName);
+        IActionResult result = await _controller.PutRuleName(99, updatedRuleName);
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result);
@@ -163,7 +150,7 @@ public class RuleNameControllerTests : TestBase<RuleName>
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.DeleteRuleName(1);
+        IActionResult result = await _controller.DeleteRuleName(1);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -173,7 +160,7 @@ public class RuleNameControllerTests : TestBase<RuleName>
     public async Task DeleteRuleName_NonExistingId_ShouldReturnNotFound()
     {
         // Act
-        var result = await _controller.DeleteRuleName(99);
+        IActionResult result = await _controller.DeleteRuleName(99);
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result);

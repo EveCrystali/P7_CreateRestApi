@@ -82,6 +82,5 @@ public class RuleNameTest
         TestHelper.ValidateStringProperty(ruleName, nameof(RuleName.SqlPart), input, description, mandatory: true);
     }
 
-
     // --------------- STRING PROPERTIES TESTS ------------------
 }

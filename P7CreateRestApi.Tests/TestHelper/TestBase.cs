@@ -1,12 +1,10 @@
-﻿using System;
-
-using Dot.Net.WebApi.Data;
+﻿using Dot.Net.WebApi.Data;
+using Dot.Net.WebApi.Helpers;
 using Dot.Net.WebApi.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Http;
 using Moq;
-using Dot.Net.WebApi.Helpers;
 
 namespace P7CreateRestApi.Tests;
 
@@ -44,7 +42,7 @@ public abstract class TestBase<TEntity> : IDisposable where TEntity : class
             if (!_isServiceProviderInitialized)
             {
                 // Create a new service collection.
-                var serviceCollection = new ServiceCollection();
+                ServiceCollection serviceCollection = new();
 
                 // Add logging to the service collection.
                 serviceCollection.AddLogging();
@@ -63,7 +61,7 @@ public abstract class TestBase<TEntity> : IDisposable where TEntity : class
                 serviceCollection.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
                 // Build the service provider from the service collection.
-                var serviceProvider = serviceCollection.BuildServiceProvider();
+                ServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
 
                 // Initialize the service provider.
                 ServiceProviderHelper.Initialize(serviceProvider);
@@ -118,17 +116,17 @@ public abstract class TestBase<TEntity> : IDisposable where TEntity : class
     /// </summary>
     protected TestBase()
     {
-        var options = new DbContextOptionsBuilder<LocalDbContext>()
+        DbContextOptions<LocalDbContext> options = new DbContextOptionsBuilder<LocalDbContext>()
                       .UseInMemoryDatabase("TestDatabase")
                       .Options;
 
         _context = new LocalDbContext(options);
         _mockUpdateService = new Mock<IUpdateService<TEntity>>();
 
-        var httpContextAccessor = new HttpContextAccessor();
+        HttpContextAccessor httpContextAccessor = new();
 
         // Simulate an HTTP context
-        var context = new DefaultHttpContext();
+        DefaultHttpContext context = new();
         httpContextAccessor.HttpContext = context;
 
         // Reset the database (useful to run tests in parallel)

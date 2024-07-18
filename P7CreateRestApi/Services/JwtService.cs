@@ -51,20 +51,19 @@ public class JwtService
         // Create the JWT token with the issuer, audience, claims, expiration time, and signing credentials.
         JwtSecurityToken token = new(
             // The issuer is the entity that issued the token
-            issuer: _configuration["Jwt:Issuer"], 
+            issuer: _configuration["Jwt:Issuer"],
             // The audience is the entity that the token is intended for
-            audience: _configuration["Jwt:Audience"], 
+            audience: _configuration["Jwt:Audience"],
             // The claims are the information about the user
-            claims: claims, 
+            claims: claims,
             // The token expires after 1 hour
-            expires: DateTime.Now.AddHours(1), 
+            expires: DateTime.Now.AddHours(1),
             // The signing credentials are used to sign the token
-            signingCredentials: creds); 
+            signingCredentials: creds);
 
         // Create a JwtSecurityTokenHandler and use it to write the token as a string.
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-
 
     /// <summary>
     /// Generates a refresh token for the provided user ID.

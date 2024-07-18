@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
 
 namespace P7CreateRestApi.Tests
 {

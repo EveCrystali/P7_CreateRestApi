@@ -45,7 +45,7 @@ public class TokenCleanupService : IHostedService, IDisposable
     {
         // Create a new scope for database operations.
         using IServiceScope scope = _scopeFactory.CreateScope();
-        
+
         // Get the instance of the LocalDbContext.
         LocalDbContext context = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
 

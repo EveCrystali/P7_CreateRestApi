@@ -1,4 +1,5 @@
 ﻿using Dot.Net.WebApi.Data;
+using Dot.Net.WebApi.Services;
 
 namespace Dot.Net.WebApi.Services;
 

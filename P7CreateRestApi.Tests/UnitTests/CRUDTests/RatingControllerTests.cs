@@ -1,20 +1,7 @@
-﻿
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using Dot.Net.WebApi.Data;
-using Dot.Net.WebApi.Controllers;
-using Dot.Net.WebApi.Domain;
+﻿using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using P7CreateRestApi.Controllers;
-using Microsoft.AspNetCore.Mvc;
-using Dot.Net.WebApi.Services;
-using Microsoft.EntityFrameworkCore;
-using Dot.Net.WebApi;
-using Microsoft.Extensions.DependencyInjection;
-using Dot.Net.WebApi.Helpers;
-using Microsoft.AspNetCore.Http;
-using P7CreateRestApi.Tests;
-
 
 namespace P7CreateRestApi.Tests;
 
@@ -46,11 +33,11 @@ public class RatingControllerTests : TestBase<Rating>
         Rating rating = CreateValidRating(1);
 
         // Act
-        var result = await _controller.PostRating(rating);
+        ActionResult<Rating> result = await _controller.PostRating(rating);
 
         // Assert
-        var actionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
-        var returnValue = Assert.IsType<Rating>(actionResult.Value);
+        CreatedAtActionResult actionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
+        Rating returnValue = Assert.IsType<Rating>(actionResult.Value);
         Assert.Equal(rating, returnValue);
     }
 
@@ -68,11 +55,11 @@ public class RatingControllerTests : TestBase<Rating>
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.GetRatings();
+        ActionResult result = await _controller.GetRatings();
 
         // Assert
-        var actionResult = Assert.IsType<OkObjectResult>(result);
-        var returnValue = Assert.IsType<List<Rating>>(actionResult.Value);
+        OkObjectResult actionResult = Assert.IsType<OkObjectResult>(result);
+        List<Rating> returnValue = Assert.IsType<List<Rating>>(actionResult.Value);
         Assert.Equal(2, returnValue.Count);
     }
 
@@ -85,7 +72,7 @@ public class RatingControllerTests : TestBase<Rating>
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.GetRating(1);
+        ActionResult<Rating> result = await _controller.GetRating(1);
 
         // Assert
         ActionResult<Rating> actionResult = Assert.IsType<ActionResult<Rating>>(result);
@@ -98,7 +85,7 @@ public class RatingControllerTests : TestBase<Rating>
     public async Task GetRating_NonExistingId_ShouldReturnNotFound()
     {
         // Act
-        var result = await _controller.GetRating(1);
+        ActionResult<Rating> result = await _controller.GetRating(1);
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result.Result);
@@ -126,7 +113,7 @@ public class RatingControllerTests : TestBase<Rating>
         .ReturnsAsync(new NoContentResult());
 
         // Act
-        var result = await _controller.PutRating(1, updatedRating);
+        IActionResult result = await _controller.PutRating(1, updatedRating);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -143,7 +130,7 @@ public class RatingControllerTests : TestBase<Rating>
             .ReturnsAsync(new NotFoundObjectResult("Not Found"));
 
         // Act
-        var result = await _controller.PutRating(99, updatedRating);
+        IActionResult result = await _controller.PutRating(99, updatedRating);
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result);
@@ -158,7 +145,7 @@ public class RatingControllerTests : TestBase<Rating>
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.DeleteRating(1);
+        IActionResult result = await _controller.DeleteRating(1);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -168,7 +155,7 @@ public class RatingControllerTests : TestBase<Rating>
     public async Task DeleteRating_NonExistingId_ShouldReturnNotFound()
     {
         // Act
-        var result = await _controller.DeleteRating(99);
+        IActionResult result = await _controller.DeleteRating(99);
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result);

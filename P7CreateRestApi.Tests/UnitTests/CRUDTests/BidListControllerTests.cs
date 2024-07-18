@@ -1,20 +1,7 @@
-﻿
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using Dot.Net.WebApi.Data;
-using Dot.Net.WebApi.Controllers;
-using Dot.Net.WebApi.Domain;
+﻿using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using P7CreateRestApi.Controllers;
-using Microsoft.AspNetCore.Mvc;
-using Dot.Net.WebApi.Services;
-using Microsoft.EntityFrameworkCore;
-using Dot.Net.WebApi;
-using Microsoft.Extensions.DependencyInjection;
-using Dot.Net.WebApi.Helpers;
-using Microsoft.AspNetCore.Http;
-using P7CreateRestApi.Tests;
-
 
 namespace P7CreateRestApi.Tests;
 
@@ -57,11 +44,11 @@ public class BidListControllerTests : TestBase<BidList>
         BidList bidList = CreateValidBidList(1);
 
         // Act
-        var result = await _controller.PostBidList(bidList);
+        ActionResult<BidList> result = await _controller.PostBidList(bidList);
 
         // Assert
-        var actionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
-        var returnValue = Assert.IsType<BidList>(actionResult.Value);
+        CreatedAtActionResult actionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
+        BidList returnValue = Assert.IsType<BidList>(actionResult.Value);
         Assert.Equal(bidList, returnValue);
     }
 
@@ -79,11 +66,11 @@ public class BidListControllerTests : TestBase<BidList>
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.GetBidLists();
+        ActionResult result = await _controller.GetBidLists();
 
         // Assert
-        var actionResult = Assert.IsType<OkObjectResult>(result);
-        var returnValue = Assert.IsType<List<BidList>>(actionResult.Value);
+        OkObjectResult actionResult = Assert.IsType<OkObjectResult>(result);
+        List<BidList> returnValue = Assert.IsType<List<BidList>>(actionResult.Value);
         Assert.Equal(2, returnValue.Count);
     }
 
@@ -96,7 +83,7 @@ public class BidListControllerTests : TestBase<BidList>
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.GetBidList(1);
+        ActionResult<BidList> result = await _controller.GetBidList(1);
 
         // Assert
         ActionResult<BidList> actionResult = Assert.IsType<ActionResult<BidList>>(result);
@@ -109,7 +96,7 @@ public class BidListControllerTests : TestBase<BidList>
     public async Task GetBidList_NonExistingId_ShouldReturnNotFound()
     {
         // Act
-        var result = await _controller.GetBidList(1);
+        ActionResult<BidList> result = await _controller.GetBidList(1);
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result.Result);
@@ -147,7 +134,7 @@ public class BidListControllerTests : TestBase<BidList>
         .ReturnsAsync(new NoContentResult());
 
         // Act
-        var result = await _controller.PutBidList(1, updatedBidList);
+        IActionResult result = await _controller.PutBidList(1, updatedBidList);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -164,7 +151,7 @@ public class BidListControllerTests : TestBase<BidList>
             .ReturnsAsync(new NotFoundObjectResult("Not Found"));
 
         // Act
-        var result = await _controller.PutBidList(99, updatedBidList);
+        IActionResult result = await _controller.PutBidList(99, updatedBidList);
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result);
@@ -179,7 +166,7 @@ public class BidListControllerTests : TestBase<BidList>
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.DeleteBidList(1);
+        IActionResult result = await _controller.DeleteBidList(1);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -189,7 +176,7 @@ public class BidListControllerTests : TestBase<BidList>
     public async Task DeleteBidList_NonExistingId_ShouldReturnNotFound()
     {
         // Act
-        var result = await _controller.DeleteBidList(99);
+        IActionResult result = await _controller.DeleteBidList(99);
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result);

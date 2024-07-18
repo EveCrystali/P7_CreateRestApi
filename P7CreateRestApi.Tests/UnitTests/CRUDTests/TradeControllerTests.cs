@@ -1,20 +1,7 @@
-﻿
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using Dot.Net.WebApi.Data;
-using Dot.Net.WebApi.Controllers;
-using Dot.Net.WebApi.Domain;
+﻿using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using P7CreateRestApi.Controllers;
-using Microsoft.AspNetCore.Mvc;
-using Dot.Net.WebApi.Services;
-using Microsoft.EntityFrameworkCore;
-using Dot.Net.WebApi;
-using Microsoft.Extensions.DependencyInjection;
-using Dot.Net.WebApi.Helpers;
-using Microsoft.AspNetCore.Http;
-using P7CreateRestApi.Tests;
-
 
 namespace P7CreateRestApi.Tests;
 
@@ -56,11 +43,11 @@ public class TradeControllerTests : TestBase<Trade>
         Trade trade = CreateValidTrade(1);
 
         // Act
-        var result = await _controller.PostTrade(trade);
+        ActionResult<Trade> result = await _controller.PostTrade(trade);
 
         // Assert
-        var actionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
-        var returnValue = Assert.IsType<Trade>(actionResult.Value);
+        CreatedAtActionResult actionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
+        Trade returnValue = Assert.IsType<Trade>(actionResult.Value);
         Assert.Equal(trade, returnValue);
     }
 
@@ -78,11 +65,11 @@ public class TradeControllerTests : TestBase<Trade>
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.GetTrades();
+        ActionResult result = await _controller.GetTrades();
 
         // Assert
-        var actionResult = Assert.IsType<OkObjectResult>(result);
-        var returnValue = Assert.IsType<List<Trade>>(actionResult.Value);
+        OkObjectResult actionResult = Assert.IsType<OkObjectResult>(result);
+        List<Trade> returnValue = Assert.IsType<List<Trade>>(actionResult.Value);
         Assert.Equal(2, returnValue.Count);
     }
 
@@ -95,7 +82,7 @@ public class TradeControllerTests : TestBase<Trade>
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.GetTrade(1);
+        ActionResult<Trade> result = await _controller.GetTrade(1);
 
         // Assert
         ActionResult<Trade> actionResult = Assert.IsType<ActionResult<Trade>>(result);
@@ -108,7 +95,7 @@ public class TradeControllerTests : TestBase<Trade>
     public async Task GetTrade_NonExistingId_ShouldReturnNotFound()
     {
         // Act
-        var result = await _controller.GetTrade(1);
+        ActionResult<Trade> result = await _controller.GetTrade(1);
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result.Result);
@@ -145,7 +132,7 @@ public class TradeControllerTests : TestBase<Trade>
         .ReturnsAsync(new NoContentResult());
 
         // Act
-        var result = await _controller.PutTrade(1, updatedTrade);
+        IActionResult result = await _controller.PutTrade(1, updatedTrade);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -162,7 +149,7 @@ public class TradeControllerTests : TestBase<Trade>
             .ReturnsAsync(new NotFoundObjectResult("Not Found"));
 
         // Act
-        var result = await _controller.PutTrade(99, updatedTrade);
+        IActionResult result = await _controller.PutTrade(99, updatedTrade);
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result);
@@ -177,7 +164,7 @@ public class TradeControllerTests : TestBase<Trade>
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.DeleteTrade(1);
+        IActionResult result = await _controller.DeleteTrade(1);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -187,7 +174,7 @@ public class TradeControllerTests : TestBase<Trade>
     public async Task DeleteTrade_NonExistingId_ShouldReturnNotFound()
     {
         // Act
-        var result = await _controller.DeleteTrade(99);
+        IActionResult result = await _controller.DeleteTrade(99);
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result);

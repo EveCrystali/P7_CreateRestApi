@@ -40,12 +40,11 @@ public class LogCleanupService : IHostedService, IDisposable
         // Get the log retention days from the configuration
         int logRetentionDays = _configuration.GetValue<int>("LogSettings:LogRetentionDays");
 
-       
         string messageLog = $"Log cleanup service is deleting old logs. Log retention days: {logRetentionDays}";
         _logger.LogInformation(messageLog);
-        
+
         string logDirectory = "logs";
-        
+
         if (Directory.Exists(logDirectory))
         {
             // Get all the log files in the directory
@@ -69,6 +68,7 @@ public class LogCleanupService : IHostedService, IDisposable
             }
         }
     }
+
     protected virtual void Dispose(bool disposing)
     {
         if (!_disposed)

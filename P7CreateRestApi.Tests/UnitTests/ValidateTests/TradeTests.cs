@@ -290,8 +290,8 @@ public class TradeTest
     // -------------- DATETIME PROPERTIES TESTS ------------------
 
     // --------------- NUMERIC PROPERTIES TESTS ------------------
-    
-    // BuyQuantity 
+
+    // BuyQuantity
     [Theory]
     [InlineData(double.MinValue + 1)]
     [InlineData(0)]

@@ -1,12 +1,12 @@
 ﻿using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
+using Dot.Net.WebApi.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Dot.Net.WebApi.Services;
 
 namespace P7CreateRestApi.Controllers
 {
@@ -111,7 +111,7 @@ namespace P7CreateRestApi.Controllers
 
             user.Id = null;
 
-            IdentityResult result = await _userManager.CreateAsync(user, user.PasswordHash); 
+            IdentityResult result = await _userManager.CreateAsync(user, user.PasswordHash);
 
             if (result.Succeeded)
             {
@@ -145,7 +145,7 @@ namespace P7CreateRestApi.Controllers
 
                     if (HttpContext != null && HttpContext.RequestServices != null)
                     {
-                        var authService = HttpContext.RequestServices.GetService<IAuthenticationService>();
+                        IAuthenticationService? authService = HttpContext.RequestServices.GetService<IAuthenticationService>();
                         if (authService != null)
                         {
                             try

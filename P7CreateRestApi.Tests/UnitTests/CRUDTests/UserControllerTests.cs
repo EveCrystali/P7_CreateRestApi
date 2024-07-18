@@ -1,20 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Dot.Net.WebApi.Data;
+﻿using System.Security.Claims;
 using Dot.Net.WebApi.Domain;
+using Dot.Net.WebApi.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using P7CreateRestApi.Controllers;
-using Xunit;
-using P7CreateRestApi.Tests;
-using System.Security.Claims;
-using Dot.Net.WebApi.Services;
-using Microsoft.AspNetCore.Authentication;
-
 
 namespace P7CreateRestApi.Tests;
 
@@ -29,11 +22,11 @@ public class UserControllerTests : TestBase<User>
         _mockUserManager = MockUserManager<User>();
         _mockJwtRevocationService = new Mock<IJwtRevocationService>();
 
-        var services = new ServiceCollection();
+        ServiceCollection services = new();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddAuthentication();
-        var serviceProvider = services.BuildServiceProvider();
-        var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+        ServiceProvider serviceProvider = services.BuildServiceProvider();
+        IHttpContextAccessor httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
 
         _controller = new UserController(_context, _mockUserManager.Object, _mockJwtRevocationService.Object)
         {
@@ -49,7 +42,7 @@ public class UserControllerTests : TestBase<User>
 
     private Mock<UserManager<TUser>> MockUserManager<TUser>() where TUser : class
     {
-        var store = new Mock<IUserStore<TUser>>();
+        Mock<IUserStore<TUser>> store = new();
         return new Mock<UserManager<TUser>>(store.Object, null, null, null, null, null, null, null, null);
     }
 
@@ -66,11 +59,11 @@ public class UserControllerTests : TestBase<User>
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.GetUsers();
+        IActionResult result = await _controller.GetUsers();
 
         // Assert
-        var actionResult = Assert.IsType<OkObjectResult>(result);
-        var returnValue = Assert.IsType<List<User>>(actionResult.Value);
+        OkObjectResult actionResult = Assert.IsType<OkObjectResult>(result);
+        List<User> returnValue = Assert.IsType<List<User>>(actionResult.Value);
         Assert.Equal(2, returnValue.Count);
     }
 
@@ -83,12 +76,12 @@ public class UserControllerTests : TestBase<User>
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _controller.GetUser("1");
+        ActionResult<User> result = await _controller.GetUser("1");
 
         // Assert
-        var actionResult = Assert.IsType<ActionResult<User>>(result);
-        var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-        var returnValue = Assert.IsType<User>(okResult.Value);
+        ActionResult<User> actionResult = Assert.IsType<ActionResult<User>>(result);
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+        User returnValue = Assert.IsType<User>(okResult.Value);
         Assert.Equal(user, returnValue);
     }
 
@@ -108,16 +101,16 @@ public class UserControllerTests : TestBase<User>
         _mockUserManager.Setup(um => um.UpdateAsync(It.IsAny<User>())).ReturnsAsync(IdentityResult.Success);
 
         // Simulate an HTTP context with a valid user
-        var userClaims = new List<Claim>
+        List<Claim> userClaims = new()
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(ClaimTypes.Name, user.UserName),
             new Claim(ClaimTypes.Role, "Admin")
          };
-        var identity = new ClaimsIdentity(userClaims, "TestAuthType");
-        var claimsPrincipal = new ClaimsPrincipal(identity);
+        ClaimsIdentity identity = new(userClaims, "TestAuthType");
+        ClaimsPrincipal claimsPrincipal = new(identity);
 
-        var httpContext = new DefaultHttpContext
+        DefaultHttpContext httpContext = new()
         {
             User = claimsPrincipal
         };
@@ -127,12 +120,11 @@ public class UserControllerTests : TestBase<User>
         };
 
         // Act
-        var result = await _controller.PutUser("1", updatedUser);
+        IActionResult result = await _controller.PutUser("1", updatedUser);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
     }
-
 
     [Fact]
     public async Task PostUser_ValidData_ShouldReturnCreatedAtAction()
@@ -143,11 +135,11 @@ public class UserControllerTests : TestBase<User>
         _mockUserManager.Setup(um => um.CreateAsync(user, user.PasswordHash)).ReturnsAsync(IdentityResult.Success);
 
         // Act
-        var result = await _controller.PostUser(user);
+        ActionResult<User> result = await _controller.PostUser(user);
 
         // Assert
-        var actionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
-        var returnValue = Assert.IsType<User>(actionResult.Value);
+        CreatedAtActionResult actionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
+        User returnValue = Assert.IsType<User>(actionResult.Value);
         Assert.Equal(user, returnValue);
     }
 
@@ -160,26 +152,26 @@ public class UserControllerTests : TestBase<User>
         await _context.SaveChangesAsync();
 
         // Simulate an HTTP context with an admin user
-        var userClaims = new List<Claim>
+        List<Claim> userClaims = new()
         {
             new(ClaimTypes.NameIdentifier, user.Id),
             new(ClaimTypes.Name, user.UserName),
             new(ClaimTypes.Role, "Admin")
         };
-        var identity = new ClaimsIdentity(userClaims, "TestAuthType");
-        var claimsPrincipal = new ClaimsPrincipal(identity);
+        ClaimsIdentity identity = new(userClaims, "TestAuthType");
+        ClaimsPrincipal claimsPrincipal = new(identity);
 
-        var mockAuthService = new Mock<IAuthenticationService>();
+        Mock<IAuthenticationService> mockAuthService = new();
         mockAuthService
             .Setup(x => x.SignOutAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<AuthenticationProperties>()))
             .Returns(Task.CompletedTask);
 
-        var mockServiceProvider = new Mock<IServiceProvider>();
+        Mock<IServiceProvider> mockServiceProvider = new();
         mockServiceProvider
             .Setup(x => x.GetService(typeof(IAuthenticationService)))
             .Returns(mockAuthService.Object);
 
-        var httpContext = new DefaultHttpContext
+        DefaultHttpContext httpContext = new()
         {
             User = claimsPrincipal,
             RequestServices = mockServiceProvider.Object
@@ -192,10 +184,8 @@ public class UserControllerTests : TestBase<User>
 
         _mockJwtRevocationService.Setup(j => j.RevokeUserTokensAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
 
-
         // Act
-        var result = await _controller.DeleteUser("1");
-
+        IActionResult result = await _controller.DeleteUser("1");
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -212,14 +202,14 @@ public class UserControllerTests : TestBase<User>
         await _context.SaveChangesAsync();
 
         // Simulate an HTTP context with no user
-        var httpContext = new DefaultHttpContext();
+        DefaultHttpContext httpContext = new();
         _controller.ControllerContext = new ControllerContext
         {
             HttpContext = httpContext
         };
 
         // Act
-        var result = await _controller.DeleteUser("1");
+        IActionResult result = await _controller.DeleteUser("1");
 
         // Assert
         Assert.IsType<ForbidResult>(result);
@@ -234,16 +224,16 @@ public class UserControllerTests : TestBase<User>
         await _context.SaveChangesAsync();
 
         // Simulate an HTTP context with a non-admin user
-        var userClaims = new List<Claim>
-    {
+        List<Claim> userClaims = new()
+        {
         new Claim(ClaimTypes.NameIdentifier, user.Id),
         new Claim(ClaimTypes.Name, user.UserName),
         // No Admin role
     };
-        var identity = new ClaimsIdentity(userClaims, "TestAuthType");
-        var claimsPrincipal = new ClaimsPrincipal(identity);
+        ClaimsIdentity identity = new(userClaims, "TestAuthType");
+        ClaimsPrincipal claimsPrincipal = new(identity);
 
-        var httpContext = new DefaultHttpContext
+        DefaultHttpContext httpContext = new()
         {
             User = claimsPrincipal
         };
@@ -253,13 +243,11 @@ public class UserControllerTests : TestBase<User>
         };
 
         // Act
-        var result = await _controller.DeleteUser("1");
+        IActionResult result = await _controller.DeleteUser("1");
 
         // Assert
         Assert.IsType<ForbidResult>(result);
     }
-
-
 
     [Fact]
     public async Task DeleteUser_NonExistingId_ShouldReturnNotFound()
@@ -270,26 +258,26 @@ public class UserControllerTests : TestBase<User>
         await _context.SaveChangesAsync();
 
         // Simulate an HTTP context with an admin user
-        var userClaims = new List<Claim>
+        List<Claim> userClaims = new()
         {
             new(ClaimTypes.NameIdentifier, user.Id),
             new(ClaimTypes.Name, user.UserName),
             new(ClaimTypes.Role, "Admin")
         };
-        var identity = new ClaimsIdentity(userClaims, "TestAuthType");
-        var claimsPrincipal = new ClaimsPrincipal(identity);
+        ClaimsIdentity identity = new(userClaims, "TestAuthType");
+        ClaimsPrincipal claimsPrincipal = new(identity);
 
-        var mockAuthService = new Mock<IAuthenticationService>();
+        Mock<IAuthenticationService> mockAuthService = new();
         mockAuthService
             .Setup(x => x.SignOutAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<AuthenticationProperties>()))
             .Returns(Task.CompletedTask);
 
-        var mockServiceProvider = new Mock<IServiceProvider>();
+        Mock<IServiceProvider> mockServiceProvider = new();
         mockServiceProvider
             .Setup(x => x.GetService(typeof(IAuthenticationService)))
             .Returns(mockAuthService.Object);
 
-        var httpContext = new DefaultHttpContext
+        DefaultHttpContext httpContext = new()
         {
             User = claimsPrincipal,
             RequestServices = mockServiceProvider.Object
@@ -301,12 +289,10 @@ public class UserControllerTests : TestBase<User>
         _mockUserManager.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
         _mockUserManager.Setup(um => um.IsInRoleAsync(It.IsAny<User>(), "Admin")).ReturnsAsync(true);
 
-
         _mockJwtRevocationService.Setup(j => j.RevokeUserTokensAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
 
-
         // Act
-        var result = await _controller.DeleteUser("99");
+        IActionResult result = await _controller.DeleteUser("99");
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
@@ -320,25 +306,25 @@ public class UserControllerTests : TestBase<User>
         _context.Users.Add(currentUser);
         await _context.SaveChangesAsync();
 
-        var userClaims = new List<Claim>
+        List<Claim> userClaims = new()
         {
             new Claim(ClaimTypes.NameIdentifier, currentUser.Id),
             new Claim(ClaimTypes.Name, currentUser.UserName)
         };
-        var identity = new ClaimsIdentity(userClaims, "TestAuthType");
-        var claimsPrincipal = new ClaimsPrincipal(identity);
+        ClaimsIdentity identity = new(userClaims, "TestAuthType");
+        ClaimsPrincipal claimsPrincipal = new(identity);
 
-        var mockAuthService = new Mock<IAuthenticationService>();
+        Mock<IAuthenticationService> mockAuthService = new();
         mockAuthService
             .Setup(x => x.SignOutAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<AuthenticationProperties>()))
             .Returns(Task.CompletedTask);
 
-        var mockServiceProvider = new Mock<IServiceProvider>();
+        Mock<IServiceProvider> mockServiceProvider = new();
         mockServiceProvider
             .Setup(x => x.GetService(typeof(IAuthenticationService)))
             .Returns(mockAuthService.Object);
 
-        var httpContext = new DefaultHttpContext
+        DefaultHttpContext httpContext = new()
         {
             User = claimsPrincipal,
             RequestServices = mockServiceProvider.Object
@@ -354,7 +340,7 @@ public class UserControllerTests : TestBase<User>
         _mockJwtRevocationService.Setup(j => j.RevokeUserTokensAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
 
         // Act
-        var result = await _controller.DeleteUser("1");
+        IActionResult result = await _controller.DeleteUser("1");
 
         // Assert
         Assert.IsType<NoContentResult>(result);
