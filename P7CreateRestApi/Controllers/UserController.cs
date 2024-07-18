@@ -123,51 +123,60 @@ namespace P7CreateRestApi.Controllers
             }
         }
 
-        [Authorize(Policy = "RequireAdminRole")]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            // Verify that the connected user is the user being deleted or an administrator
             User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
-
-            if (currentUser != null && (await _userManager.IsInRoleAsync(currentUser, "Admin") || id == currentUser.Id))
-            {
-                User? user = await _context.Users.FindAsync(id);
-                if (user == null)
-                {
-                    return NotFound();
-                }
-
-                if (id == currentUser.Id)
-                {
-                    // Revoke JWT token and log out the user
-                    await _jwtRevocationService.RevokeUserTokensAsync(currentUser.Id);
-
-                    if (HttpContext != null && HttpContext.RequestServices != null)
-                    {
-                        IAuthenticationService? authService = HttpContext.RequestServices.GetService<IAuthenticationService>();
-                        if (authService != null)
-                        {
-                            try
-                            {
-                                await authService.SignOutAsync(HttpContext, IdentityConstants.ApplicationScheme, null);
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                // Ignore the exception in test environment
-                            }
-                        }
-                    }
-                }
-
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
-            }
-            else
+            if (currentUser == null)
             {
                 return Forbid();
+            }
+
+            bool isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
+            if (!isAdmin && id != currentUser.Id)
+            {
+                return Forbid();
+            }
+
+            User? userToDelete = await _context.Users.FindAsync(id);
+            if (userToDelete == null)
+            {
+                return NotFound();
+            }
+
+            await _jwtRevocationService.RevokeUserTokensAsync(currentUser.Id);
+
+            if (id == currentUser.Id)
+            {
+                await SignOutCurrentUserAsync();
+            }
+
+            _context.Users.Remove(userToDelete);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private async Task SignOutCurrentUserAsync()
+        {
+            if (HttpContext?.RequestServices == null)
+            {
+                return;
+            }
+
+            IAuthenticationService? authService = HttpContext.RequestServices.GetService<IAuthenticationService>();
+            if (authService == null)
+            {
+                return;
+            }
+
+            try
+            {
+                await authService.SignOutAsync(HttpContext, IdentityConstants.ApplicationScheme, null);
+            }
+            catch (InvalidOperationException)
+            {
+                // Ignore exception in test environnement
             }
         }
     }
