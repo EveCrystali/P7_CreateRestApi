@@ -6,7 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Dot.Net.WebApi.Services;
 
-public class JwtService
+public class JwtService : IJwtService
 {
     private readonly IConfiguration _configuration;
 
