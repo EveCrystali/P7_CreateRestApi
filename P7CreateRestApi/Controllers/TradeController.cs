@@ -3,20 +3,17 @@ using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Dot.Net.WebApi.Services;
 
 namespace P7CreateRestApi.Controllers
 {
     [LogApiCallAspect]
     [Route("[controller]")]
     [ApiController]
-    public class TradeController : ControllerBase
+    public class TradeController(LocalDbContext context, IUpdateService<Trade> updateService) : ControllerBase
     {
-        private readonly LocalDbContext _context;
-
-        public TradeController(LocalDbContext context)
-        {
-            _context = context;
-        }
+        private readonly LocalDbContext _context = context;
+        private readonly IUpdateService<Trade> _updateService = updateService;
 
         [HttpGet]
         [Route("list")]
@@ -36,45 +33,13 @@ namespace P7CreateRestApi.Controllers
                 return NotFound("Trade with this Id does not exist");
             }
 
-            return trade;
+            return Ok(trade);
         }
 
         [HttpPut("update/{id}")]
         public async Task<IActionResult> PutTrade(int id, Trade trade)
         {
-            if (id != trade.TradeId)
-            {
-                return BadRequest("The Id entered in the parameter is not the same as the Id enter in the body");
-            }
-
-            try
-            {
-                trade.Validate();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-            _context.Entry(trade).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TradeExists(id))
-                {
-                    NotFound("Trade with this Id does not exist");
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return await _updateService.UpdateEntity(id, trade, TradeExists, t => t.TradeId);
         }
 
         [HttpPost("add")]
@@ -113,9 +78,9 @@ namespace P7CreateRestApi.Controllers
             return NoContent();
         }
 
-        private bool TradeExists(int id)
+        private bool TradeExists(Trade trade)
         {
-            return _context.Trades.Any(e => e.TradeId == id);
+            return _context.Trades.Any(e => e.TradeId == trade.TradeId);
         }
     }
 }

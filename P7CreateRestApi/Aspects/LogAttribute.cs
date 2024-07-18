@@ -2,38 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using PostSharp.Aspects;
 using PostSharp.Serialization;
+using Dot.Net.WebApi.Helpers;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using System;
 
 namespace Dot.Net.WebApi
 {
-    public static class ServiceProviderHelper
-    {
-        private static IServiceProvider _serviceProvider;
-
-        public static IServiceProvider ServiceProvider
-        {
-            get
-            {
-                if (_serviceProvider == null)
-                {
-                    throw new InvalidOperationException("ServiceProvider has not been initialized.");
-                }
-                return _serviceProvider;
-            }
-            set
-            {
-                if (_serviceProvider != null)
-                {
-                    throw new InvalidOperationException("ServiceProvider is already set.");
-                }
-                _serviceProvider = value;
-            }
-        }
-
-        public static T GetService<T>()
-        {
-            return (T)ServiceProvider.GetService(typeof(T));
-        }
-    }
 
     [PSerializable]
     public class LogAspect : OnMethodBoundaryAspect
@@ -129,20 +105,31 @@ namespace Dot.Net.WebApi
             }
         }
 
+        /// <summary>
+        /// Initializes the aspect by retrieving the logger and http context accessor from the service provider.
+        /// </summary>
+        /// <param name="method">The method being executed.</param>
         public override void RuntimeInitialize(MethodBase method)
         {
+            // Check if service provider is initialized
             if (ServiceProviderHelper.ServiceProvider == null)
             {
                 throw new InvalidOperationException("LogApiCallAspect: ServiceProvider is not initialized");
             }
 
+            // Get logger from service provider
             _logger = ServiceProviderHelper.GetService<ILogger<LogApiCallAspect>>();
+
+            // Check if logger is available
             if (_logger == null)
             {
                 throw new InvalidOperationException("LogApiCallAspect: Logger is not available");
             }
 
+            // Get http context accessor from service provider
             _httpContextAccessor = ServiceProviderHelper.GetService<IHttpContextAccessor>();
+
+            // Check if http context accessor is available
             if (_httpContextAccessor == null)
             {
                 throw new InvalidOperationException("LogApiCallAspect: HttpContextAccessor is not available");

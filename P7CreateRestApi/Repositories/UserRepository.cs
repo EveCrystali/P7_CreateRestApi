@@ -4,19 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Dot.Net.WebApi.Repositories
 {
-    public class UserRepository
+    public class UserRepository(LocalDbContext dbContext)
     {
-        public LocalDbContext DbContext { get; }
-
-        public UserRepository(LocalDbContext dbContext)
-        {
-            DbContext = dbContext;
-        }
+        public LocalDbContext DbContext { get; } = dbContext;
 
         public User FindByUserName(string userName)
         {
-            return DbContext.Users.Where(user => user.UserName == userName)
-                                  .FirstOrDefault();
+            return DbContext.Users.FirstOrDefault(user => user.UserName == userName) ?? throw new Exception($"User with username '{userName}' not found");
         }
 
         public async Task<List<User>> FindAll()

@@ -3,20 +3,17 @@ using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Dot.Net.WebApi.Services;
 
 namespace P7CreateRestApi.Controllers
 {
     [LogApiCallAspect]
     [Route("[controller]")]
     [ApiController]
-    public class BidListController : ControllerBase
+    public class BidListController(LocalDbContext context, IUpdateService<BidList> updateService) : ControllerBase
     {
-        private readonly LocalDbContext _context;
-
-        public BidListController(LocalDbContext context)
-        {
-            _context = context;
-        }
+        private readonly LocalDbContext _context = context;
+        private readonly IUpdateService<BidList> _updateService = updateService;
 
 
         [HttpGet("list")]
@@ -36,51 +33,18 @@ namespace P7CreateRestApi.Controllers
                 return NotFound("BidList with this Id doesn't exist");
             }
 
-            return bidList;
+            return Ok(bidList);
         }
 
         [HttpPut("update/{id}")]
         public async Task<IActionResult> PutBidList(int id, BidList bidList)
         {
-            if (id != bidList.BidListId)
-            {
-                return BadRequest("The Id entered in the parameter is not the same as the Id enter in the body");
-            }
-
-            try
-            {
-                bidList.Validate();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-            _context.Entry(bidList).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BidListExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return await _updateService.UpdateEntity(id, bidList, BidListExists, t => t.BidListId);
         }
 
         [HttpPost("add")]
         public async Task<ActionResult<BidList>> PostBidList(BidList bidList)
         {
-
             try
             {
                 bidList.Validate();
@@ -90,7 +54,7 @@ namespace P7CreateRestApi.Controllers
                 return BadRequest(ex.Message);
             }
 
-            // bidList.BidListId must be  set by the database automatically, so we set it to 0 to force it
+            // bidList.BidListId must be set by the database automatically, so we set it to 0 to force it
             bidList.BidListId = 0;
 
             _context.BidLists.Add(bidList);
@@ -114,9 +78,9 @@ namespace P7CreateRestApi.Controllers
             return NoContent();
         }
 
-        private bool BidListExists(int id)
+        private bool BidListExists(BidList bidList)
         {
-            return _context.BidLists.Any(e => e.BidListId == id);
+            return _context.BidLists.Any(e => e.BidListId == bidList.BidListId);
         }
     }
 }

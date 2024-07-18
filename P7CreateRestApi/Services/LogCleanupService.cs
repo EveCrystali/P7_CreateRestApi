@@ -26,14 +26,18 @@ public class LogCleanupService : IHostedService, IDisposable
     public Task StopAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Log Cleanup Service is stopping.");
-
         _timer?.Change(Timeout.Infinite, 0);
 
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Deletes old log files.
+    /// </summary>
+    /// <param name="state">The state.</param>
     private void DeleteOldLogs(object? state)
     {
+        // Get the log retention days from the configuration
         int logRetentionDays = _configuration.GetValue<int>("LogSettings:LogRetentionDays");
 
         string messageLog = $"Log cleanup service is deleting old logs. Log retention days: {logRetentionDays}";
@@ -43,13 +47,21 @@ public class LogCleanupService : IHostedService, IDisposable
 
         if (Directory.Exists(logDirectory))
         {
+            // Get all the log files in the directory
             string[] logFiles = Directory.GetFiles(logDirectory, "*.txt");
+
+            // Iterate through each log file
             foreach (string logFile in logFiles)
             {
+                // Get the creation time of the log file
                 DateTime creationTime = File.GetCreationTime(logFile);
+
+                // Check if the log file is older than the log retention days
                 if (creationTime < DateTime.Now.AddDays(-logRetentionDays))
                 {
+                    // Delete the log file
                     File.Delete(logFile);
+
                     string messageLog2 = $"Deleted log file: {logFile}";
                     _logger.LogInformation(messageLog2);
                 }

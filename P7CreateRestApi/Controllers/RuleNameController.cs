@@ -3,20 +3,17 @@ using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Dot.Net.WebApi.Services;
 
 namespace P7CreateRestApi.Controllers
 {
     [LogApiCallAspect]
     [Route("[controller]")]
     [ApiController]
-    public class RuleNameController : ControllerBase
+    public class RuleNameController(LocalDbContext context, IUpdateService<RuleName> updateService) : ControllerBase
     {
-        private readonly LocalDbContext _context;
-
-        public RuleNameController(LocalDbContext context)
-        {
-            _context = context;
-        }
+        private readonly LocalDbContext _context = context;
+        private readonly IUpdateService<RuleName> _updateService = updateService;
 
         [HttpGet]
         [Route("list")]
@@ -36,45 +33,13 @@ namespace P7CreateRestApi.Controllers
                 return NotFound("RuleName with this Id does not exist");
             }
 
-            return ruleName;
+            return Ok(ruleName);
         }
 
         [HttpPut("update/{id}")]
         public async Task<IActionResult> PutRuleName(int id, RuleName ruleName)
         {
-            if (id != ruleName.Id)
-            {
-                return BadRequest("The Id entered in the parameter is not the same as the Id enter in the body");
-            }
-
-            try
-            {
-                ruleName.Validate();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-            _context.Entry(ruleName).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!RuleNameExists(id))
-                {
-                    return NotFound("RuleName with this Id does not exist");
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return await _updateService.UpdateEntity(id, ruleName, RuleNameExists, t => t.Id);
         }
 
         [HttpPost("add")]
@@ -113,9 +78,9 @@ namespace P7CreateRestApi.Controllers
             return NoContent();
         }
 
-        private bool RuleNameExists(int id)
+        private bool RuleNameExists(RuleName ruleName)
         {
-            return _context.RuleNames.Any(e => e.Id == id);
+            return _context.RuleNames.Any(e => e.Id == ruleName.Id);
         }
     }
 }

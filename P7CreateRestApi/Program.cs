@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Dot.Net.WebApi.Helpers;
+
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -32,9 +34,27 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// Add DbContext
+// Add Database
+var environment = builder.Environment.EnvironmentName;
+
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environment}.json", optional: true)
+    .AddEnvironmentVariables();
+
 builder.Services.AddDbContext<LocalDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    if (environment == "Development")
+    {
+        options.UseInMemoryDatabase("TestDatabase");
+    }
+    else
+    {
+        options.UseSqlServer(connectionString);
+    }
+});
 
 // Add Identity
 builder.Services.AddIdentity<User, IdentityRole>(options =>
@@ -82,7 +102,9 @@ builder.Services.AddHostedService<LogCleanupService>();
 
 // Add JwtService
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped(typeof(IUpdateService<>), typeof(UpdateService<>));
 builder.Services.AddHostedService<TokenCleanupService>();
+
 
 // Add other services
 builder.Services.AddScoped<ICurvePointService, CurvePointService>();
@@ -90,7 +112,7 @@ builder.Services.AddScoped<ICurvePointService, CurvePointService>();
 WebApplication app = builder.Build();
 
 // Set the ServiceProvider for logging aspect
-ServiceProviderHelper.ServiceProvider = app.Services;
+ServiceProviderHelper.Initialize(app.Services);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -126,4 +148,4 @@ using (IServiceScope scope = app.Services.CreateScope())
     }
 }
 
-app.Run();
+await app.RunAsync();

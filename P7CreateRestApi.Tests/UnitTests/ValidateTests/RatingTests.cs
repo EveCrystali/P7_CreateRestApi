@@ -32,7 +32,6 @@ public class RatingTests
 
     // --------------- NUMERIC PROPERTIES TESTS ------------------
 
-
     [Theory]
     [InlineData(byte.MinValue)]
     [InlineData(1)]
