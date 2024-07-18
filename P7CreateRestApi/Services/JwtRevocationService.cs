@@ -1,21 +1,10 @@
-﻿
-using Dot.Net.WebApi.Data;
+﻿using Dot.Net.WebApi.Data;
 
 namespace Dot.Net.WebApi.Services;
 
-public interface IJwtRevocationService
+public class JwtRevocationService(LocalDbContext context) : IJwtRevocationService
 {
-    Task RevokeUserTokensAsync(string userId);
-}
-
-public class JwtRevocationService : IJwtRevocationService
-{
-    private readonly LocalDbContext _context;
-
-    public JwtRevocationService(LocalDbContext context)
-    {
-        _context = context;
-    }
+    private readonly LocalDbContext _context = context;
 
     public async Task RevokeUserTokensAsync(string userId)
     {

@@ -6,6 +6,7 @@
     public static class ServiceProviderHelper
     {
         private static IServiceProvider _serviceProvider;
+        private static readonly object Lock = new();
 
         /// <summary>
         /// Gets or sets the ServiceProvider instance.
@@ -19,14 +20,6 @@
                     throw new InvalidOperationException("ServiceProvider has not been initialized.");
                 }
                 return _serviceProvider;
-            }
-            set
-            {
-                if (_serviceProvider != null)
-                {
-                    throw new InvalidOperationException("ServiceProvider is already set.");
-                }
-                _serviceProvider = value;
             }
         }
 
@@ -46,15 +39,10 @@
         /// <param name="serviceProvider">The ServiceProvider instance to set.</param>
         public static void Initialize(IServiceProvider serviceProvider)
         {
-            if (serviceProvider == null)
+            lock (Lock)
             {
-                throw new ArgumentNullException(nameof(serviceProvider));
+                _serviceProvider = serviceProvider;
             }
-            if (_serviceProvider != null)
-            {
-                throw new InvalidOperationException("ServiceProvider is already set.");
-            }
-            _serviceProvider = serviceProvider;
         }
     }
 }

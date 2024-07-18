@@ -13,6 +13,7 @@ using Xunit;
 using P7CreateRestApi.Tests;
 using System.Security.Claims;
 using Dot.Net.WebApi.Services;
+using Microsoft.AspNetCore.Authentication;
 
 
 namespace P7CreateRestApi.Tests;
@@ -21,13 +22,29 @@ public class UserControllerTests : TestBase<User>
 {
     private readonly UserController _controller;
     private readonly Mock<UserManager<User>> _mockUserManager;
-    private readonly Mock<JwtRevocationService> _mockJwtRevocationService;
+    private readonly Mock<IJwtRevocationService> _mockJwtRevocationService;
 
     public UserControllerTests()
     {
         _mockUserManager = MockUserManager<User>();
-        _mockJwtRevocationService = new Mock<JwtRevocationService>();
-        _controller = new UserController(_context, _mockUserManager.Object, _mockJwtRevocationService.Object);
+        _mockJwtRevocationService = new Mock<IJwtRevocationService>();
+
+        var services = new ServiceCollection();
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.AddAuthentication();
+        var serviceProvider = services.BuildServiceProvider();
+        var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+
+        _controller = new UserController(_context, _mockUserManager.Object, _mockJwtRevocationService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    RequestServices = serviceProvider
+                }
+            }
+        };
     }
 
     private Mock<UserManager<TUser>> MockUserManager<TUser>() where TUser : class
@@ -135,7 +152,7 @@ public class UserControllerTests : TestBase<User>
     }
 
     [Fact]
-    public async Task DeleteUser_ExistingIdAndAdmin_ShouldReturnNoContent()
+    public async Task DeleteUser_AsAnAdmin_ShouldRevokeToken()
     {
         // Arrange
         User user = new() { Id = "1", UserName = "userone", Fullname = "User One", Email = "userone@example.com" };
@@ -145,31 +162,49 @@ public class UserControllerTests : TestBase<User>
         // Simulate an HTTP context with an admin user
         var userClaims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Name, user.UserName),
-            new Claim(ClaimTypes.Role, "Admin")
+            new(ClaimTypes.NameIdentifier, user.Id),
+            new(ClaimTypes.Name, user.UserName),
+            new(ClaimTypes.Role, "Admin")
         };
         var identity = new ClaimsIdentity(userClaims, "TestAuthType");
         var claimsPrincipal = new ClaimsPrincipal(identity);
 
+        var mockAuthService = new Mock<IAuthenticationService>();
+        mockAuthService
+            .Setup(x => x.SignOutAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<AuthenticationProperties>()))
+            .Returns(Task.CompletedTask);
+
+        var mockServiceProvider = new Mock<IServiceProvider>();
+        mockServiceProvider
+            .Setup(x => x.GetService(typeof(IAuthenticationService)))
+            .Returns(mockAuthService.Object);
+
         var httpContext = new DefaultHttpContext
         {
-            User = claimsPrincipal
+            User = claimsPrincipal,
+            RequestServices = mockServiceProvider.Object
         };
         _controller.ControllerContext = new ControllerContext
         {
             HttpContext = httpContext
         };
+        _mockUserManager.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
+
+        _mockJwtRevocationService.Setup(j => j.RevokeUserTokensAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
+
 
         // Act
         var result = await _controller.DeleteUser("1");
 
+
         // Assert
         Assert.IsType<NoContentResult>(result);
+        _mockJwtRevocationService.Verify(j => j.RevokeUserTokensAsync("1"), Times.Once);
+        mockAuthService.Verify(x => x.SignOutAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<AuthenticationProperties>()), Times.Once);
     }
 
     [Fact]
-    public async Task DeleteUser_NotAuthenticated_ShouldReturnUnauthorized()
+    public async Task DeleteUser_NotAuthenticated_ShouldReturnForbidResult()
     {
         // Arrange
         User user = new() { Id = "1", UserName = "userone", Fullname = "User One", Email = "userone@example.com" };
@@ -191,7 +226,7 @@ public class UserControllerTests : TestBase<User>
     }
 
     [Fact]
-    public async Task DeleteUser_NotAdmin_ShouldReturnForbid()
+    public async Task DeleteUser_NotAdmin_ShouldReturnForbidResult()
     {
         // Arrange
         User user = new() { Id = "1", UserName = "userone", Fullname = "User One", Email = "userone@example.com" };
@@ -237,26 +272,93 @@ public class UserControllerTests : TestBase<User>
         // Simulate an HTTP context with an admin user
         var userClaims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Name, user.UserName),
-            new Claim(ClaimTypes.Role, "Admin")
+            new(ClaimTypes.NameIdentifier, user.Id),
+            new(ClaimTypes.Name, user.UserName),
+            new(ClaimTypes.Role, "Admin")
         };
         var identity = new ClaimsIdentity(userClaims, "TestAuthType");
         var claimsPrincipal = new ClaimsPrincipal(identity);
 
+        var mockAuthService = new Mock<IAuthenticationService>();
+        mockAuthService
+            .Setup(x => x.SignOutAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<AuthenticationProperties>()))
+            .Returns(Task.CompletedTask);
+
+        var mockServiceProvider = new Mock<IServiceProvider>();
+        mockServiceProvider
+            .Setup(x => x.GetService(typeof(IAuthenticationService)))
+            .Returns(mockAuthService.Object);
+
         var httpContext = new DefaultHttpContext
         {
-            User = claimsPrincipal
+            User = claimsPrincipal,
+            RequestServices = mockServiceProvider.Object
         };
         _controller.ControllerContext = new ControllerContext
         {
             HttpContext = httpContext
         };
+        _mockUserManager.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
+        _mockUserManager.Setup(um => um.IsInRoleAsync(It.IsAny<User>(), "Admin")).ReturnsAsync(true);
+
+
+        _mockJwtRevocationService.Setup(j => j.RevokeUserTokensAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
+
 
         // Act
         var result = await _controller.DeleteUser("99");
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task DeleteUser_CurrentUser_ShouldRevokeToken()
+    {
+        // Arrange
+        User currentUser = new() { Id = "1", UserName = "userone", Fullname = "User One", Email = "userone@example.com" };
+        _context.Users.Add(currentUser);
+        await _context.SaveChangesAsync();
+
+        var userClaims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, currentUser.Id),
+            new Claim(ClaimTypes.Name, currentUser.UserName)
+        };
+        var identity = new ClaimsIdentity(userClaims, "TestAuthType");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+
+        var mockAuthService = new Mock<IAuthenticationService>();
+        mockAuthService
+            .Setup(x => x.SignOutAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<AuthenticationProperties>()))
+            .Returns(Task.CompletedTask);
+
+        var mockServiceProvider = new Mock<IServiceProvider>();
+        mockServiceProvider
+            .Setup(x => x.GetService(typeof(IAuthenticationService)))
+            .Returns(mockAuthService.Object);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipal,
+            RequestServices = mockServiceProvider.Object
+        };
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = httpContext
+        };
+
+        _mockUserManager.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(currentUser);
+        _mockUserManager.Setup(um => um.IsInRoleAsync(It.IsAny<User>(), "Admin")).ReturnsAsync(false);
+
+        _mockJwtRevocationService.Setup(j => j.RevokeUserTokensAsync(It.IsAny<string>())).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.DeleteUser("1");
+
+        // Assert
+        Assert.IsType<NoContentResult>(result);
+        _mockJwtRevocationService.Verify(j => j.RevokeUserTokensAsync("1"), Times.Once);
+        mockAuthService.Verify(x => x.SignOutAsync(It.IsAny<HttpContext>(), It.IsAny<string>(), It.IsAny<AuthenticationProperties>()), Times.Once);
     }
 }

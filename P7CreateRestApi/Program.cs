@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Dot.Net.WebApi.Helpers;
 
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -111,7 +112,7 @@ builder.Services.AddScoped<ICurvePointService, CurvePointService>();
 WebApplication app = builder.Build();
 
 // Set the ServiceProvider for logging aspect
-ServiceProviderHelper.ServiceProvider = app.Services;
+ServiceProviderHelper.Initialize(app.Services);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
