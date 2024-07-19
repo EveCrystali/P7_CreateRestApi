@@ -6,14 +6,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Dot.Net.WebApi.Services;
 
-public class JwtService : IJwtService
+public class JwtService(IConfiguration configuration) : IJwtService
 {
-    private readonly IConfiguration _configuration;
-
-    public JwtService(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
+    private readonly IConfiguration _configuration = configuration;
 
     /// <summary>
     /// Generates a JSON Web Token (JWT) for the given user ID, username, and roles.
