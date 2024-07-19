@@ -106,9 +106,6 @@ builder.Services.AddScoped(typeof(IUpdateService<>), typeof(UpdateService<>));
 builder.Services.AddHostedService<TokenCleanupService>();
 
 
-// Add other services
-builder.Services.AddScoped<ICurvePointService, CurvePointService>();
-
 WebApplication app = builder.Build();
 
 // Set the ServiceProvider for logging aspect
