@@ -4,6 +4,7 @@ using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Dot.Net.WebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace P7CreateRestApi.Controllers
 {
@@ -35,12 +36,14 @@ namespace P7CreateRestApi.Controllers
             return Ok(ruleName);
         }
 
+        [Authorize(Policy = "RequireTraderRole")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRuleName(int id, RuleName ruleName)
         {
             return await _updateService.UpdateEntity(id, ruleName, RuleNameExists, t => t.Id);
         }
 
+        [Authorize(Policy = "RequireTraderRole")]
         [HttpPost]
         public async Task<ActionResult<RuleName>> PostRuleName(RuleName ruleName)
         {
@@ -62,6 +65,7 @@ namespace P7CreateRestApi.Controllers
             return CreatedAtAction("GetRuleName", new { id = ruleName.Id }, ruleName);
         }
 
+        [Authorize(Policy = "RequireTraderRole")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRuleName(int id)
         {

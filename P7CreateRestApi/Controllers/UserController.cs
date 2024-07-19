@@ -35,6 +35,7 @@ namespace P7CreateRestApi.Controllers
             return users != null ? Ok(users) : BadRequest("Failed to get list of Users");
         }
 
+        [Authorize(Policy = "RequireUserRole")]
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(string id)
         {
@@ -121,6 +122,7 @@ namespace P7CreateRestApi.Controllers
             }
         }
 
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {

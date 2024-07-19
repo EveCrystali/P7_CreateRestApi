@@ -35,12 +35,14 @@ namespace Dot.Net.WebApi.Controllers
             return Ok(curvePoint);
         }
 
+        [Authorize(Policy = "RequireTraderRole")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCurvePoint(int id, CurvePoint curvePoint)
         {
             return await _updateService.UpdateEntity(id, curvePoint, CurvePointExists, t => t.Id);
         }
 
+        [Authorize(Policy = "RequireTraderRole")]
         [HttpPost]
         public async Task<IActionResult> PostCurvePoint(CurvePoint curvePoint)
         {
@@ -62,6 +64,7 @@ namespace Dot.Net.WebApi.Controllers
             return CreatedAtAction("GetCurvePoint", new { id = curvePoint.Id }, curvePoint);
         }
 
+        [Authorize(Policy = "RequireTraderRole")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCurvePoint(int id)
         {

@@ -4,6 +4,7 @@ using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Dot.Net.WebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace P7CreateRestApi.Controllers
 {
@@ -35,12 +36,14 @@ namespace P7CreateRestApi.Controllers
             return Ok(rating);
         }
 
+        [Authorize(Policy = "RequireTraderRole")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRating(int id, Rating rating)
         {
             return await _updateService.UpdateEntity(id, rating, RatingExists, t => t.Id);
         }
 
+        [Authorize(Policy = "RequireTraderRole")]
         [HttpPost]
         public async Task<ActionResult<Rating>> PostRating(Rating rating)
         {
@@ -62,6 +65,7 @@ namespace P7CreateRestApi.Controllers
             return CreatedAtAction("GetRating", new { id = rating.Id }, rating);
         }
 
+        [Authorize(Policy = "RequireTraderRole")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRating(int id)
         {

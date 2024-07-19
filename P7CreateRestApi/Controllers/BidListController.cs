@@ -4,6 +4,7 @@ using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Dot.Net.WebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace P7CreateRestApi.Controllers
 {
@@ -36,12 +37,14 @@ namespace P7CreateRestApi.Controllers
             return Ok(bidList);
         }
 
+        [Authorize(Policy = "RequireTraderRole")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBidList(int id, BidList bidList)
         {
             return await _updateService.UpdateEntity(id, bidList, BidListExists, t => t.BidListId);
         }
 
+        [Authorize(Policy = "RequireTraderRole")]
         [HttpPost]
         public async Task<ActionResult<BidList>> PostBidList(BidList bidList)
         {
@@ -63,6 +66,8 @@ namespace P7CreateRestApi.Controllers
             return CreatedAtAction("GetBidList", new { id = bidList.BidListId }, bidList);
         }
 
+
+        [Authorize(Policy = "RequireTraderRole")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBidList(int id)
         {
