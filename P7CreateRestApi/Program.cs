@@ -110,7 +110,7 @@ builder.Services.AddHostedService<LogCleanupService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped(typeof(IUpdateService<>), typeof(UpdateService<>));
 builder.Services.AddHostedService<TokenCleanupService>();
-
+builder.Services.AddScoped<IJwtRevocationService, JwtRevocationService>();
 
 WebApplication app = builder.Build();
 
