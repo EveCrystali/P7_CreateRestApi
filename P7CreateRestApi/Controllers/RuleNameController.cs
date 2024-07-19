@@ -8,7 +8,7 @@ using Dot.Net.WebApi.Services;
 namespace P7CreateRestApi.Controllers
 {
     [LogApiCallAspect]
-    [Route("[controller]")]
+    [Route("rulenames")]
     [ApiController]
     public class RuleNameController(LocalDbContext context, IUpdateService<RuleName> updateService) : ControllerBase
     {
@@ -16,7 +16,6 @@ namespace P7CreateRestApi.Controllers
         private readonly IUpdateService<RuleName> _updateService = updateService;
 
         [HttpGet]
-        [Route("list")]
         public async Task<ActionResult> GetRuleNames()
         {
             List<RuleName> ruleNames = await _context.RuleNames.ToListAsync();
@@ -36,13 +35,13 @@ namespace P7CreateRestApi.Controllers
             return Ok(ruleName);
         }
 
-        [HttpPut("update/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutRuleName(int id, RuleName ruleName)
         {
             return await _updateService.UpdateEntity(id, ruleName, RuleNameExists, t => t.Id);
         }
 
-        [HttpPost("add")]
+        [HttpPost]
         public async Task<ActionResult<RuleName>> PostRuleName(RuleName ruleName)
         {
             try
@@ -63,7 +62,7 @@ namespace P7CreateRestApi.Controllers
             return CreatedAtAction("GetRuleName", new { id = ruleName.Id }, ruleName);
         }
 
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRuleName(int id)
         {
             RuleName? ruleName = await _context.RuleNames.FindAsync(id);

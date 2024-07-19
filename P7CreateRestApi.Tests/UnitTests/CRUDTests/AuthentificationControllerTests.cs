@@ -162,7 +162,7 @@ namespace P7CreateRestApi.Tests
             SetupControllerContext(_controller, claimsPrincipal);
 
             //Act
-            IActionResult result = await _controller.RevokeAllTokens(revokeRequest);
+            IActionResult result = await _controller.RevokeTokens(revokeRequest);
 
             // Assert
             Assert.IsType<OkResult>(result);

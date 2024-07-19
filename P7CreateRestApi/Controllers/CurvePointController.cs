@@ -9,14 +9,13 @@ namespace Dot.Net.WebApi.Controllers
 {
     [LogApiCallAspect]
     [ApiController]
-    [Route("[controller]")]
+    [Route("curvepoints")]
     public class CurvePointController(ICurvePointService curvePointService, LocalDbContext context) : ControllerBase
     {
         private readonly ICurvePointService _curvePointService = curvePointService;
         private readonly LocalDbContext _context = context;
 
         [HttpPost]
-        [Route("add")]
         public async Task<IActionResult> AddCurvePoint([FromBody] CurvePoint curvePoint)
         {
             if (!TryValidateModel(curvePoint)) return BadRequest(ModelState);
@@ -30,8 +29,7 @@ namespace Dot.Net.WebApi.Controllers
             return Ok();
         }
 
-        [HttpGet]
-        [Route("{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetCurvePoint(int id)
         {
             CurvePoint? curvePoint = await _curvePointService.GetCurvePointById(id);
@@ -42,8 +40,7 @@ namespace Dot.Net.WebApi.Controllers
             return Ok(curvePoint);
         }
 
-        [HttpDelete]
-        [Route("delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCurvePoint(int id)
         {
             CurvePoint? curvePoint = await _curvePointService.GetCurvePointById(id);
@@ -55,15 +52,13 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Policy = "RequireAdminRole")]
         [HttpGet]
-        [Route("list")]
         public async Task<IActionResult> GetCurvePoints()
         {
             List<CurvePoint> curvePoints = await _context.CurvePoints.ToListAsync();
             return curvePoints != null ? Ok(curvePoints) : BadRequest("Failed to get list of CurvePoints");
         }
 
-        [HttpPost]
-        [Route("update/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCurvePoint(int id, [FromBody] CurvePoint curvePoint)
         {
             if (!_curvePointService.ValidateCurvePoint(curvePoint)) return BadRequest("Data not valid");

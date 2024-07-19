@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace P7CreateRestApi.Controllers
 {
     [LogApiCallAspect]
-    [Route("[controller]")]
+    [Route("users")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -29,7 +29,6 @@ namespace P7CreateRestApi.Controllers
         }
 
         [HttpGet]
-        [Route("list")]
         public async Task<IActionResult> GetUsers()
         {
             List<User> users = await _context.Users.ToListAsync();
@@ -50,7 +49,7 @@ namespace P7CreateRestApi.Controllers
         }
 
         [Authorize(Policy = "User")]
-        [HttpPut("update/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(string id, User user)
         {
             if (id != user.Id)
@@ -97,7 +96,6 @@ namespace P7CreateRestApi.Controllers
         }
 
         [HttpPost]
-        [Route("add")]
         public async Task<ActionResult<User>> PostUser(User user)
         {
             try
@@ -123,7 +121,7 @@ namespace P7CreateRestApi.Controllers
             }
         }
 
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
             User? currentUser = await _userManager.GetUserAsync(HttpContext.User);

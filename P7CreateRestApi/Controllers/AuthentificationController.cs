@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Dot.Net.WebApi.Controllers;
 
 [LogApiCallAspect]
-[Route("[controller]")]
+[Route("auth")]
 [ApiController]
 public class AuthentificationController(UserManager<User> userManager, IJwtService jwtService, LocalDbContext context) : ControllerBase
 {
@@ -97,8 +97,8 @@ public class AuthentificationController(UserManager<User> userManager, IJwtServi
     }
 
     [Authorize(Policy = "RequireAdminRole")]
-    [HttpPost("revoke-all")]
-    public async Task<IActionResult> RevokeAllTokens([FromBody] RevokeTokensRequest model)
+    [HttpPost("revoke")]
+    public async Task<IActionResult> RevokeTokens([FromBody] RevokeTokensRequest model)
     {
         User? user = await _userManager.FindByIdAsync(model.UserId);
         if (user == null)

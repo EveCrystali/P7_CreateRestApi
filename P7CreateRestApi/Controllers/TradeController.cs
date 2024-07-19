@@ -8,7 +8,7 @@ using Dot.Net.WebApi.Services;
 namespace P7CreateRestApi.Controllers
 {
     [LogApiCallAspect]
-    [Route("[controller]")]
+    [Route("trades")]
     [ApiController]
     public class TradeController(LocalDbContext context, IUpdateService<Trade> updateService) : ControllerBase
     {
@@ -16,7 +16,6 @@ namespace P7CreateRestApi.Controllers
         private readonly IUpdateService<Trade> _updateService = updateService;
 
         [HttpGet]
-        [Route("list")]
         public async Task<ActionResult> GetTrades()
         {
             List<Trade> trades = await _context.Trades.ToListAsync();
@@ -36,13 +35,13 @@ namespace P7CreateRestApi.Controllers
             return Ok(trade);
         }
 
-        [HttpPut("update/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutTrade(int id, Trade trade)
         {
             return await _updateService.UpdateEntity(id, trade, TradeExists, t => t.TradeId);
         }
 
-        [HttpPost("add")]
+        [HttpPost]
         public async Task<ActionResult<Trade>> PostTrade(Trade trade)
         {
             try
@@ -63,7 +62,7 @@ namespace P7CreateRestApi.Controllers
             return CreatedAtAction("GetTrade", new { id = trade.TradeId }, trade);
         }
 
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTrade(int id)
         {
             Trade? trade = await _context.Trades.FindAsync(id);

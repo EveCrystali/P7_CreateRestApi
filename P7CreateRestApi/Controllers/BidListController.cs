@@ -8,7 +8,7 @@ using Dot.Net.WebApi.Services;
 namespace P7CreateRestApi.Controllers
 {
     [LogApiCallAspect]
-    [Route("[controller]")]
+    [Route("bidlists")]
     [ApiController]
     public class BidListController(LocalDbContext context, IUpdateService<BidList> updateService) : ControllerBase
     {
@@ -16,7 +16,7 @@ namespace P7CreateRestApi.Controllers
         private readonly IUpdateService<BidList> _updateService = updateService;
 
 
-        [HttpGet("list")]
+        [HttpGet]
         public async Task<ActionResult> GetBidLists()
         {
             List<BidList> BidLists = await _context.BidLists.ToListAsync();
@@ -36,13 +36,13 @@ namespace P7CreateRestApi.Controllers
             return Ok(bidList);
         }
 
-        [HttpPut("update/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutBidList(int id, BidList bidList)
         {
             return await _updateService.UpdateEntity(id, bidList, BidListExists, t => t.BidListId);
         }
 
-        [HttpPost("add")]
+        [HttpPost]
         public async Task<ActionResult<BidList>> PostBidList(BidList bidList)
         {
             try
@@ -63,7 +63,7 @@ namespace P7CreateRestApi.Controllers
             return CreatedAtAction("GetBidList", new { id = bidList.BidListId }, bidList);
         }
 
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBidList(int id)
         {
             BidList? bidList = await _context.BidLists.FindAsync(id);
