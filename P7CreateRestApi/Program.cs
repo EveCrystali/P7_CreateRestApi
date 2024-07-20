@@ -40,20 +40,20 @@ var environment = builder.Environment.EnvironmentName;
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{environment}.json", optional: true)
+    // .AddJsonFile($"appsettings.{environment}.json", optional: true)
     .AddEnvironmentVariables();
 
 builder.Services.AddDbContext<LocalDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    if (environment == "Development")
-    {
-        options.UseInMemoryDatabase("TestDatabase");
-    }
-    else
-    {
+    // if (environment == "Development")
+    // {
+    //     options.UseInMemoryDatabase("TestDatabase");
+    // }
+    // else
+    // {
         options.UseSqlServer(connectionString);
-    }
+    // }
 });
 
 // Add Identity
