@@ -171,14 +171,59 @@ namespace Dot.Net.WebApi
             }
 
             HttpContext httpContext = _httpContextAccessor.HttpContext;
-            HttpResponse response = httpContext.Response;
-            string messageLog = $"LogApiCallAspect: API call succeeded: Status {response.StatusCode}";
+            if (httpContext == null)
+            {
+                string messageLog2 = "LogApiCallAspect: HttpContext is null.";
+                _logger.LogWarning(messageLog2);
+                LogToFile(messageLog2);
+                return;
+            }
+
+            // Capture the actual status code
+            int statusCode = httpContext.Response.StatusCode;
+
+            string messageLog = $"LogApiCallAspect: API call completed with Status {statusCode}";
             _logger.LogInformation(messageLog);
             LogToFile(messageLog);
 
             if (args.ReturnValue is ObjectResult result)
             {
                 string messageLog2 = $"LogApiCallAspect: Response Body: {System.Text.Json.JsonSerializer.Serialize(result.Value)}";
+                _logger.LogInformation(messageLog2);
+                LogToFile(messageLog2);
+            }
+            else if (args.ReturnValue is IActionResult actionResult)
+            {
+                // Log information about other types of IActionResult
+                string messageLog2 = $"LogApiCallAspect: Response Type: {actionResult.GetType().Name}";
+                _logger.LogInformation(messageLog2);
+                LogToFile(messageLog2);
+            }
+        }
+
+        public override void OnExit(MethodExecutionArgs args)
+        {
+            if (_logger == null || _httpContextAccessor?.HttpContext == null)
+            {
+                return;
+            }
+
+            HttpContext httpContext = _httpContextAccessor.HttpContext;
+            int statusCode = httpContext.Response.StatusCode;
+
+            string messageLog = $"LogApiCallAspect: API call to {httpContext.Request.Path} with method {httpContext.Request.Method} completed with Status {statusCode}";
+            _logger.LogInformation(messageLog);
+            LogToFile(messageLog);
+
+            if (args.ReturnValue is ObjectResult result)
+            {
+                string messageLog2 = $"LogApiCallAspect: Response Body: {System.Text.Json.JsonSerializer.Serialize(result.Value)}";
+                _logger.LogInformation(messageLog2);
+                LogToFile(messageLog2);
+            }
+            else if (args.ReturnValue is IActionResult actionResult)
+            {
+                string messageLog2 = $"LogApiCallAspect: Response Type: {actionResult.GetType().Name}";
                 _logger.LogInformation(messageLog2);
                 LogToFile(messageLog2);
             }

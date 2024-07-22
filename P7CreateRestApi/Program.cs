@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Dot.Net.WebApi.Helpers;
+using Dot.Net.WebApi.Middleware;
 
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -46,7 +47,7 @@ builder.Configuration
 builder.Services.AddDbContext<LocalDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-        options.UseSqlServer(connectionString);
+    options.UseSqlServer(connectionString);
 });
 
 // Add Identity
@@ -121,6 +122,9 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Add the new middleware here, after other middleware
+app.UseMiddleware<StatusCodeLoggingMiddleware>();
 
 app.MapControllers();
 
