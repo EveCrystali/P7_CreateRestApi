@@ -45,7 +45,7 @@ public class AuthentificationController(UserManager<User> userManager, IJwtServi
     {
         if (ModelState.IsValid)
         {
-            User user = new() { UserName = model.Username, Fullname = model.Fullname, PasswordHash = model.Password };
+            User user = new() { UserName = model.Username, Email = model.Email, Fullname = model.Fullname, PasswordHash = model.Password };
             IdentityResult result = await _userManager.CreateAsync(user, model.Password);
 
             if (result.Succeeded)

@@ -46,14 +46,7 @@ builder.Configuration
 builder.Services.AddDbContext<LocalDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    // if (environment == "Development")
-    // {
-    //     options.UseInMemoryDatabase("TestDatabase");
-    // }
-    // else
-    // {
         options.UseSqlServer(connectionString);
-    // }
 });
 
 // Add Identity
@@ -106,8 +99,8 @@ builder.Services.AddLogging(config =>
     });
 builder.Services.AddHostedService<LogCleanupService>();
 
-// Add JwtService
-builder.Services.AddScoped<JwtService>();
+// Add Services
+builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped(typeof(IUpdateService<>), typeof(UpdateService<>));
 builder.Services.AddHostedService<TokenCleanupService>();
 builder.Services.AddScoped<IJwtRevocationService, JwtRevocationService>();

@@ -79,7 +79,7 @@ namespace P7CreateRestApi.Tests
         public async Task Register_ValidModel_ShouldReturnSuccessMessage()
         {
             // Arrange
-            RegisterModel registerModel = new() { Username = "testuser", Fullname = "Test User", Password = "Password123" };
+            RegisterModel registerModel = new() { Username = "testuser", Email = "testuser@example.com", Fullname = "Test User", Password = "Password123" };
             _mockUserManager.Setup(um => um.CreateAsync(It.IsAny<User>(), registerModel.Password)).ReturnsAsync(IdentityResult.Success);
             _mockUserManager.Setup(um => um.AddToRoleAsync(It.IsAny<User>(), "User")).ReturnsAsync(IdentityResult.Success);
 

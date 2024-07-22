@@ -39,6 +39,11 @@ public class JwtService(IConfiguration configuration) : IJwtService
             throw new InvalidOperationException("The JWT secret key is not defined in the environment variables");
         }
 
+        // Convert the secret key to a 256-bit key
+        byte[] keyBytes = new byte[32]; // 256 bits
+        byte[] secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
+        Array.Copy(secretKeyBytes, keyBytes, Math.Min(secretKeyBytes.Length, keyBytes.Length));
+
         // Create the signing credentials using the secret key.
         SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(secretKey));
         SigningCredentials creds = new(key, SecurityAlgorithms.HmacSha256);
