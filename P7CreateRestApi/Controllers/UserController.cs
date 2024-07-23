@@ -49,7 +49,7 @@ namespace P7CreateRestApi.Controllers
             return Ok(user);
         }
 
-        [Authorize(Policy = "User")]
+        [Authorize(Policy = "RequireUserRole")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(string id, User user)
         {
@@ -93,33 +93,7 @@ namespace P7CreateRestApi.Controllers
                 return BadRequest(result.Errors);
             }
 
-            return NoContent();
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
-        {
-            try
-            {
-                user.Validate();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-            user.Id = null;
-
-            IdentityResult result = await _userManager.CreateAsync(user, user.PasswordHash);
-
-            if (result.Succeeded)
-            {
-                return CreatedAtAction("GetUser", new { id = user.Id }, user);
-            }
-            else
-            {
-                return BadRequest(result.Errors);
-            }
+            return Ok(existingUser);
         }
 
         [Authorize(Policy = "RequireAdminRole")]

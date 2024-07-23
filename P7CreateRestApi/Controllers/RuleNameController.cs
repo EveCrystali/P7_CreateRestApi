@@ -1,10 +1,10 @@
 ﻿using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Dot.Net.WebApi.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace P7CreateRestApi.Controllers
 {

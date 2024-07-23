@@ -95,24 +95,14 @@ public class UserControllerTests : TestBase<User>
         IActionResult result = await _controller.PutUser("1", updatedUser);
 
         // Assert
-        Assert.IsType<NoContentResult>(result);
-    }
-
-    [Fact]
-    public async Task PostUser_ValidData_ShouldReturnCreatedAtAction()
-    {
-        // Arrange
-        User user = new() { UserName = "newuser", Fullname = "New User", Email = "newuser@example.com", PasswordHash = "password" };
-
-        _mockUserManager.Setup(um => um.CreateAsync(user, user.PasswordHash)).ReturnsAsync(IdentityResult.Success);
-
-        // Act
-        ActionResult<User> result = await _controller.PostUser(user);
-
-        // Assert
-        CreatedAtActionResult actionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
-        User returnValue = Assert.IsType<User>(actionResult.Value);
-        Assert.Equal(user, returnValue);
+        Assert.IsType<OkObjectResult>(result);
+        User? foundUser = await _context.Users.FindAsync("1");
+        if (foundUser == null)
+        {
+            Assert.Fail("User updated not found");
+        }
+        Assert.Equal(updatedUser.Fullname, foundUser.Fullname);
+        Assert.Equal(updatedUser.Email, foundUser.Email);
     }
 
     [Theory]
