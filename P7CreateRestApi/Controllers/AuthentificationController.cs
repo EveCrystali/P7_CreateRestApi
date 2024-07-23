@@ -57,7 +57,6 @@ public class AuthentificationController(UserManager<User> userManager, IJwtServi
         return BadRequest(ModelState);
     }
 
-    [Authorize(Policy = "RequireUserRole")]
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh([FromBody] Dot.Net.WebApi.Models.RefreshRequest model)
     {
