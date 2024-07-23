@@ -113,7 +113,8 @@ namespace Dot.Net.WebApi
             }
 
             HttpRequest request = _httpContextAccessor.HttpContext.Request;
-            string messageLog = $"LogApiCallAspect: API call to {request.Path} with method {request.Method} entering {args.Method.Name}";
+            string user = _httpContextAccessor.HttpContext.User?.Identity?.Name ?? "Anonymous";
+            string messageLog = $"LogApiCallAspect: API call to {request.Path} with method {request.Method} by user {user} entering {args.Method.Name}";
             _logger.LogInformation(messageLog);
             LogHelper.LogToFile(messageLog, _logger);
         }

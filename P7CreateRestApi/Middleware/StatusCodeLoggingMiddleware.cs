@@ -29,7 +29,8 @@ namespace Dot.Net.WebApi.Middleware
             string path = context.Request.Path;
             string method = context.Request.Method;
             int statusCode = context.Response.StatusCode;
-            string messageLog = $"API call to {path} with method {method} completed with Status {statusCode}";
+            string user = context.User?.Identity?.Name ?? "Anonymous";
+            string messageLog = $"API call to {path} with method {method} by user {user} completed with Status {statusCode}";
 
             _logger.LogInformation(messageLog);
             LogHelper.LogToFile(messageLog, _logger);
