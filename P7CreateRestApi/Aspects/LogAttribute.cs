@@ -94,15 +94,15 @@ namespace Dot.Net.WebApi
             LogHelper.LogToFile(messageLog2, _logger);
         }
 
-        public override void OnSuccess(MethodExecutionArgs args)
-        {
-            LogApiResponse(args);
-        }
+        // public override void OnSuccess(MethodExecutionArgs args)
+        // {
+        //     LogApiResponse(args);
+        // }
 
-        public override void OnExit(MethodExecutionArgs args)
-        {
-            LogApiResponse(args);
-        }
+        // public override void OnExit(MethodExecutionArgs args)
+        // {
+        //     LogApiResponse(args);
+        // }
 
         public override void OnException(MethodExecutionArgs args)
         {
