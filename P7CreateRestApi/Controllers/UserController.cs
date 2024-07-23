@@ -50,7 +50,6 @@ namespace P7CreateRestApi.Controllers
         }
 
         [Authorize(Policy = "RequireUserRole")]
-        [LogApiCallAspect]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(string id, User user)
         {

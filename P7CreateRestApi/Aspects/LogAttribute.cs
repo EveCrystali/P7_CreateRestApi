@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Dot.Net.WebApi.Helpers;
-using Microsoft.AspNetCore.Mvc;
 using PostSharp.Aspects;
 using PostSharp.Serialization;
 
@@ -20,6 +19,12 @@ namespace Dot.Net.WebApi
 
         public override void OnEntry(MethodExecutionArgs args)
         {
+            // Ignore logging for constructors and static constructors
+            if (args.Method is ConstructorInfo || args.Method.IsStatic && args.Method.Name == ".cctor")
+            {
+                return;
+            }
+
             string messageLog = $"LogAspect: Entering {args.Method.Name}";
             _logger.LogInformation(messageLog);
             LogHelper.LogToFile(messageLog, _logger);
@@ -27,6 +32,12 @@ namespace Dot.Net.WebApi
 
         public override void OnExit(MethodExecutionArgs args)
         {
+            // Ignore logging for constructors and static constructors
+            if (args.Method is ConstructorInfo || args.Method.IsStatic && args.Method.Name == ".cctor")
+            {
+                return;
+            }
+
             string messageLog = $"LogAspect: Exiting {args.Method.Name}";
             _logger.LogInformation(messageLog);
             LogHelper.LogToFile(messageLog, _logger);
@@ -75,20 +86,13 @@ namespace Dot.Net.WebApi
 
         public override void OnEntry(MethodExecutionArgs args)
         {
-            LogMethodEntry(args);
-
-            if (_httpContextAccessor.HttpContext == null)
+            // Ignore logging for constructors
+            if (args.Method is ConstructorInfo)
             {
-                string messageLog = "LogApiCallAspect: _httpContextAccessor.HttpContext is null.";
-                _logger.LogWarning(messageLog);
-                LogHelper.LogToFile(messageLog, _logger);
                 return;
             }
 
-            HttpRequest request = _httpContextAccessor.HttpContext.Request;
-            string messageLog2 = $"LogApiCallAspect: API call to {request.Path} with method {request.Method}";
-            _logger.LogInformation(messageLog2);
-            LogHelper.LogToFile(messageLog2, _logger);
+            LogApiCall(args);
         }
 
         public override void OnException(MethodExecutionArgs args)
@@ -98,39 +102,20 @@ namespace Dot.Net.WebApi
             LogHelper.LogToFile(messageLog, _logger);
         }
 
-        private void LogMethodEntry(MethodExecutionArgs args)
+        private void LogApiCall(MethodExecutionArgs args)
         {
-            string messageLog = $"LogApiCallAspect: Entering {args.Method.Name}";
-            _logger.LogInformation(messageLog);
-            LogHelper.LogToFile(messageLog, _logger);
-        }
-
-        private void LogApiResponse(MethodExecutionArgs args)
-        {
-            if (_logger == null || _httpContextAccessor?.HttpContext == null)
+            if (_httpContextAccessor.HttpContext == null)
             {
+                string messageLog2 = "LogApiCallAspect: _httpContextAccessor.HttpContext is null.";
+                _logger.LogWarning(messageLog2);
+                LogHelper.LogToFile(messageLog2, _logger);
                 return;
             }
 
-            HttpContext httpContext = _httpContextAccessor.HttpContext;
-            int statusCode = httpContext.Response.StatusCode;
-
-            string messageLog = $"LogApiCallAspect: API call to {httpContext.Request.Path} with method {httpContext.Request.Method} completed with Status {statusCode}";
+            HttpRequest request = _httpContextAccessor.HttpContext.Request;
+            string messageLog = $"LogApiCallAspect: API call to {request.Path} with method {request.Method} entering {args.Method.Name}";
             _logger.LogInformation(messageLog);
             LogHelper.LogToFile(messageLog, _logger);
-
-            if (args.ReturnValue is ObjectResult result)
-            {
-                string messageLog2 = $"LogApiCallAspect: Response Body: {System.Text.Json.JsonSerializer.Serialize(result.Value)}";
-                _logger.LogInformation(messageLog2);
-                LogHelper.LogToFile(messageLog2, _logger);
-            }
-            else if (args.ReturnValue is IActionResult actionResult)
-            {
-                string messageLog2 = $"LogApiCallAspect: Response Type: {actionResult.GetType().Name}";
-                _logger.LogInformation(messageLog2);
-                LogHelper.LogToFile(messageLog2, _logger);
-            }
         }
     }
 }
