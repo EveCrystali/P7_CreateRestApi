@@ -1,10 +1,10 @@
 ﻿using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Dot.Net.WebApi.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace P7CreateRestApi.Controllers
 {
@@ -15,7 +15,6 @@ namespace P7CreateRestApi.Controllers
     {
         private readonly LocalDbContext _context = context;
         private readonly IUpdateService<BidList> _updateService = updateService;
-
 
         [HttpGet]
         public async Task<ActionResult> GetBidLists()
@@ -65,7 +64,6 @@ namespace P7CreateRestApi.Controllers
 
             return CreatedAtAction("GetBidList", new { id = bidList.BidListId }, bidList);
         }
-
 
         [Authorize(Policy = "RequireTraderRole")]
         [HttpDelete("{id}")]

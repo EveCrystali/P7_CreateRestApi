@@ -97,7 +97,6 @@ namespace P7CreateRestApi.Controllers
             return Ok(existingUser);
         }
 
-
         [Authorize(Policy = "RequireAdminRole")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)

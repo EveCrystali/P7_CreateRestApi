@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.IO;
-
-namespace Dot.Net.WebApi.Helpers
+﻿namespace Dot.Net.WebApi.Helpers
 {
     public static class LogHelper
     {

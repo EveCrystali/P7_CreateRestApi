@@ -1,7 +1,8 @@
 using System.Text;
-using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
+using Dot.Net.WebApi.Helpers;
+using Dot.Net.WebApi.Middleware;
 using Dot.Net.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -9,8 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Dot.Net.WebApi.Helpers;
-using Dot.Net.WebApi.Middleware;
 
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -36,7 +35,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Add Database
-var environment = builder.Environment.EnvironmentName;
+string environment = builder.Environment.EnvironmentName;
 
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
@@ -46,7 +45,7 @@ builder.Configuration
 
 builder.Services.AddDbContext<LocalDbContext>(options =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     options.UseSqlServer(connectionString);
 });
 
@@ -73,7 +72,7 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     IConfiguration configuration = builder.Configuration;
-    var key = configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+    string? key = configuration["Jwt:Key"] ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
     if (string.IsNullOrEmpty(key))
     {
         throw new ArgumentNullException("Jwt:Key", "JWT Key configuration is missing.");

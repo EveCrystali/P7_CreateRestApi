@@ -1,11 +1,8 @@
 ﻿using System.Reflection;
+using Dot.Net.WebApi.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using PostSharp.Aspects;
 using PostSharp.Serialization;
-using Dot.Net.WebApi.Helpers;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Http;
-using System;
 
 namespace Dot.Net.WebApi
 {
@@ -93,16 +90,6 @@ namespace Dot.Net.WebApi
             _logger.LogInformation(messageLog2);
             LogHelper.LogToFile(messageLog2, _logger);
         }
-
-        // public override void OnSuccess(MethodExecutionArgs args)
-        // {
-        //     LogApiResponse(args);
-        // }
-
-        // public override void OnExit(MethodExecutionArgs args)
-        // {
-        //     LogApiResponse(args);
-        // }
 
         public override void OnException(MethodExecutionArgs args)
         {

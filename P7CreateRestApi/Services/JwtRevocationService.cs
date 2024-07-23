@@ -1,5 +1,4 @@
 ﻿using Dot.Net.WebApi.Data;
-using Dot.Net.WebApi.Services;
 
 namespace Dot.Net.WebApi.Services;
 
@@ -9,8 +8,8 @@ public class JwtRevocationService(LocalDbContext context) : IJwtRevocationServic
 
     public async Task RevokeUserTokensAsync(string userId)
     {
-        var refreshTokens = _context.RefreshTokens.Where(rt => rt.UserId == userId).ToList();
-        foreach (var token in refreshTokens)
+        List<Models.RefreshToken> refreshTokens = _context.RefreshTokens.Where(rt => rt.UserId == userId).ToList();
+        foreach (Models.RefreshToken? token in refreshTokens)
         {
             token.IsRevoked = true;
         }

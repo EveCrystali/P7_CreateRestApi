@@ -28,7 +28,6 @@ public class DoubleNullableValidationAttribute : ValidationAttribute
         {
             return ValidationResult.Success;
         }
-
         else if (double.TryParse(value.ToString(), out _))
         {
             return ValidationResult.Success;

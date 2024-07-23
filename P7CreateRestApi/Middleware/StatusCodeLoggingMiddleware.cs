@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using Dot.Net.WebApi.Helpers;
+﻿using Dot.Net.WebApi.Helpers;
 
 namespace Dot.Net.WebApi.Middleware
 {
