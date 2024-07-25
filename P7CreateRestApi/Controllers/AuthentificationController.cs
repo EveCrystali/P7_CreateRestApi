@@ -1,4 +1,5 @@
-﻿using Dot.Net.WebApi.Data;
+﻿using System.Security.Claims;
+using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Models;
 using Dot.Net.WebApi.Services;
@@ -115,4 +116,41 @@ public class AuthentificationController(UserManager<User> userManager, IJwtServi
 
         return Ok();
     }
+
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        // Get User ID from JWT token
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequest("Impossible to get user ID.");
+        }
+
+        // Revoke all refresh tokens for the user 
+        var currentToken = await GetCurrentRefreshTokenAsync(userId);
+        if (currentToken != null)
+        {
+            currentToken.IsRevoked = true;
+            _context.RefreshTokens.Update(currentToken);
+            await _context.SaveChangesAsync();
+        }
+        else 
+        {
+            return BadRequest("Impossible to get current token.");
+        }
+        await _context.SaveChangesAsync();
+
+        return Ok(new { Message = "Logout successful" });
+    }
+
+    private async Task<RefreshToken> GetCurrentRefreshTokenAsync(string userId)
+    {
+        return await _context.RefreshTokens
+            .Where(rt => rt.UserId == userId && !rt.IsRevoked)
+            .OrderByDescending(rt => rt.ExpiryDate)
+            .FirstOrDefaultAsync();
+    }
+
 }

@@ -57,7 +57,7 @@ public class JwtService(IConfiguration configuration) : IJwtService
             // The claims are the information about the user
             claims: claims,
             // The token expires after 1 hour
-            expires: DateTime.Now.AddHours(1),
+            expires: DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:TokenLifetimeMinutes"])),
             // The signing credentials are used to sign the token
             signingCredentials: creds);
 
