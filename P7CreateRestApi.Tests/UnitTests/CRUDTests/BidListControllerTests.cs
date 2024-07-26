@@ -1,4 +1,5 @@
 ﻿using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using P7CreateRestApi.Controllers;
@@ -36,6 +37,24 @@ public class BidListControllerTests : TestBase<BidList>
             Side = "ValidSide"
         };
     }
+
+    [Fact]
+    public async Task PostBidList_InValidData_ShouldReturnBadRequest()
+    {
+        // Arrange
+        BidList bidList = CreateValidBidList(1);
+        // Set an invalid properties
+        bidList.Account = null;
+
+        // Act
+        ActionResult<BidList> result = await _controller.PostBidList(bidList);
+        BadRequestObjectResult? badRequestResult = result.Result as BadRequestObjectResult;
+
+        // Assert
+        Assert.NotNull(badRequestResult);
+        Assert.IsType<string>(badRequestResult.Value);
+    }
+
 
     [Fact]
     public async Task PostBidList_ValidData_ShouldReturnCreatedAtAction()

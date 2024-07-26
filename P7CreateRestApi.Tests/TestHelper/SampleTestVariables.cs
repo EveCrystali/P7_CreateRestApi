@@ -19,7 +19,7 @@ namespace P7CreateRestApi.Tests
             stringSpecialChars
         };
 
-        private static string GenerateString(int length, char fillChar = 's')
+        public static string GenerateString(int length, char fillChar = 's')
         {
             if (length <= 0)
             {

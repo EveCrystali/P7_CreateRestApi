@@ -41,6 +41,23 @@ public class RatingControllerTests : TestBase<Rating>
         Assert.Equal(rating, returnValue);
     }
 
+        [Fact]
+    public async Task PostRating_InValidData_ShouldReturnBadRequest()
+    {
+        // Arrange
+        Rating rating = CreateValidRating(1);
+        // Set an invalid properties
+        rating.MoodysRating = null;
+
+        // Act
+        ActionResult<Rating> result = await _controller.PostRating(rating);
+        BadRequestObjectResult? badRequestResult = result.Result as BadRequestObjectResult;
+
+        // Assert
+        Assert.NotNull(badRequestResult);
+        Assert.IsType<string>(badRequestResult.Value);
+    }
+
     [Fact]
     public async Task GetRatings_ShouldReturnRatings()
     {

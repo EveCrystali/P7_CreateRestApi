@@ -45,6 +45,23 @@ public class RuleNameControllerTests : TestBase<RuleName>
     }
 
     [Fact]
+    public async Task PostRuleName_InValidData_ShouldReturnBadRequest()
+    {
+        // Arrange
+        RuleName ruleName = CreateValidRuleName(1);
+        // Set an invalid properties
+        ruleName.Name = null;
+
+        // Act
+        ActionResult<RuleName> result = await _controller.PostRuleName(ruleName);
+        BadRequestObjectResult? badRequestResult = result.Result as BadRequestObjectResult;
+
+        // Assert
+        Assert.NotNull(badRequestResult);
+        Assert.IsType<string>(badRequestResult.Value);
+    }
+
+    [Fact]
     public async Task GetRuleNames_ShouldReturnRuleNames()
     {
         // Arrange

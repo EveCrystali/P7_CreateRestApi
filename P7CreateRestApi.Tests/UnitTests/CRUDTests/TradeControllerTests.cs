@@ -52,6 +52,23 @@ public class TradeControllerTests : TestBase<Trade>
     }
 
     [Fact]
+    public async Task PostTrade_InValidData_ShouldReturnBadRequest()
+    {
+        // Arrange
+        Trade trade = CreateValidTrade(1);
+        // Set an invalid properties
+        trade.Account = null;
+
+        // Act
+        ActionResult<Trade> result = await _controller.PostTrade(trade);
+        BadRequestObjectResult? badRequestResult = result.Result as BadRequestObjectResult;
+
+        // Assert
+        Assert.NotNull(badRequestResult);
+        Assert.IsType<string>(badRequestResult.Value);
+    }
+
+    [Fact]
     public async Task GetTrades_ShouldReturnTrades()
     {
         // Arrange
