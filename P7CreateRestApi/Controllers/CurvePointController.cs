@@ -1,3 +1,4 @@
+using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Services;
@@ -5,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dot.Net.WebApi.Controllers
+namespace P7CreateRestApi.Controllers
 {
     [LogApiCallAspect]
     [Route("curvepoints")]
@@ -16,14 +17,14 @@ namespace Dot.Net.WebApi.Controllers
         private readonly IUpdateService<CurvePoint> _updateService = updateService;
 
         [HttpGet]
-        public async Task<IActionResult> GetCurvePoints()
+        public async Task<ActionResult> GetCurvePoints()
         {
             List<CurvePoint> curvePoints = await _context.CurvePoints.ToListAsync();
             return curvePoints != null ? Ok(curvePoints) : BadRequest("Failed to get list of CurvePoints");
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetCurvePoint(int id)
+        public async Task<ActionResult<CurvePoint>> GetCurvePoint(int id)
         {
             CurvePoint? curvePoint = await _context.CurvePoints.FindAsync(id);
 
@@ -44,7 +45,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [Authorize(Policy = "RequireTraderRole")]
         [HttpPost]
-        public async Task<IActionResult> PostCurvePoint(CurvePoint curvePoint)
+        public async Task<ActionResult<CurvePoint>> PostCurvePoint(CurvePoint curvePoint)
         {
             try
             {

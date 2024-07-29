@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace P7CreateRestApi.Controllers
 {
     [LogApiCallAspect]
-    [Route("bidlists")]
+    [Route("bidlist")]
     [ApiController]
     public class BidListController(LocalDbContext context, IUpdateService<BidList> updateService) : ControllerBase
     {
