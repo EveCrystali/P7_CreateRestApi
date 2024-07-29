@@ -44,6 +44,7 @@
 
   <ItemGroup>
     <Folder Include="coverage\" />
+    <Folder Include="UnitTests\ServicesTests\" />
     <Folder Include="UnitTests\ValidateTests\" />
   </ItemGroup>
 
