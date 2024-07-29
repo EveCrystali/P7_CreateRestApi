@@ -50,7 +50,6 @@ namespace P7CreateRestApi.Controllers
             return Ok(user);
         }
 
-        [Authorize(Policy = "RequireUserRole")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(string id, UserUpdateModel userModel)
         {
