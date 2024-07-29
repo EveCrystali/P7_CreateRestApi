@@ -59,7 +59,7 @@ public class UpdateService<T> : IUpdateService<T> where T : class
             }
             else
             {
-                throw;
+                return new ConflictResult();
             }
         }
 
