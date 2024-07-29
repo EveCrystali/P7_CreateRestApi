@@ -41,7 +41,7 @@ public class RatingControllerTests : TestBase<Rating>
         Assert.Equal(rating, returnValue);
     }
 
-        [Fact]
+    [Fact]
     public async Task PostRating_InValidData_ShouldReturnBadRequest()
     {
         // Arrange

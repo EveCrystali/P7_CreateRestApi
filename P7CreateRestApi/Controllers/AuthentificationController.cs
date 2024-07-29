@@ -122,21 +122,21 @@ public class AuthentificationController(UserManager<User> userManager, IJwtServi
     public async Task<IActionResult> Logout()
     {
         // Get User ID from JWT token
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId))
         {
             return BadRequest("Impossible to get user ID.");
         }
 
         // Revoke all refresh tokens for the user 
-        var currentToken = await GetCurrentRefreshTokenAsync(userId);
+        RefreshToken currentToken = await GetCurrentRefreshTokenAsync(userId);
         if (currentToken != null)
         {
             currentToken.IsRevoked = true;
             _context.RefreshTokens.Update(currentToken);
             await _context.SaveChangesAsync();
         }
-        else 
+        else
         {
             return BadRequest("Impossible to get current token.");
         }

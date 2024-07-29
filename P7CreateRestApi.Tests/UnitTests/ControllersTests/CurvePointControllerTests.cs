@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Dot.Net.WebApi.Controllers;
-using Dot.Net.WebApi.Domain;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using P7CreateRestApi.Controllers;

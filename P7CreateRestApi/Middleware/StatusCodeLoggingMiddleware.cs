@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using System.IO;
-using Dot.Net.WebApi.Helpers;
+﻿using Dot.Net.WebApi.Helpers;
 
 namespace Dot.Net.WebApi.Middleware
 {
@@ -20,8 +16,8 @@ namespace Dot.Net.WebApi.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var originalBodyStream = context.Response.Body;
-            using var responseBody = new MemoryStream();
+            Stream originalBodyStream = context.Response.Body;
+            using MemoryStream responseBody = new();
             context.Response.Body = responseBody;
 
             await _next(context);
@@ -38,7 +34,7 @@ namespace Dot.Net.WebApi.Middleware
             if (statusCode >= 400)
             {
                 context.Response.Body.Seek(0, SeekOrigin.Begin);
-                var responseText = await new StreamReader(context.Response.Body).ReadToEndAsync();
+                string responseText = await new StreamReader(context.Response.Body).ReadToEndAsync();
                 context.Response.Body.Seek(0, SeekOrigin.Begin);
 
                 string detailedErrorLog = $"Error response: {responseText}";

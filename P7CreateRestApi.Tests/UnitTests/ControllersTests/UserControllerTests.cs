@@ -126,7 +126,7 @@ public class UserControllerTests : TestBase<User>
 
         // Check if the roles were updated correctly
         _mockUserManager.Setup(um => um.GetRolesAsync(user)).ReturnsAsync(new List<string> { "Trader" });
-        var updatedRoles = await _mockUserManager.Object.GetRolesAsync(foundUser);
+        IList<string> updatedRoles = await _mockUserManager.Object.GetRolesAsync(foundUser);
         Assert.Contains("Trader", updatedRoles);
     }
 
