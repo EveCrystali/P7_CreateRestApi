@@ -1,3 +1,4 @@
+using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Services;
@@ -5,77 +6,83 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dot.Net.WebApi.Controllers
+namespace P7CreateRestApi.Controllers
 {
     [LogApiCallAspect]
+    [Route("curvepoints")]
     [ApiController]
-    [Route("[controller]")]
-    public class CurvePointController(ICurvePointService curvePointService, LocalDbContext context) : ControllerBase
+    public class CurvePointController(LocalDbContext context, IUpdateService<CurvePoint> updateService) : ControllerBase
     {
-        private readonly ICurvePointService _curvePointService = curvePointService;
         private readonly LocalDbContext _context = context;
-
-        [HttpPost]
-        [Route("add")]
-        public async Task<IActionResult> AddCurvePoint([FromBody] CurvePoint curvePoint)
-        {
-            if (!TryValidateModel(curvePoint)) return BadRequest(ModelState);
-
-            if (!_curvePointService.ValidateCurvePoint(curvePoint)) return BadRequest("Data not valid");
-
-            if (_curvePointService.CurvePointExistsByCurveId(curvePoint.CurveId)) return BadRequest("CurvePoint with this Id already exists");
-
-            await _curvePointService.SaveCurvePoint(curvePoint);
-
-            return Ok();
-        }
+        private readonly IUpdateService<CurvePoint> _updateService = updateService;
 
         [HttpGet]
-        [Route("{id}")]
-        public async Task<IActionResult> GetCurvePoint(int id)
-        {
-            CurvePoint? curvePoint = await _curvePointService.GetCurvePointById(id);
-            if (curvePoint == null)
-            {
-                return NotFound("CurvePoint with this Id doesn't exist");
-            }
-            return Ok(curvePoint);
-        }
-
-        [HttpDelete]
-        [Route("delete/{id}")]
-        public async Task<IActionResult> DeleteCurvePoint(int id)
-        {
-            CurvePoint? curvePoint = await _curvePointService.GetCurvePointById(id);
-            if (curvePoint == null) return NotFound("CurvePoint with this Id doesnt exist");
-            int returnDeletion = await _curvePointService.DeleteCurvePoint(curvePoint);
-
-            return returnDeletion == 0 ? Ok() : BadRequest("Failed to delete CurvePoint");
-        }
-
-        [Authorize(Policy = "RequireAdminRole")]
-        [HttpGet]
-        [Route("list")]
-        public async Task<IActionResult> GetCurvePoints()
+        public async Task<ActionResult> GetCurvePoints()
         {
             List<CurvePoint> curvePoints = await _context.CurvePoints.ToListAsync();
             return curvePoints != null ? Ok(curvePoints) : BadRequest("Failed to get list of CurvePoints");
         }
 
-        [HttpPost]
-        [Route("update/{id}")]
-        public async Task<IActionResult> UpdateCurvePoint(int id, [FromBody] CurvePoint curvePoint)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CurvePoint>> GetCurvePoint(int id)
         {
-            if (!_curvePointService.ValidateCurvePoint(curvePoint)) return BadRequest("Data not valid");
-            if (!_curvePointService.CurvePointExistsById(id)) return NotFound("CurvePoint not found");
+            CurvePoint? curvePoint = await _context.CurvePoints.FindAsync(id);
 
-            CurvePoint? existingCurvePoint = await _curvePointService.GetCurvePointById(id);
-            existingCurvePoint.Term = curvePoint.Term;
-            existingCurvePoint.CurvePointValue = curvePoint.CurvePointValue;
+            if (curvePoint == null)
+            {
+                return NotFound("CurvePoint with this Id does not exist");
+            }
 
-            await _curvePointService.UpdateCurvePoint(existingCurvePoint);
+            return Ok(curvePoint);
+        }
 
-            return Ok(existingCurvePoint);
+        [Authorize(Policy = "RequireTraderRole")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutCurvePoint(int id, CurvePoint curvePoint)
+        {
+            return await _updateService.UpdateEntity(id, curvePoint, CurvePointExists, t => t.Id);
+        }
+
+        [Authorize(Policy = "RequireTraderRole")]
+        [HttpPost]
+        public async Task<ActionResult<CurvePoint>> PostCurvePoint(CurvePoint curvePoint)
+        {
+            try
+            {
+                curvePoint.Validate();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            // curvePoint.Id must be set by the database automatically, so we set it to 0 to force it
+            curvePoint.Id = 0;
+
+            _context.CurvePoints.Add(curvePoint);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetCurvePoint", new { id = curvePoint.Id }, curvePoint);
+        }
+
+        [Authorize(Policy = "RequireTraderRole")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCurvePoint(int id)
+        {
+            CurvePoint? curvePoint = await _context.CurvePoints.FindAsync(id);
+            if (curvePoint == null)
+            {
+                return NotFound("CurvePoint with this Id does not exist");
+            }
+            _context.CurvePoints.Remove(curvePoint);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool CurvePointExists(CurvePoint curvePoint)
+        {
+            return _context.CurvePoints.Any(e => e.Id == curvePoint.Id);
         }
     }
 }

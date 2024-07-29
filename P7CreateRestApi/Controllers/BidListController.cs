@@ -1,22 +1,22 @@
 ﻿using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
+using Dot.Net.WebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Dot.Net.WebApi.Services;
 
 namespace P7CreateRestApi.Controllers
 {
     [LogApiCallAspect]
-    [Route("[controller]")]
+    [Route("bidlist")]
     [ApiController]
     public class BidListController(LocalDbContext context, IUpdateService<BidList> updateService) : ControllerBase
     {
         private readonly LocalDbContext _context = context;
         private readonly IUpdateService<BidList> _updateService = updateService;
 
-
-        [HttpGet("list")]
+        [HttpGet]
         public async Task<ActionResult> GetBidLists()
         {
             List<BidList> BidLists = await _context.BidLists.ToListAsync();
@@ -36,13 +36,15 @@ namespace P7CreateRestApi.Controllers
             return Ok(bidList);
         }
 
-        [HttpPut("update/{id}")]
+        [Authorize(Policy = "RequireTraderRole")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutBidList(int id, BidList bidList)
         {
             return await _updateService.UpdateEntity(id, bidList, BidListExists, t => t.BidListId);
         }
 
-        [HttpPost("add")]
+        [Authorize(Policy = "RequireTraderRole")]
+        [HttpPost]
         public async Task<ActionResult<BidList>> PostBidList(BidList bidList)
         {
             try
@@ -63,7 +65,8 @@ namespace P7CreateRestApi.Controllers
             return CreatedAtAction("GetBidList", new { id = bidList.BidListId }, bidList);
         }
 
-        [HttpDelete("delete/{id}")]
+        [Authorize(Policy = "RequireTraderRole")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBidList(int id)
         {
             BidList? bidList = await _context.BidLists.FindAsync(id);

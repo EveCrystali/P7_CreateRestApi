@@ -120,7 +120,6 @@ namespace Dot.Net.WebApi.Data
                 entity.Property(e => e.Fullname)
                       .HasColumnName("Fullname");
             });
-
         }
 
         public DbSet<BidList> BidLists { get; set; }

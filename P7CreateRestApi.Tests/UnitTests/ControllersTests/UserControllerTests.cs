@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Dot.Net.WebApi.Domain;
+using Dot.Net.WebApi.Models;
 using Dot.Net.WebApi.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -19,7 +20,7 @@ public class UserControllerTests : TestBase<User>
 
     public UserControllerTests()
     {
-        _mockUserManager = MockUserManager<User>();
+        _mockUserManager = new Mock<UserManager<User>>(Mock.Of<IUserStore<User>>(), null, null, null, null, null, null, null, null);
         _mockJwtRevocationService = new Mock<IJwtRevocationService>();
 
         ServiceCollection services = new();
@@ -77,42 +78,56 @@ public class UserControllerTests : TestBase<User>
     }
 
     [Fact]
-    public async Task PutUser_ValidUpdate_ShouldReturnNoContent()
+    public async Task PutUser_ValidUpdateByAdmin_ShouldReturnOk()
     {
         // Arrange
+        User adminUser = new() { Id = "admin", UserName = "adminuser", Fullname = "Admin User", Email = "adminuser@example.com" };
         User user = new() { Id = "1", UserName = "userone", Fullname = "User One", Email = "userone@example.com" };
+        _context.Users.Add(adminUser);
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        User updatedUser = new() { Id = "1", UserName = "userone", Fullname = "Updated User", Email = "updateduser@example.com" };
+        UserUpdateModel updatedUserModel = new()
+        {
+            Id = "1",
+            Fullname = "Updated User",
+            Email = "updateduser@example.com",
+            Role = "Trader"
+        };
 
-        _mockUserManager.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-        _mockUserManager.Setup(um => um.IsInRoleAsync(user, "Admin")).ReturnsAsync(true);
+        // Configure the admin as the current user
+        SetupMockAuthServices(adminUser, true);
+
+        // Mocking the initial roles
         _mockUserManager.Setup(um => um.FindByIdAsync(user.Id)).ReturnsAsync(user);
+        _mockUserManager.Setup(um => um.GetRolesAsync(user)).ReturnsAsync(new List<string> { "User" });
+        _mockUserManager.Setup(um => um.GetRolesAsync(adminUser)).ReturnsAsync(new List<string> { "Admin" });
+
+        // Mocking the role update operations
+        _mockUserManager.Setup(um => um.RemoveFromRolesAsync(user, It.IsAny<IEnumerable<string>>())).ReturnsAsync(IdentityResult.Success);
+        _mockUserManager.Setup(um => um.AddToRoleAsync(user, "Trader")).ReturnsAsync(IdentityResult.Success);
         _mockUserManager.Setup(um => um.UpdateAsync(It.IsAny<User>())).ReturnsAsync(IdentityResult.Success);
 
         // Act
-        IActionResult result = await _controller.PutUser("1", updatedUser);
+        IActionResult result = await _controller.PutUser("1", updatedUserModel);
 
         // Assert
-        Assert.IsType<NoContentResult>(result);
-    }
+        Assert.IsType<OkObjectResult>(result);
 
-    [Fact]
-    public async Task PostUser_ValidData_ShouldReturnCreatedAtAction()
-    {
-        // Arrange
-        User user = new() { UserName = "newuser", Fullname = "New User", Email = "newuser@example.com", PasswordHash = "password" };
+        User? foundUser = await _context.Users.FindAsync("1");
+        Assert.NotNull(foundUser);
+        Assert.Equal(updatedUserModel.Fullname, foundUser.Fullname);
+        Assert.Equal(updatedUserModel.Email, foundUser.Email);
 
-        _mockUserManager.Setup(um => um.CreateAsync(user, user.PasswordHash)).ReturnsAsync(IdentityResult.Success);
+        // Verify the role update
+        _mockUserManager.Verify(um => um.GetRolesAsync(user), Times.Once);
+        _mockUserManager.Verify(um => um.RemoveFromRolesAsync(user, It.IsAny<IEnumerable<string>>()), Times.Once);
+        _mockUserManager.Verify(um => um.AddToRoleAsync(user, "Trader"), Times.Once);
 
-        // Act
-        ActionResult<User> result = await _controller.PostUser(user);
-
-        // Assert
-        CreatedAtActionResult actionResult = Assert.IsType<CreatedAtActionResult>(result.Result);
-        User returnValue = Assert.IsType<User>(actionResult.Value);
-        Assert.Equal(user, returnValue);
+        // Check if the roles were updated correctly
+        _mockUserManager.Setup(um => um.GetRolesAsync(user)).ReturnsAsync(new List<string> { "Trader" });
+        IList<string> updatedRoles = await _mockUserManager.Object.GetRolesAsync(foundUser);
+        Assert.Contains("Trader", updatedRoles);
     }
 
     [Theory]
@@ -185,6 +200,10 @@ public class UserControllerTests : TestBase<User>
         if (isAdmin)
         {
             userClaims.Add(new Claim(ClaimTypes.Role, "Admin"));
+        }
+        else
+        {
+            userClaims.Add(new Claim(ClaimTypes.Role, "User"));
         }
 
         ClaimsIdentity identity = new(userClaims, "TestAuthType");

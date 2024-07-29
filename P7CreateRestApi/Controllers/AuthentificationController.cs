@@ -1,4 +1,4 @@
-﻿using Dot.Net.WebApi;
+﻿using System.Security.Claims;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Models;
@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Dot.Net.WebApi.Controllers;
 
 [LogApiCallAspect]
-[Route("[controller]")]
+[Route("auth")]
 [ApiController]
 public class AuthentificationController(UserManager<User> userManager, IJwtService jwtService, LocalDbContext context) : ControllerBase
 {
@@ -45,7 +45,7 @@ public class AuthentificationController(UserManager<User> userManager, IJwtServi
     {
         if (ModelState.IsValid)
         {
-            User user = new() { UserName = model.Username, Fullname = model.Fullname, PasswordHash = model.Password };
+            User user = new() { UserName = model.Username, Email = model.Email, Fullname = model.Fullname, PasswordHash = model.Password };
             IdentityResult result = await _userManager.CreateAsync(user, model.Password);
 
             if (result.Succeeded)
@@ -58,7 +58,6 @@ public class AuthentificationController(UserManager<User> userManager, IJwtServi
         return BadRequest(ModelState);
     }
 
-    [Authorize(Policy = "RequireUserRole")]
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh([FromBody] Dot.Net.WebApi.Models.RefreshRequest model)
     {
@@ -97,8 +96,8 @@ public class AuthentificationController(UserManager<User> userManager, IJwtServi
     }
 
     [Authorize(Policy = "RequireAdminRole")]
-    [HttpPost("revoke-all")]
-    public async Task<IActionResult> RevokeAllTokens([FromBody] RevokeTokensRequest model)
+    [HttpPost("revoke")]
+    public async Task<IActionResult> RevokeTokens([FromBody] RevokeTokensRequest model)
     {
         User? user = await _userManager.FindByIdAsync(model.UserId);
         if (user == null)
@@ -116,5 +115,41 @@ public class AuthentificationController(UserManager<User> userManager, IJwtServi
         await _context.SaveChangesAsync();
 
         return Ok();
+    }
+
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        // Get User ID from JWT token
+        string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequest("Impossible to get user ID.");
+        }
+
+        // Revoke all refresh tokens for the user
+        RefreshToken currentToken = await GetCurrentRefreshTokenAsync(userId);
+        if (currentToken != null)
+        {
+            currentToken.IsRevoked = true;
+            _context.RefreshTokens.Update(currentToken);
+            await _context.SaveChangesAsync();
+        }
+        else
+        {
+            return BadRequest("Impossible to get current token.");
+        }
+        await _context.SaveChangesAsync();
+
+        return Ok(new { Message = "Logout successful" });
+    }
+
+    private async Task<RefreshToken> GetCurrentRefreshTokenAsync(string userId)
+    {
+        return await _context.RefreshTokens
+            .Where(rt => rt.UserId == userId && !rt.IsRevoked)
+            .OrderByDescending(rt => rt.ExpiryDate)
+            .FirstOrDefaultAsync();
     }
 }

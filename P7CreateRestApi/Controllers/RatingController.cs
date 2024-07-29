@@ -1,14 +1,15 @@
 ﻿using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
+using Dot.Net.WebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Dot.Net.WebApi.Services;
 
 namespace P7CreateRestApi.Controllers
 {
     [LogApiCallAspect]
-    [Route("[controller]")]
+    [Route("ratings")]
     [ApiController]
     public class RatingController(LocalDbContext context, IUpdateService<Rating> updateService) : ControllerBase
     {
@@ -16,7 +17,6 @@ namespace P7CreateRestApi.Controllers
         private readonly IUpdateService<Rating> _updateService = updateService;
 
         [HttpGet]
-        [Route("list")]
         public async Task<ActionResult> GetRatings()
         {
             List<Rating> ratings = await _context.Ratings.ToListAsync();
@@ -36,13 +36,15 @@ namespace P7CreateRestApi.Controllers
             return Ok(rating);
         }
 
-        [HttpPut("update/{id}")]
+        [Authorize(Policy = "RequireTraderRole")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutRating(int id, Rating rating)
         {
             return await _updateService.UpdateEntity(id, rating, RatingExists, t => t.Id);
         }
 
-        [HttpPost("add")]
+        [Authorize(Policy = "RequireTraderRole")]
+        [HttpPost]
         public async Task<ActionResult<Rating>> PostRating(Rating rating)
         {
             try
@@ -63,7 +65,8 @@ namespace P7CreateRestApi.Controllers
             return CreatedAtAction("GetRating", new { id = rating.Id }, rating);
         }
 
-        [HttpDelete("delete/{id}")]
+        [Authorize(Policy = "RequireTraderRole")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRating(int id)
         {
             Rating? rating = await _context.Ratings.FindAsync(id);

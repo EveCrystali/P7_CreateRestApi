@@ -6,14 +6,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Dot.Net.WebApi.Services;
 
-public class JwtService : IJwtService
+public class JwtService(IConfiguration configuration) : IJwtService
 {
-    private readonly IConfiguration _configuration;
-
-    public JwtService(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
+    private readonly IConfiguration _configuration = configuration;
 
     /// <summary>
     /// Generates a JSON Web Token (JWT) for the given user ID, username, and roles.
@@ -44,6 +39,11 @@ public class JwtService : IJwtService
             throw new InvalidOperationException("The JWT secret key is not defined in the environment variables");
         }
 
+        // Convert the secret key to a 256-bit key
+        byte[] keyBytes = new byte[32]; // 256 bits
+        byte[] secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
+        Array.Copy(secretKeyBytes, keyBytes, Math.Min(secretKeyBytes.Length, keyBytes.Length));
+
         // Create the signing credentials using the secret key.
         SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(secretKey));
         SigningCredentials creds = new(key, SecurityAlgorithms.HmacSha256);
@@ -57,7 +57,7 @@ public class JwtService : IJwtService
             // The claims are the information about the user
             claims: claims,
             // The token expires after 1 hour
-            expires: DateTime.Now.AddHours(1),
+            expires: DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:TokenLifetimeMinutes"])),
             // The signing credentials are used to sign the token
             signingCredentials: creds);
 

@@ -38,6 +38,23 @@ public class BidListControllerTests : TestBase<BidList>
     }
 
     [Fact]
+    public async Task PostBidList_InValidData_ShouldReturnBadRequest()
+    {
+        // Arrange
+        BidList bidList = CreateValidBidList(1);
+        // Set an invalid properties
+        bidList.Account = null;
+
+        // Act
+        ActionResult<BidList> result = await _controller.PostBidList(bidList);
+        BadRequestObjectResult? badRequestResult = result.Result as BadRequestObjectResult;
+
+        // Assert
+        Assert.NotNull(badRequestResult);
+        Assert.IsType<string>(badRequestResult.Value);
+    }
+
+    [Fact]
     public async Task PostBidList_ValidData_ShouldReturnCreatedAtAction()
     {
         // Arrange

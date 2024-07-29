@@ -1,6 +1,7 @@
 ﻿using Dot.Net.WebApi;
 using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Domain;
+using Dot.Net.WebApi.Models;
 using Dot.Net.WebApi.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -11,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace P7CreateRestApi.Controllers
 {
     [LogApiCallAspect]
-    [Route("[controller]")]
+    [Route("users")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -29,13 +30,13 @@ namespace P7CreateRestApi.Controllers
         }
 
         [HttpGet]
-        [Route("list")]
         public async Task<IActionResult> GetUsers()
         {
             List<User> users = await _context.Users.ToListAsync();
             return users != null ? Ok(users) : BadRequest("Failed to get list of Users");
         }
 
+        [Authorize(Policy = "RequireUserRole")]
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(string id)
         {
@@ -49,29 +50,25 @@ namespace P7CreateRestApi.Controllers
             return Ok(user);
         }
 
-        [Authorize(Policy = "User")]
-        [HttpPut("update/{id}")]
-        public async Task<IActionResult> PutUser(string id, User user)
+        [Authorize(Policy = "RequireUserRole")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutUser(string id, UserUpdateModel userModel)
         {
-            if (id != user.Id)
+            if (id != userModel.Id)
             {
                 return BadRequest("The Id entered in the parameter is not the same as the Id enter in the body");
             }
 
             // Verify that the connected user is the user being updated or an administrator
             User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
-            if (currentUser == null || (currentUser.Id != user.Id && !await _userManager.IsInRoleAsync(currentUser, "Admin")))
+            if (currentUser == null || (currentUser.Id != userModel.Id && !await _userManager.IsInRoleAsync(currentUser, "Admin")))
             {
                 return Forbid();
             }
 
-            try
+            if (!ModelState.IsValid)
             {
-                user.Validate();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
+                return BadRequest(ModelState);
             }
 
             User? existingUser = await _userManager.FindByIdAsync(id);
@@ -81,10 +78,34 @@ namespace P7CreateRestApi.Controllers
             }
 
             // Update only allowed properties to prevent overposting
-            existingUser.Fullname = user.Fullname;
-            existingUser.Email = user.Email;
-            existingUser.PhoneNumber = user.PhoneNumber;
-            existingUser.LastLoginDate = user.LastLoginDate;
+            existingUser.Fullname = userModel.Fullname;
+            existingUser.Email = userModel.Email;
+            existingUser.PhoneNumber = userModel.PhoneNumber;
+
+            // Update the role if provided and the current user is an admin
+            if ((userModel.Role == "User" || userModel.Role == "Trader") && await _userManager.IsInRoleAsync(currentUser, "Admin"))
+            {
+                // Get current roles
+                IList<string> currentRoles = await _userManager.GetRolesAsync(existingUser);
+
+                // Check if the new role is different from the current role
+                if (!currentRoles.Contains(userModel.Role))
+                {
+                    // Remove all current roles
+                    IdentityResult removeResult = await _userManager.RemoveFromRolesAsync(existingUser, currentRoles);
+                    if (!removeResult.Succeeded)
+                    {
+                        return BadRequest(removeResult.Errors);
+                    }
+
+                    // Add the new role
+                    IdentityResult addResult = await _userManager.AddToRoleAsync(existingUser, userModel.Role);
+                    if (!addResult.Succeeded)
+                    {
+                        return BadRequest(addResult.Errors);
+                    }
+                }
+            }
 
             // Use UserManager to update user information
             IdentityResult result = await _userManager.UpdateAsync(existingUser);
@@ -93,37 +114,11 @@ namespace P7CreateRestApi.Controllers
                 return BadRequest(result.Errors);
             }
 
-            return NoContent();
+            return Ok(existingUser);
         }
 
-        [HttpPost]
-        [Route("add")]
-        public async Task<ActionResult<User>> PostUser(User user)
-        {
-            try
-            {
-                user.Validate();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-            user.Id = null;
-
-            IdentityResult result = await _userManager.CreateAsync(user, user.PasswordHash);
-
-            if (result.Succeeded)
-            {
-                return CreatedAtAction("GetUser", new { id = user.Id }, user);
-            }
-            else
-            {
-                return BadRequest(result.Errors);
-            }
-        }
-
-        [HttpDelete("delete/{id}")]
+        [Authorize(Policy = "RequireAdminRole")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
             User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
