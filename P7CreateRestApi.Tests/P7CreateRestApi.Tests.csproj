@@ -43,6 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="coverage\" />
     <Folder Include="UnitTests\ValidateTests\" />
   </ItemGroup>
 

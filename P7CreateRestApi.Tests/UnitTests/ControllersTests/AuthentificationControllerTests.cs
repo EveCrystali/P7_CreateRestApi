@@ -3,6 +3,7 @@ using Dot.Net.WebApi.Controllers;
 using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Models;
 using Dot.Net.WebApi.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,6 @@ namespace P7CreateRestApi.Tests
         {
             _mockUserManager = MockUserManager<User>();
             _mockJwtService = new Mock<IJwtService>();
-
             _controller = new AuthentificationController(_mockUserManager.Object, _mockJwtService.Object, _context);
         }
 
@@ -28,6 +28,17 @@ namespace P7CreateRestApi.Tests
         {
             Mock<IUserStore<TUser>> store = new();
             return new Mock<UserManager<TUser>>(store.Object, null, null, null, null, null, null, null, null);
+        }
+
+        private void SetupControllerContext(Controller controller, ClaimsPrincipal user)
+        {
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = user
+                }
+            };
         }
 
         private ClaimsPrincipal CreateClaimsPrincipal(string userId, string userName, string role)
@@ -168,6 +179,93 @@ namespace P7CreateRestApi.Tests
             Assert.IsType<OkResult>(result);
             List<RefreshToken> tokens = await _context.RefreshTokens.ToListAsync();
             Assert.All(tokens, t => Assert.True(t.IsRevoked));
+        }
+
+        /// <summary>
+        /// Test case for the Logout method when the user is valid.
+        /// It should return an OkResult with a message indicating the logout was successful.
+        /// It should also revoke the refresh token of the user.
+        /// </summary>
+        [Fact]
+        public async Task Logout_ValidUser_ShouldReturnOkResult()
+        {
+            // Arrange
+            // Create a test user
+            string userId = "test-user-id";
+            RefreshToken refreshToken = new()
+            {
+                Token = "token1",
+                UserId = userId,
+                IsRevoked = false,
+                ExpiryDate = DateTime.UtcNow.AddMinutes(5)
+            };
+
+            // Add the refresh token to the test context
+            _context.RefreshTokens.Add(refreshToken);
+            await _context.SaveChangesAsync();
+
+            // Create a test claims principal with the user's information
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(userId, "testuser", "User");
+
+            // Setup the controller context with the test claims principal
+            SetupControllerContext(_controller, claimsPrincipal);
+
+            // Act
+            IActionResult result = await _controller.Logout();
+
+            // Assert
+            OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
+
+
+            object returnValue = okResult.Value;
+
+            // Get the PropertyInfo of the "Message" property of the returnValue object
+            System.Reflection.PropertyInfo messageProperty = returnValue.GetType().GetProperty("Message");
+
+            // Assert that the messageProperty is not null
+            Assert.NotNull(messageProperty);
+
+            // Get the value of the "Message" property and assert that it is equal to "Logout successful"
+            string messageValue = messageProperty.GetValue(returnValue).ToString();
+            Assert.Equal("Logout successful", messageValue);
+
+            // Find the revoked refresh token in the test context
+            RefreshToken revokedToken = await _context.RefreshTokens.FindAsync(refreshToken.Id);
+
+            // Assert that the revoked token is revoked
+            Assert.True(revokedToken.IsRevoked);
+        }
+
+        [Fact]
+        public async Task Logout_UserIdNotFound_ShouldReturnBadRequest()
+        {
+            // Arrange
+            ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity());
+            SetupControllerContext(_controller, claimsPrincipal);
+
+            // Act
+            IActionResult result = await _controller.Logout();
+
+            // Assert
+            BadRequestObjectResult badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Impossible to get user ID.", badRequestResult.Value);
+        }
+
+        [Fact]
+        public async Task Logout_RefreshTokenNotFound_ShouldReturnBadRequest()
+        {
+            // Arrange
+            string userId = "test-user-id";
+
+            ClaimsPrincipal claimsPrincipal = CreateClaimsPrincipal(userId, "testuser", "User");
+            SetupControllerContext(_controller, claimsPrincipal);
+
+            // Act
+            IActionResult result = await _controller.Logout();
+
+            // Assert
+            BadRequestObjectResult badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Impossible to get current token.", badRequestResult.Value);
         }
     }
 }
