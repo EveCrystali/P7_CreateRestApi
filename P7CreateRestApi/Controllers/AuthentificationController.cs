@@ -128,7 +128,7 @@ public class AuthentificationController(UserManager<User> userManager, IJwtServi
             return BadRequest("Impossible to get user ID.");
         }
 
-        // Revoke all refresh tokens for the user 
+        // Revoke all refresh tokens for the user
         RefreshToken currentToken = await GetCurrentRefreshTokenAsync(userId);
         if (currentToken != null)
         {
@@ -152,5 +152,4 @@ public class AuthentificationController(UserManager<User> userManager, IJwtServi
             .OrderByDescending(rt => rt.ExpiryDate)
             .FirstOrDefaultAsync();
     }
-
 }

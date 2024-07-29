@@ -54,7 +54,6 @@ public class BidListControllerTests : TestBase<BidList>
         Assert.IsType<string>(badRequestResult.Value);
     }
 
-
     [Fact]
     public async Task PostBidList_ValidData_ShouldReturnCreatedAtAction()
     {
